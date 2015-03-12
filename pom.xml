@@ -4,11 +4,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.sallaire</groupId>
-	<artifactId>sickbeard</artifactId>
+	<artifactId>jsickbeard</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>sickbeard</name>
+	<name>jsickbeard</name>
 	<description>Sickbeard java version</description>
 
 	<parent>
