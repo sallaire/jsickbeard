@@ -13,7 +13,12 @@ public class HomeController {
 	private TvShowRepository showDao;
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String getShow(Model uiModel) {
+	public String home(Model uiModel) {
 		return "home";
+	}
+
+	@RequestMapping(value = "/home/addShows", method = RequestMethod.GET)
+	public String addShow(Model uiModel) {
+		return "home_addShow";
 	}
 }
