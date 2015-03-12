@@ -1,0 +1,51 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
+
+<body>
+<div th:fragment="header" id="header">
+	<div class="wrapper">
+    <a name="top"></a>
+    <span id="logo"><a href="/home.html" title="Sick Beard homepage"><img alt="Sick Beard" src="/images/sickbeard.png" width="150" /></a></span>
+    <span id="versiontext">VO/VF</span>
+    
+    <ul id="MainMenu" class="sf-menu">
+                <li id="NAVhome"><a href="/home.html">Show list</a>
+                    <ul>
+                          <li><a href="/home/addShows.html"><img src="/images/menu/addshow16.png" alt="" width="16" height="16" />Add Shows</a></li>
+                          <li><a href="/home/postprocess.html"><img src="/images/menu/postprocess16.png" alt="" width="16" height="16" />Manual Post-Processing</a></li>
+                    </ul>
+                </li>
+                <li id="NAVcomingEpisodes"><a href="/comingEpisodes.html">Coming Episodes</a></li>
+                <li id="NAVhistory"><a href="/history.html">History</a></li>
+                <li id="NAVmanage"><a href="/manage/index.html">Manage</a>
+                    <ul>
+                            <li><a href="manage/index.html"><img src="/images/menu/manage16.png" alt="" width="16" height="16" />Mass Update</a></li>
+                            <li><a href="/manage/backlogOverview.html/"><img src="/images/menu/backlog_view16.png" alt="" width="16" height="16" />Backlog Overview</a></li>
+                            <li><a href="/manage/manageSearches.html"><img src="/images/menu/managesearches16.png" alt="" width="16" height="16" />Manage Searches</a></li>
+                            <li><a href="/manage/episodeStatuses.html"><img src="/images/menu/backlog16.png" alt="" width="16" height="16" />Episode Status Management</a></li>
+                    </ul>
+                </li>                
+                <li id="NAVerrorlogs"><a href="/errorlogs.html" class="log">Logs</a>
+                    <ul>
+                            <li><a href="/errorlogs.html"><img src="/images/menu/viewlog_errors16.png" alt="" width="16" height="16" />View Log (Errors)</a></li>
+                            <li><a href="/viewlogs.html"><img src="/images/menu/viewlog16.png" alt="" width="16" height="16" />View Log</a></li>
+                    </ul>
+                </li>
+                <li id="NAVconfig"><a href="/config/index.html" class="config"><img src="/images/menu/system18.png" alt="" /></a>
+                    <ul>
+                            <li><a href="/config/index.html"><i class="icon-question-sign" style=" margin-left: -21px;margin-right: 8px;position: absolute;"></i>Help &amp; Info</a></li>
+                            <li><a href="/config/general.html"><img src="/images/menu/config16.png" alt="" width="16" height="16" />General</a></li>
+                            <li><a href="/config/search.html"><img src="/images/menu/config16.png" alt="" width="16" height="16" />Search Settings</a></li>
+                            <li><a href="/config/providers.html"><img src="/images/menu/config16.png" alt="" width="16" height="16" />Search Providers</a></li>
+                            <li><a href="/config/subtitles.html"><img src="/images/menu/config16.png" alt="" width="16" height="16" />Subtitles Settings</a></li>
+                            <li><a href="/config/postProcessing.html"><img src="/images/menu/config16.png" alt="" width="16" height="16" />Post Processing</a></li>
+                            <li><a href="/config/notifications.html"><img src="/images/menu/config16.png" alt="" width="16" height="16" />Notifications</a></li>
+                    </ul>
+                </li>
+    </ul>
+	</div>
+</div>
+</body>
+</html>
