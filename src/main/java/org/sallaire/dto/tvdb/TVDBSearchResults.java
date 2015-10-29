@@ -1,4 +1,4 @@
-package org.sallaire.dto;
+package org.sallaire.dto.tvdb;
 
 import java.util.List;
 
