@@ -8,7 +8,7 @@ public class Episode implements Serializable {
 	private static final long serialVersionUID = -7197568948202724063L;
 
 	public enum Status {
-		WANTED, SNATCHED, DOWNLOADED, SKIPPED, IGNORED, ARCHIVED
+		WANTED, SNATCHED, DOWNLOADED, SKIPPED, IGNORED, ARCHIVED, UNAIRED
 	}
 
 	private Long id;

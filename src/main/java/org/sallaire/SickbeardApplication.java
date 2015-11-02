@@ -13,11 +13,13 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 // @EnableJpaRepositories(basePackages = "org.sallaire.dao.db")
 @ComponentScan(basePackages = { "org.sallaire.dao", "org.sallaire.service", "org.sallaire.processor", "org.sallaire.controller" })
 @EnableAsync
+@EnableScheduling
 public class SickbeardApplication {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SickbeardApplication.class);

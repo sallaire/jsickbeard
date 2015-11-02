@@ -8,6 +8,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
 import java.util.List;
 
 import javax.xml.bind.JAXB;
@@ -27,6 +28,7 @@ import org.sallaire.dao.DaoException;
 import org.sallaire.dto.tvdb.ISearchResult;
 import org.sallaire.dto.tvdb.ShowData;
 import org.sallaire.dto.tvdb.TVDBSearchResults;
+import org.sallaire.dto.tvdb.UpdateItems;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -36,12 +38,20 @@ public class TVDBDao {
 	private static final String API_KEY = "CCB5F7ABBDFFA0DF";
 	private static final String TVDB_URL = "thetvdb.com/api/";
 	private static final String SEARCH_QUERY = "GetSeries.php";
+	private static final String UPDATE_QUERY = "Updates.php";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TVDBDao.class);
 
-	public static class TVDBResultHandler implements ResponseHandler<TVDBSearchResults> {
+	public static class TVDBHandler<T> implements ResponseHandler<T> {
+
+		private Class<T> clazz;
+
+		public TVDBHandler(Class<T> clazz) {
+			this.clazz = clazz;
+		}
+
 		@Override
-		public TVDBSearchResults handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
+		public T handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
 			StatusLine statusLine = response.getStatusLine();
 			HttpEntity entity = response.getEntity();
 			if (statusLine.getStatusCode() >= 300) {
@@ -50,7 +60,7 @@ public class TVDBDao {
 			if (entity == null) {
 				throw new ClientProtocolException("Response contains no content");
 			}
-			return JAXB.unmarshal(entity.getContent(), TVDBSearchResults.class);
+			return JAXB.unmarshal(entity.getContent(), clazz);
 		}
 
 	}
@@ -60,7 +70,18 @@ public class TVDBDao {
 			URIBuilder builder = new URIBuilder();
 			builder.setScheme("http").setHost(TVDB_URL).setPath(SEARCH_QUERY).setParameter("seriesname", name).setParameter("lang", lang);
 			HttpGet httpget = new HttpGet(builder.build());
-			return httpclient.execute(httpget, new TVDBResultHandler()).getResults();
+			return httpclient.execute(httpget, new TVDBHandler<TVDBSearchResults>(TVDBSearchResults.class)).getResults();
+		} catch (IOException | URISyntaxException e) {
+			throw new DaoException("Error while querying TVDB url", e);
+		}
+	}
+
+	public UpdateItems getShowsToUpdate(Long fromTime) throws DaoException {
+		try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+			URIBuilder builder = new URIBuilder();
+			builder.setScheme("http").setHost(TVDB_URL).setPath(UPDATE_QUERY).setParameter("time", fromTime.toString());
+			HttpGet httpget = new HttpGet(builder.build());
+			return httpclient.execute(httpget, new TVDBHandler<UpdateItems>(UpdateItems.class));
 		} catch (IOException | URISyntaxException e) {
 			throw new DaoException("Error while querying TVDB url", e);
 		}
@@ -96,6 +117,7 @@ public class TVDBDao {
 	}
 
 	public static void main(String[] args) throws DaoException {
-		System.out.println(new TVDBDao().searchForShows("les revenants", "fr"));
+		System.out.println(new TVDBDao().getShowsToUpdate(1446138000L));
+		System.out.println(Instant.now().getEpochSecond());
 	}
 }

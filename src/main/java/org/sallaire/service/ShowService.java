@@ -3,7 +3,7 @@ package org.sallaire.service;
 import java.util.List;
 
 import org.sallaire.dao.DaoException;
-import org.sallaire.dao.db.engine.IDBEngine;
+import org.sallaire.dao.TvShowDao;
 import org.sallaire.dao.metadata.TVDBDao;
 import org.sallaire.dto.Episode.Status;
 import org.sallaire.dto.TvShowConfiguration;
@@ -24,7 +24,7 @@ public class ShowService {
 	private TVDBDao tvdbDao;
 
 	@Autowired
-	private IDBEngine dbEngine;
+	private TvShowDao showDao;
 
 	@Autowired
 	AddShowProcessor showProcessor;
@@ -48,7 +48,7 @@ public class ShowService {
 			LOGGER.warn("Check of inital status {} fails, default status {} will be set", initalStatus, Status.SKIPPED, e);
 		}
 		LOGGER.debug("Store show configuration", id);
-		dbEngine.store(IDBEngine.SHOW_CONFIGURATION, id, configuration);
+		showDao.saveShowConfiguration(id, configuration);
 		LOGGER.debug("Show configuration stored", id);
 
 		LOGGER.info("Adding show to AddShow queue");

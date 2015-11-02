@@ -1,5 +1,8 @@
 package org.sallaire.dao.db.engine;
 
+import java.util.Collection;
+import java.util.Map;
+
 import javax.annotation.PostConstruct;
 
 import org.mapdb.DB;
@@ -32,6 +35,23 @@ public class MapDB implements IDBEngine {
 		try (DB db = txMaker.makeTx()) {
 			Object value = db.hashMap(collection, Serializer.LONG, Serializer.JAVA).get(id);
 			return (T) value;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> Collection<T> getValues(String collection) {
+		try (DB db = txMaker.makeTx()) {
+			Collection<?> value = db.hashMap(collection, Serializer.LONG, Serializer.JAVA).values();
+			return (Collection<T>) value;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> Map<Long, T> getAll(String collection) {
+		try (DB db = txMaker.makeTx()) {
+			return (Map<Long, T>) db.hashMap(collection, Serializer.LONG, Serializer.JAVA);
 		}
 	}
 }
