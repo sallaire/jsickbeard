@@ -1,5 +1,8 @@
-package org.sallaire.providers.t411;
+package org.sallaire.providers.t411.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Authorization {
 	private String token;
 	private String uid;

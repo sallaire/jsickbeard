@@ -8,7 +8,7 @@ public class TvShowConfiguration implements Serializable {
 	private static final long serialVersionUID = -3605866887324566453L;
 
 	public enum Quality {
-		SD, HD
+		SD, P720, P1080;
 	}
 
 	private long id;

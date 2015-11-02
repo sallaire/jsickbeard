@@ -2,7 +2,6 @@ package org.sallaire.providers.t411;
 
 import java.io.IOException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -32,11 +31,8 @@ public class T411ResponseHandler<T> implements ResponseHandler<T> {
 		if (entity == null) {
 			throw new ClientProtocolException("Response contains no content");
 		}
-		if (clazz.equals(String.class)) {
-			return (T) IOUtils.toString(entity.getContent(), "UTF-8");
-		} else {
-			return MAPPER.readValue(entity.getContent(), clazz);
-		}
+
+		return MAPPER.readValue(entity.getContent(), clazz);
 	}
 
 }
