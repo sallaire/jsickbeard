@@ -1,5 +1,12 @@
-package org.sallaire.providers.t411;
+package org.sallaire.provider.t411;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.sallaire.dto.TvShowConfiguration.Quality;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(locations = "classpath:t411.properties", ignoreUnknownFields = false, prefix = "t411")
@@ -21,22 +28,22 @@ public class T411Configuration {
 	private Integer season;
 
 	private String langKey;
-	private String langVf;
-	private String langVo;
+	private List<String> langVf;
+	private List<String> langVo;
 
 	private String qualityKey;
-	private String qualitySD;
-	private String quality720;
-	private String quality1080;
+	private List<String> qualitySD;
+	private List<String> quality720;
+	private List<String> quality1080;
 
 	private String epsiodeFormat;
 
-	private String voRegex;
-	private String vfRegex;
+	private List<Pattern> voRegex;
+	private List<Pattern> vfRegex;
 
-	private String sdRegex;
-	private String p720Regex;
-	private String p1080Regex;
+	private List<Pattern> sdRegex;
+	private List<Pattern> p720Regex;
+	private List<Pattern> p1080Regex;
 
 	public String getProtocol() {
 		return protocol;
@@ -134,20 +141,28 @@ public class T411Configuration {
 		this.langKey = langKey;
 	}
 
-	public String getLangVf() {
+	public List<String> getLangVf() {
 		return langVf;
 	}
 
 	public void setLangVf(String langVf) {
-		this.langVf = langVf;
+		this.langVf = Arrays.asList(langVf.split(","));
 	}
 
-	public String getLangVo() {
+	public List<String> getLangVo() {
 		return langVo;
 	}
 
 	public void setLangVo(String langVo) {
-		this.langVo = langVo;
+		this.langVo = Arrays.asList(langVo.split(","));
+	}
+
+	public List<String> getLangValue(String lang) {
+		if ("fr".equals(lang)) {
+			return getLangVf();
+		} else {
+			return getLangVo();
+		}
 	}
 
 	public String getQualityKey() {
@@ -158,28 +173,41 @@ public class T411Configuration {
 		this.qualityKey = qualityKey;
 	}
 
-	public String getQualitySD() {
+	public List<String> getQualitySD() {
 		return qualitySD;
 	}
 
 	public void setQualitySD(String qualitySD) {
-		this.qualitySD = qualitySD;
+		this.qualitySD = Arrays.asList(qualitySD.split(","));
 	}
 
-	public String getQuality720() {
+	public List<String> getQuality720() {
 		return quality720;
 	}
 
 	public void setQuality720(String quality720) {
-		this.quality720 = quality720;
+		this.quality720 = Arrays.asList(quality720.split(","));
 	}
 
-	public String getQuality1080() {
+	public List<String> getQuality1080() {
 		return quality1080;
 	}
 
 	public void setQuality1080(String quality1080) {
-		this.quality1080 = quality1080;
+		this.quality1080 = Arrays.asList(quality1080.split(","));
+	}
+
+	public List<String> getQualityValue(Quality quality) {
+		switch (quality) {
+		case SD:
+			return getQualitySD();
+		case P720:
+			return getQuality720();
+		case P1080:
+			return getQuality1080();
+		default:
+			return new ArrayList<>();
+		}
 	}
 
 	public String getEpsiodeFormat() {
@@ -190,44 +218,69 @@ public class T411Configuration {
 		this.epsiodeFormat = epsiodeFormat;
 	}
 
-	public String getVoRegex() {
+	public List<Pattern> getVoRegex() {
 		return voRegex;
 	}
 
 	public void setVoRegex(String voRegex) {
-		this.voRegex = voRegex;
+		this.voRegex = convertStringToRegexs(voRegex);
 	}
 
-	public String getVfRegex() {
+	public List<Pattern> getVfRegex() {
 		return vfRegex;
 	}
 
 	public void setVfRegex(String vfRegex) {
-		this.vfRegex = vfRegex;
+		this.vfRegex = convertStringToRegexs(vfRegex);
 	}
 
-	public String getSdRegex() {
+	public List<Pattern> getSdRegex() {
 		return sdRegex;
 	}
 
 	public void setSdRegex(String sdRegex) {
-		this.sdRegex = sdRegex;
+		this.sdRegex = convertStringToRegexs(sdRegex);
 	}
 
-	public String getP720Regex() {
+	public List<Pattern> getLangRegex(String lang) {
+		if ("fr".equals(lang)) {
+			return getVfRegex();
+		} else {
+			return getVoRegex();
+		}
+	}
+
+	public List<Pattern> getP720Regex() {
 		return p720Regex;
 	}
 
 	public void setP720Regex(String p720Regex) {
-		this.p720Regex = p720Regex;
+		this.p720Regex = convertStringToRegexs(p720Regex);
 	}
 
-	public String getP1080Regex() {
+	public List<Pattern> getP1080Regex() {
 		return p1080Regex;
 	}
 
 	public void setP1080Regex(String p1080Regex) {
-		this.p1080Regex = p1080Regex;
+		this.p1080Regex = convertStringToRegexs(p1080Regex);
+	}
+
+	public List<Pattern> getQualityRegex(Quality quality) {
+		switch (quality) {
+		case SD:
+			return getSdRegex();
+		case P720:
+			return getP720Regex();
+		case P1080:
+			return getP1080Regex();
+		default:
+			return new ArrayList<>();
+		}
+	}
+
+	public List<Pattern> convertStringToRegexs(String input) {
+		return Arrays.stream(input.split(",")).map(s -> Pattern.compile(s, Pattern.CASE_INSENSITIVE)).collect(Collectors.toList());
 	}
 
 }

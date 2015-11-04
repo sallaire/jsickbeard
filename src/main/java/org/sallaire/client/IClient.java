@@ -1,5 +1,8 @@
 package org.sallaire.client;
 
-public interface IClient {
+import java.io.IOException;
+import java.nio.file.Path;
 
+public interface IClient {
+	void addTorrent(Path torrentPath, String torrentName) throws IOException;
 }
