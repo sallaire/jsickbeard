@@ -2,6 +2,7 @@ package org.sallaire.dto;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 
 public class Episode implements Serializable {
 
@@ -21,7 +22,7 @@ public class Episode implements Serializable {
 	private String lang;
 	private String description;
 	private Status status;
-	private String fileName;
+	private List<String> fileNames;
 	private LocalDate downloadDate;
 	private Long lastUpdated;
 
@@ -105,12 +106,12 @@ public class Episode implements Serializable {
 		this.status = status;
 	}
 
-	public String getFileName() {
-		return fileName;
+	public List<String> getFileNames() {
+		return fileNames;
 	}
 
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
+	public void setFileNames(List<String> fileNames) {
+		this.fileNames = fileNames;
 	}
 
 	public LocalDate getDownloadDate() {

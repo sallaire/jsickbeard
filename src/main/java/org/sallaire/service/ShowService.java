@@ -3,7 +3,7 @@ package org.sallaire.service;
 import java.util.List;
 
 import org.sallaire.dao.DaoException;
-import org.sallaire.dao.TvShowDao;
+import org.sallaire.dao.db.TvShowDao;
 import org.sallaire.dao.metadata.TVDBDao;
 import org.sallaire.dto.Episode.Status;
 import org.sallaire.dto.TvShowConfiguration;

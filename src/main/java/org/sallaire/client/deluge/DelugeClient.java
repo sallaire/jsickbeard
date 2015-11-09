@@ -1,4 +1,4 @@
-package org.sallaire.client;
+package org.sallaire.client.deluge;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,7 +9,12 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.io.IOUtils;
+import org.sallaire.client.IClient;
+import org.sallaire.dto.ClientConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -20,7 +25,17 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class DelugeClient implements IClient {
 
-	public void addTorrent(Path torrentPath, String torrentName) throws IOException {
+	private static final String ID = "deluge";
+
+	@Autowired
+	private DelugeConfiguration configuration;
+
+	private ClientConfiguration userConfiguration;
+
+	private RestTemplate restTemplate;
+
+	@PostConstruct
+	private void init() {
 		// Deluge response contains application/x-json media type which is not covered by default jackson mapper
 		// We have to modify the mapper to accept this syntax
 		List<HttpMessageConverter<?>> converters = new ArrayList<>();
@@ -31,33 +46,42 @@ public class DelugeClient implements IClient {
 		converters.add(jsonConverter);
 
 		// Initialize client
-		RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+		restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
 		restTemplate.setMessageConverters(converters);
+	}
+
+	public void addTorrent(Path torrentPath, String torrentName) throws IOException {
 
 		// Authentication
-		DelugeRequestBody<String> body = new DelugeRequestBody<>();
-		body.setId(1);
-		body.setMethod("auth.login");
-		body.getParams().add("");
-		restTemplate.postForObject("http://37.187.19.83:8112/json", body, DelugeResponseBody.class);
+		DelugeRequestBody<String> authBody = new DelugeRequestBody<>();
+		authBody.setId(1);
+		authBody.setMethod(configuration.getAuthMethod());
+		authBody.getParams().add(userConfiguration.getPassword());
+		restTemplate.postForObject(userConfiguration.getUrl() + configuration.getPath(), authBody, DelugeResponseBody.class);
 		// TODO check it's ok
 
 		// add the torrent
-		DelugeRequestBody<Object> body2 = new DelugeRequestBody<>();
-		body2.setId(2);
+		DelugeRequestBody<Object> addTorrentParams = new DelugeRequestBody<>();
+		addTorrentParams.setId(2);
 		String encodedContent = null;
 		try (InputStream in = Files.newInputStream(torrentPath)) {
 			encodedContent = Base64.getEncoder().encodeToString(IOUtils.toByteArray(in));
 		}
-		body2.getParams().add(torrentName);
-		body2.getParams().add(encodedContent);
-		body2.getParams().add(new HashMap<>());
-		body2.setMethod("core.add_torrent_file");
-		restTemplate.postForObject("http://37.187.19.83:8112/json", body2, DelugeResponseBody.class);
+		addTorrentParams.getParams().add(torrentName);
+		addTorrentParams.getParams().add(encodedContent);
+		addTorrentParams.getParams().add(new HashMap<>());
+		addTorrentParams.setMethod(configuration.getAddTorrentMethod());
+		restTemplate.postForObject(userConfiguration.getUrl() + configuration.getPath(), addTorrentParams, DelugeResponseBody.class);
 		// TODO check it's ok
 	}
 
-	public static void main(String[] args) throws IOException {
-		// new DelugeClient().addTorrent();
+	@Override
+	public String getId() {
+		return ID;
+	}
+
+	@Override
+	public void configurationChanged(ClientConfiguration configuration) {
+		this.userConfiguration = configuration;
 	}
 }

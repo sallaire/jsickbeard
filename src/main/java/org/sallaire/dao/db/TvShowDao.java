@@ -1,4 +1,4 @@
-package org.sallaire.dao;
+package org.sallaire.dao.db;
 
 import java.util.List;
 import java.util.Map;

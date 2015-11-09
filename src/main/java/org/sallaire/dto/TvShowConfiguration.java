@@ -84,4 +84,5 @@ public class TvShowConfiguration implements Serializable {
 	public void setCustomNames(List<String> customNames) {
 		this.customNames = customNames;
 	}
+
 }

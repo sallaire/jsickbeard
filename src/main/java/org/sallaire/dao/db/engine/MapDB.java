@@ -55,4 +55,21 @@ public class MapDB implements IDBEngine {
 			return new HashMap<Long, T>((Map<Long, T>) db.hashMap(collection, Serializer.LONG, Serializer.JAVA));
 		}
 	}
+
+	@Override
+	public <T> void store(String collection, String id, T value) {
+		try (DB db = txMaker.makeTx()) {
+			db.hashMap(collection, Serializer.STRING, Serializer.JAVA).put(id, value);
+			db.commit();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T get(String collection, String id) {
+		try (DB db = txMaker.makeTx()) {
+			Object value = db.hashMap(collection, Serializer.STRING, Serializer.JAVA).get(id);
+			return (T) value;
+		}
+	}
 }

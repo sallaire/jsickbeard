@@ -8,8 +8,10 @@ import java.util.stream.Collectors;
 
 import org.sallaire.dto.TvShowConfiguration.Quality;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
-@ConfigurationProperties(locations = "classpath:t411.properties", ignoreUnknownFields = false, prefix = "t411")
+@Component
+@ConfigurationProperties(locations = "classpath:t411.properties", ignoreUnknownFields = true, prefix = "t411")
 public class T411Configuration {
 	private String protocol;
 	private String host;

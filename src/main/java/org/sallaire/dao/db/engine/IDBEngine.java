@@ -15,10 +15,16 @@ public interface IDBEngine {
 	static final String SHOW = "show";
 	static final String EPISODE = "episode";
 	static final String UPDATE_TIME = "updateTime";
+	static final String PROVIDER_CONFIGURATION = "providerConfiguration";
+	static final String CLIENT_CONFIGURATION = "clientConfiguration";
 
 	<T> void store(String collection, Long id, T value);
 
+	<T> void store(String collection, String id, T value);
+
 	<T> T get(String collection, Long id);
+
+	<T> T get(String collection, String id);
 
 	<T> Collection<T> getValues(String collection);
 

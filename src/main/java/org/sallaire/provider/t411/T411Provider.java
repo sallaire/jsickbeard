@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -35,51 +36,9 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class T411Provider implements IProvider {
 
-	private enum Option {
-		NUMBER(0), LANG(1), QUALITY(2);
-
-		private Option(int value) {
-			this.value = 1 << value;
-		}
-
-		private int value;
-
-		public int getValue() {
-			return value;
-		}
-
-		/**
-		 * Identify if the given option is activated or not.
-		 * 
-		 * @param options
-		 *            current options value
-		 * @param option
-		 *            asked option
-		 * @return boolean true if the option is activated
-		 */
-		public boolean isActivated(int options) {
-			return (options & this.getValue()) != 0;
-		}
-
-		public static List<Integer> getOptionsToCheck() {
-			Integer allOptions = 0;
-			for (Option option : values()) {
-				allOptions |= option.getValue();
-			}
-
-			List<Integer> optionsToCheck = new ArrayList<>();
-			optionsToCheck.add(allOptions);
-			for (int i = 0; i < values().length; i++) {
-				optionsToCheck.add(allOptions & ~i);
-			}
-			for (int i = 0; i < values().length; i++) {
-				optionsToCheck.add(0 | i);
-			}
-			optionsToCheck.add(0);
-
-			return optionsToCheck;
-		}
-	}
+	private static final String ID = "t411";
+	private static final String USER = "user";
+	private static final String PASSWORD = "password";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(T411Provider.class);
 
@@ -90,18 +49,18 @@ public class T411Provider implements IProvider {
 
 	private AuthenticationInterceptor authenticationInterceptor = new AuthenticationInterceptor();
 
+	private String user, password;
+
 	@PostConstruct
 	public void init() {
+		// Initialize rest client
 		restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
 		restTemplate.setInterceptors(Arrays.asList(authenticationInterceptor));
-		// List<HttpMessageConverter<?>> converters = new ArrayList<>();
 		MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
 		List<MediaType> supportedMediaTypes = new ArrayList<>(jsonConverter.getSupportedMediaTypes());
 		supportedMediaTypes.add(new MediaType("text", "html"));
 		jsonConverter.setSupportedMediaTypes(supportedMediaTypes);
-		// converters.add(jsonConverter);
 		restTemplate.getMessageConverters().add(jsonConverter);
-		// restTemplate.setMessageConverters(Arrays.asList(new T411MessageConverter(), new ByteArrayHttpMessageConverter(), new FormHttpMessageConverter()));
 	}
 
 	@Override
@@ -225,10 +184,21 @@ public class T411Provider implements IProvider {
 
 	private String login() throws IOException {
 		MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-		map.add("username", "");
-		map.add("password", "");
+		map.add("username", user);
+		map.add("password", password);
 
 		return restTemplate.postForObject("https://api.t411.in/auth", map, Authorization.class).getToken();
+	}
+
+	@Override
+	public String getId() {
+		return ID;
+	}
+
+	@Override
+	public void configurationChanged(Map<String, String> parameters) {
+		user = parameters.get(USER);
+		password = parameters.get(PASSWORD);
 	}
 
 }

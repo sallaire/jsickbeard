@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import javax.annotation.PostConstruct;
 
 import org.sallaire.processor.AddShowProcessor;
-import org.sallaire.provider.t411.T411Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +17,10 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-// @EnableJpaRepositories(basePackages = "org.sallaire.dao.db")
 @ComponentScan(basePackages = { "org.sallaire.dao", "org.sallaire.service", "org.sallaire.provider", "org.sallaire.client", "org.sallaire.processor", "org.sallaire.controller" })
 @EnableAsync
 @EnableScheduling
-@EnableConfigurationProperties(T411Configuration.class)
+@EnableConfigurationProperties
 public class SickbeardApplication {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SickbeardApplication.class);

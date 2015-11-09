@@ -10,7 +10,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.commons.collections4.CollectionUtils;
 import org.sallaire.converter.TVDBConverter;
 import org.sallaire.dao.DaoException;
-import org.sallaire.dao.TvShowDao;
+import org.sallaire.dao.db.TvShowDao;
 import org.sallaire.dao.metadata.TVDBDao;
 import org.sallaire.dto.Episode;
 import org.sallaire.dto.Episode.Status;

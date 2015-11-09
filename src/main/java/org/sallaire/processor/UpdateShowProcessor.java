@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import org.sallaire.converter.TVDBConverter;
 import org.sallaire.dao.DaoException;
-import org.sallaire.dao.TvShowDao;
+import org.sallaire.dao.db.TvShowDao;
 import org.sallaire.dao.metadata.TVDBDao;
 import org.sallaire.dto.Episode;
 import org.sallaire.dto.Episode.Status;
@@ -81,7 +81,7 @@ public class UpdateShowProcessor {
 					Episode currentEpisode = currentEpisodesById.get(e.getId());
 					e.setDownloadDate(currentEpisode.getDownloadDate());
 					e.setStatus(currentEpisode.getStatus());
-					e.setFileName(currentEpisode.getFileName());
+					e.setFileNames(currentEpisode.getFileNames());
 				} else {
 					e.setStatus(Status.UNAIRED);
 				}

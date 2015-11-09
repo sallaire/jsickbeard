@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sallaire.dao.TvShowDao;
+import org.sallaire.dao.db.TvShowDao;
 import org.sallaire.dto.Episode;
 import org.sallaire.dto.Episode.Status;
 import org.sallaire.dto.TvShowConfiguration.Quality;
