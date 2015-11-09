@@ -62,8 +62,10 @@ public class UpdateShowProcessor {
 
 			// Now check if one or several episodes has to be set to wanted status
 			final LocalDate now = LocalDate.now();
-			currentEpisodes.stream().filter(e -> e.getAirDate().isBefore(now) && e.getStatus() == Status.UNAIRED).forEach(e -> e.setStatus(Status.WANTED));
-			// TODO ajouter les épisodes recherchés à la liste de traitement
+			currentEpisodes.stream().filter(e -> e.getAirDate().isBefore(now) && e.getStatus() == Status.UNAIRED).forEach(e -> {
+				e.setStatus(Status.WANTED);
+				showDao.saveWantedEpisode(e.getId(), e);
+			});
 			showDao.saveShowEpisodes(showId, entry.getValue());
 		}
 

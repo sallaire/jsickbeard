@@ -16,6 +16,7 @@ public class T411Configuration {
 	private String protocol;
 	private String host;
 	private String searchPath;
+	private String authPath;
 
 	private String categoryKey;
 	private String category;
@@ -46,6 +47,14 @@ public class T411Configuration {
 	private List<Pattern> sdRegex;
 	private List<Pattern> p720Regex;
 	private List<Pattern> p1080Regex;
+
+	public String getAuthPath() {
+		return authPath;
+	}
+
+	public void setAuthPath(String authPath) {
+		this.authPath = authPath;
+	}
 
 	public String getProtocol() {
 		return protocol;

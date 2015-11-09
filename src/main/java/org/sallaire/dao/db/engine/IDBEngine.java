@@ -14,6 +14,8 @@ public interface IDBEngine {
 	static final String SHOW_CONFIGURATION = "showConfiguration";
 	static final String SHOW = "show";
 	static final String EPISODE = "episode";
+	static final String WANTED_EPISODE = "wantedEpisode";
+	static final String SNATCHED_EPISODE = "snatchedEpisode";
 	static final String UPDATE_TIME = "updateTime";
 	static final String PROVIDER_CONFIGURATION = "providerConfiguration";
 	static final String CLIENT_CONFIGURATION = "clientConfiguration";
@@ -29,6 +31,8 @@ public interface IDBEngine {
 	<T> Collection<T> getValues(String collection);
 
 	<T> Map<Long, T> getAll(String collection);
+
+	void remove(String collection, Long id);
 
 	public static IDBEngine getDbEngine() {
 		return new MapDB();

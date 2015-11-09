@@ -72,4 +72,12 @@ public class MapDB implements IDBEngine {
 			return (T) value;
 		}
 	}
+
+	@Override
+	public void remove(String collection, Long id) {
+		try (DB db = txMaker.makeTx()) {
+			db.hashMap(collection, Serializer.STRING, Serializer.JAVA).remove(id);
+			db.commit();
+		}
+	}
 }

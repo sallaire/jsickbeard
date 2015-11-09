@@ -3,17 +3,22 @@ package org.sallaire.client.deluge;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.io.IOUtils;
 import org.sallaire.client.IClient;
 import org.sallaire.dto.ClientConfiguration;
+import org.sallaire.dto.Episode;
+import org.sallaire.dto.TvShowConfiguration;
+import org.sallaire.provider.Torrent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -27,6 +32,8 @@ public class DelugeClient implements IClient {
 
 	private static final String ID = "deluge";
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(DelugeClient.class);
+
 	@Autowired
 	private DelugeConfiguration configuration;
 
@@ -38,41 +45,78 @@ public class DelugeClient implements IClient {
 	private void init() {
 		// Deluge response contains application/x-json media type which is not covered by default jackson mapper
 		// We have to modify the mapper to accept this syntax
+		LOGGER.debug("Initializing deluge client");
 		List<HttpMessageConverter<?>> converters = new ArrayList<>();
+		LOGGER.debug("Initializing custom deluge converter");
 		MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
 		List<MediaType> supportedMediaTypes = new ArrayList<>(jsonConverter.getSupportedMediaTypes());
 		supportedMediaTypes.add(new MediaType("application", "x-json"));
 		jsonConverter.setSupportedMediaTypes(supportedMediaTypes);
 		converters.add(jsonConverter);
+		LOGGER.debug("Custom deluge converter initialized");
 
 		// Initialize client
+		LOGGER.debug("Initializing deluge rest client");
 		restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
 		restTemplate.setMessageConverters(converters);
+		LOGGER.debug("Deluge rest client initialized");
+		LOGGER.debug("Deluge client initialized");
 	}
 
-	public void addTorrent(Path torrentPath, String torrentName) throws IOException {
+	public void addTorrent(Torrent torrent, TvShowConfiguration showConfiguration, Episode episode) throws IOException {
 
 		// Authentication
+		String delugeUrl = userConfiguration.getUrl() + configuration.getPath();
+		LOGGER.debug("Authenticating to deluge");
 		DelugeRequestBody<String> authBody = new DelugeRequestBody<>();
 		authBody.setId(1);
 		authBody.setMethod(configuration.getAuthMethod());
 		authBody.getParams().add(userConfiguration.getPassword());
-		restTemplate.postForObject(userConfiguration.getUrl() + configuration.getPath(), authBody, DelugeResponseBody.class);
-		// TODO check it's ok
+		LOGGER.info("Requesting deluge with [{}] and method [{}]", authBody.getMethod());
+		DelugeResponseBody response = restTemplate.postForObject(delugeUrl, authBody, DelugeResponseBody.class);
+		checkReponse(response);
+		LOGGER.debug("Authenticating to deluge done with success");
 
 		// add the torrent
+		LOGGER.debug("Sending torrent to deluge");
 		DelugeRequestBody<Object> addTorrentParams = new DelugeRequestBody<>();
 		addTorrentParams.setId(2);
 		String encodedContent = null;
-		try (InputStream in = Files.newInputStream(torrentPath)) {
+		try (InputStream in = Files.newInputStream(torrent.getPath())) {
 			encodedContent = Base64.getEncoder().encodeToString(IOUtils.toByteArray(in));
 		}
-		addTorrentParams.getParams().add(torrentName);
+		addTorrentParams.getParams().add(torrent.getName());
 		addTorrentParams.getParams().add(encodedContent);
-		addTorrentParams.getParams().add(new HashMap<>());
+		addTorrentParams.getParams().add(getParameters(showConfiguration, episode));
 		addTorrentParams.setMethod(configuration.getAddTorrentMethod());
-		restTemplate.postForObject(userConfiguration.getUrl() + configuration.getPath(), addTorrentParams, DelugeResponseBody.class);
-		// TODO check it's ok
+		LOGGER.info("Requesting deluge with [{}] and method [{}]", authBody.getMethod());
+		response = restTemplate.postForObject(delugeUrl, addTorrentParams, DelugeResponseBody.class);
+		checkReponse(response);
+		LOGGER.debug("Torrent sent to deluge with success");
+	}
+
+	private void checkReponse(DelugeResponseBody response) throws IOException {
+		if (response.getError() != null) {
+			throw new IOException("Error while sending requestto deluge code=[" + response.getError().getCode() + "], message=[" + response.getError().getMessage() + "]");
+		}
+	}
+
+	private Map<String, String> getParameters(TvShowConfiguration showConfiguration, Episode episode) {
+		Map<String, String> params = new HashMap<>();
+		if (userConfiguration.getMoveShow()) {
+			params.put("move_completed", "true");
+			if (userConfiguration.getSeasonPattern() != null) {
+				params.put("move_completed_path", showConfiguration.getLocation() + String.format(userConfiguration.getSeasonPattern(), episode.getSeason()));
+			} else {
+				params.put("move_completed_path", showConfiguration.getLocation());
+			}
+		}
+		if (userConfiguration.getStopRatio() != null) {
+			params.put("stop_at_ratio", "true");
+			params.put("stop_ratio", userConfiguration.getStopRatio().toString());
+		}
+		// TODO remove_at_ration, label
+		return params;
 	}
 
 	@Override

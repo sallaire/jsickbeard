@@ -50,4 +50,24 @@ public class TvShowDao {
 	public void saveLastUpdate(Long lastUpdate) {
 		dbEngine.store(IDBEngine.UPDATE_TIME, 0L, lastUpdate);
 	}
+
+	public Episode getWantedEpisode(long id) {
+		return dbEngine.get(IDBEngine.WANTED_EPISODE, id);
+	}
+
+	public void saveWantedEpisode(long id, Episode episode) {
+		dbEngine.store(IDBEngine.WANTED_EPISODE, id, episode);
+	}
+
+	public Episode getSnatchedEpisode(long id) {
+		return dbEngine.get(IDBEngine.SNATCHED_EPISODE, id);
+	}
+
+	public void saveSnatchedEpisode(long id, Episode episode) {
+		dbEngine.store(IDBEngine.SNATCHED_EPISODE, id, episode);
+	}
+
+	public void removeSnatchedEpisode(long id) {
+		dbEngine.remove(IDBEngine.SNATCHED_EPISODE, id);
+	}
 }

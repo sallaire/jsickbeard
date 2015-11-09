@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.sallaire.dto.TvShowConfiguration.Quality;
 import org.sallaire.provider.IProvider;
@@ -53,25 +54,37 @@ public class T411Provider implements IProvider {
 
 	@PostConstruct
 	public void init() {
+		LOGGER.debug("Initializing T411 Provider");
 		// Initialize rest client
+		LOGGER.debug("Initializing T411 rest client");
 		restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
-		restTemplate.setInterceptors(Arrays.asList(authenticationInterceptor));
+
+		LOGGER.debug("Initializing custom T411 converter");
 		MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
 		List<MediaType> supportedMediaTypes = new ArrayList<>(jsonConverter.getSupportedMediaTypes());
 		supportedMediaTypes.add(new MediaType("text", "html"));
 		jsonConverter.setSupportedMediaTypes(supportedMediaTypes);
 		restTemplate.getMessageConverters().add(jsonConverter);
+		LOGGER.debug("Custom deluge converter initialized");
+
+		LOGGER.debug("Setting T411 interceptor");
+		restTemplate.setInterceptors(Arrays.asList(authenticationInterceptor));
+		LOGGER.debug("T411 interceptor set");
+
+		LOGGER.debug("T411 Provider initialized");
 	}
 
 	@Override
 	public Torrent findEpisode(String name, String audioLang, Integer season, Integer number, Quality quality) throws IOException {
 
+		LOGGER.debug("Authenticating to T411");
 		authenticationInterceptor.setToken(login());
 
 		List<SearchResult> results = null;
 		for (Integer option : Option.getOptionsToCheck()) {
 			results = findEpisode(name, audioLang, season, number, quality, option);
 			if (CollectionUtils.isNotEmpty(results)) {
+				LOGGER.debug("Results found for episode, stopping search");
 				break;
 			}
 		}
@@ -79,8 +92,10 @@ public class T411Provider implements IProvider {
 		if (CollectionUtils.isNotEmpty(results)) {
 			try {
 				SearchResult torrentToRetrieve = findBestResult(results);
+				LOGGER.debug("Torrent {} will be downloaded", torrentToRetrieve.getName());
 				URIBuilder builder = new URIBuilder().setScheme(configuration.getProtocol()).setHost(configuration.getHost()).setPath("/torrents/download/" + torrentToRetrieve.getId());
 				Path torrent = Files.createTempFile(null, null);
+				LOGGER.debug("Downloading torrent with url [{}] to [{}]", builder.build(), torrent);
 				byte[] bytes = restTemplate.getForObject(builder.build(), byte[].class);
 				Files.write(torrent, bytes);
 				return new Torrent(torrentToRetrieve.getName(), torrent);
@@ -98,28 +113,35 @@ public class T411Provider implements IProvider {
 			return null;
 		}
 		if (results.size() > 1) {
+			LOGGER.debug("More than one result has been found, picking best one");
 			/**
 			 * We have to take the 'best' one : proper / verified / seeders
 			 */
+			LOGGER.debug("Searching PROPER episodes");
 			Pattern pattern = Pattern.compile("PROPER", Pattern.CASE_INSENSITIVE);
 			List<SearchResult> filtered = results.stream().filter(s -> pattern.matcher(s.getName()).matches()).collect(Collectors.toList());
 			if (!filtered.isEmpty()) {
+				LOGGER.debug("{} PROPER episodes found", filtered.size());
 				results = filtered;
 			}
 			if (results.size() == 1) {
 				return results.get(0);
 			} else {
+				LOGGER.debug("Searching verified episodes");
 				filtered = results.stream().filter(s -> s.isVerified()).collect(Collectors.toList());
 			}
 			if (!filtered.isEmpty()) {
+				LOGGER.debug("{} verified episodes found", filtered.size());
 				results = filtered;
 			}
 			if (results.size() == 1) {
 				return results.get(0);
 			} else {
+				LOGGER.debug("returning episode with most seeders");
 				return results.stream().max(Comparator.comparing(SearchResult::getSeeders)).get();
 			}
 		} else {
+			LOGGER.debug("Only one result has been found, picking it by default");
 			return results.get(0);
 		}
 	}
@@ -156,16 +178,28 @@ public class T411Provider implements IProvider {
 		filterQuality = true;
 
 		try {
+			LOGGER.info("Searching episode with request [{}]", builder.build());
 			SearchResults results = restTemplate.getForObject(builder.build(), SearchResults.class);
 
 			if (CollectionUtils.isNotEmpty(results.getTorrents())) {
+				LOGGER.info("{} found for request", results.getTorrents().size());
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Torrents found with request :");
+					results.getTorrents().stream().forEach(t -> LOGGER.debug(" - {}", t.getName()));
+				}
 				// Now we have to filter results according to quality/language if necessary
 				if (filterLang) {
+					LOGGER.info("Filter results for audio lang [{}]", audioLang);
 					filterResults(results.getTorrents(), configuration.getLangRegex(audioLang));
+					LOGGER.info("{} results after filter", results.getTorrents().size());
 				}
 				if (filterQuality) {
+					LOGGER.info("Filter results for quality [{}]", quality);
 					filterResults(results.getTorrents(), configuration.getQualityRegex(quality));
+					LOGGER.info("{} results after filter", results.getTorrents().size());
 				}
+			} else {
+				LOGGER.info("No result found for request");
 			}
 			return results.getTorrents();
 		} catch (URISyntaxException e) {
@@ -178,16 +212,21 @@ public class T411Provider implements IProvider {
 			for (Pattern rx : patterns)
 				if (rx.matcher(t.getName()).matches())
 					return true;
+			LOGGER.debug("Torrent {} doesn't match any pattern => reject it", t.getName());
 			return false;
 		});
 	}
 
 	private String login() throws IOException {
+		LOGGER.debug("Authenticating to T411");
+
 		MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
 		map.add("username", user);
 		map.add("password", password);
+		LOGGER.debug("Parameters for T411 authentication : {} -> {}", user, StringUtils.repeat("X", password.length()));
 
-		return restTemplate.postForObject("https://api.t411.in/auth", map, Authorization.class).getToken();
+		LOGGER.debug("Posting request to T411 authentication [{}]", configuration.getAuthPath());
+		return restTemplate.postForObject(configuration.getAuthPath(), map, Authorization.class).getToken();
 	}
 
 	@Override

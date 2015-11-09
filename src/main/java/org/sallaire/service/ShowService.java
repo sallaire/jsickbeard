@@ -59,8 +59,7 @@ public class ShowService {
 		try {
 			return tvdbDao.searchForShows(name, lang);
 		} catch (DaoException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Unable to search show from tvdb", e);
 			return null;
 		}
 	}

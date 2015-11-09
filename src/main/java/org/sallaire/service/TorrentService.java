@@ -101,7 +101,7 @@ public class TorrentService {
 			if (client != null) {
 				LOGGER.info("Sendind torrent to client [{}]", client.getId());
 				try {
-					client.addTorrent(torrent.getPath(), torrent.getName());
+					client.addTorrent(torrent, config, episode);
 
 					// Update episode status to snatched
 					episode.setStatus(Status.SNATCHED);
