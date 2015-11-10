@@ -9,7 +9,7 @@ import org.sallaire.dto.Episode.Status;
 import org.sallaire.dto.TvShowConfiguration;
 import org.sallaire.dto.TvShowConfiguration.Quality;
 import org.sallaire.dto.tvdb.ISearchResult;
-import org.sallaire.processor.AddShowProcessor;
+import org.sallaire.service.processor.AddShowProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

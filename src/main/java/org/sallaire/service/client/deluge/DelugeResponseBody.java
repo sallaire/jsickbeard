@@ -1,4 +1,4 @@
-package org.sallaire.client.deluge;
+package org.sallaire.service.client.deluge;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

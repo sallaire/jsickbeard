@@ -1,4 +1,4 @@
-package org.sallaire.client.deluge;
+package org.sallaire.service.client.deluge;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

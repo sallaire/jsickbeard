@@ -5,7 +5,7 @@ import java.nio.file.Files;
 
 import javax.annotation.PostConstruct;
 
-import org.sallaire.processor.AddShowProcessor;
+import org.sallaire.service.processor.AddShowProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@ComponentScan(basePackages = { "org.sallaire.dao", "org.sallaire.service", "org.sallaire.provider", "org.sallaire.client", "org.sallaire.processor", "org.sallaire.controller" })
+@ComponentScan(basePackages = { "org.sallaire.dao", "org.sallaire.service", "org.sallaire.controller" })
 @EnableAsync
 @EnableScheduling
 @EnableConfigurationProperties
@@ -47,8 +47,6 @@ public class SickbeardApplication {
 	@PostConstruct
 	public void postConstruct() {
 		LOGGER.info("Starting processors thread...");
-		// ExecutorService executor = Executors.newSingleThreadExecutor();
-		// executor.submit(new AddShowProcessor());
 		LOGGER.info("Starting show processor started");
 		showProcessor.startShowProcessor();
 		LOGGER.info("Show processor started");

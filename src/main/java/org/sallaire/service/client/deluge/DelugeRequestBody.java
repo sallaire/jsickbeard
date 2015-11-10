@@ -1,4 +1,4 @@
-package org.sallaire.client.deluge;
+package org.sallaire.service.client.deluge;
 
 import java.util.ArrayList;
 import java.util.List;

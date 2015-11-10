@@ -1,5 +1,6 @@
-package org.sallaire.processor;
+package org.sallaire.service.processor;
 
+import java.time.LocalDate;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,9 +9,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.sallaire.converter.TVDBConverter;
 import org.sallaire.dao.DaoException;
 import org.sallaire.dao.db.TvShowDao;
+import org.sallaire.dao.metadata.TVDBConverter;
 import org.sallaire.dao.metadata.TVDBDao;
 import org.sallaire.dto.Episode;
 import org.sallaire.dto.Episode.Status;
@@ -73,7 +74,11 @@ public class AddShowProcessor {
 		if (CollectionUtils.isNotEmpty(episodeInfos)) {
 			for (EpisodeInfo episodeInfo : episodeInfos) {
 				Episode dbEpisode = TVDBConverter.convertFromTVDB(showId, episodeInfo);
-				dbEpisode.setStatus(initialStatus);
+				if (dbEpisode.getAirDate().isAfter(LocalDate.now())) {
+					dbEpisode.setStatus(Status.UNAIRED);
+				} else {
+					dbEpisode.setStatus(initialStatus);
+				}
 				dbEpisodes.add(dbEpisode);
 			}
 		}

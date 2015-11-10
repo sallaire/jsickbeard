@@ -1,4 +1,4 @@
-package org.sallaire.provider;
+package org.sallaire.service.provider;
 
 import java.nio.file.Path;
 

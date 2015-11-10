@@ -1,4 +1,4 @@
-package org.sallaire.provider.t411;
+package org.sallaire.service.provider.t411;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -18,11 +18,11 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.sallaire.dto.TvShowConfiguration.Quality;
-import org.sallaire.provider.IProvider;
-import org.sallaire.provider.Torrent;
-import org.sallaire.provider.t411.dto.Authorization;
-import org.sallaire.provider.t411.dto.SearchResult;
-import org.sallaire.provider.t411.dto.SearchResults;
+import org.sallaire.service.provider.IProvider;
+import org.sallaire.service.provider.Torrent;
+import org.sallaire.service.provider.t411.dto.Authorization;
+import org.sallaire.service.provider.t411.dto.SearchResult;
+import org.sallaire.service.provider.t411.dto.SearchResults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,14 +75,14 @@ public class T411Provider implements IProvider {
 	}
 
 	@Override
-	public Torrent findEpisode(String name, String audioLang, Integer season, Integer number, Quality quality) throws IOException {
+	public Torrent findEpisode(String name, String audioLang, Integer season, Integer number, Quality quality, List<String> excludedFiles) throws IOException {
 
 		LOGGER.debug("Authenticating to T411");
 		authenticationInterceptor.setToken(login());
 
 		List<SearchResult> results = null;
 		for (Integer option : Option.getOptionsToCheck()) {
-			results = findEpisode(name, audioLang, season, number, quality, option);
+			results = findEpisode(name, audioLang, season, number, quality, option, excludedFiles);
 			if (CollectionUtils.isNotEmpty(results)) {
 				LOGGER.debug("Results found for episode, stopping search");
 				break;
@@ -146,7 +146,7 @@ public class T411Provider implements IProvider {
 		}
 	}
 
-	private List<SearchResult> findEpisode(String name, String audioLang, Integer season, Integer number, Quality quality, Integer option) throws IOException {
+	private List<SearchResult> findEpisode(String name, String audioLang, Integer season, Integer number, Quality quality, Integer option, List<String> excludedFiles) throws IOException {
 		URIBuilder builder = new URIBuilder().setScheme(configuration.getProtocol()).setHost(configuration.getHost()).setPath(configuration.getSearchPath() + name) //
 				.addParameter(configuration.getCategoryKey(), configuration.getCategory()) //
 				.addParameter(configuration.getSubCategoryKey(), configuration.getSubCategory());
@@ -187,6 +187,17 @@ public class T411Provider implements IProvider {
 					LOGGER.debug("Torrents found with request :");
 					results.getTorrents().stream().forEach(t -> LOGGER.debug(" - {}", t.getName()));
 				}
+
+				// Filter not wanted files
+				results.getTorrents().stream().filter(t -> {
+					if (excludedFiles.contains(t.getName())) {
+						LOGGER.debug("Exclude result {} because it's an unwanted one", t.getName());
+						return true;
+					} else {
+						return false;
+					}
+				});
+
 				// Now we have to filter results according to quality/language if necessary
 				if (filterLang) {
 					LOGGER.info("Filter results for audio lang [{}]", audioLang);

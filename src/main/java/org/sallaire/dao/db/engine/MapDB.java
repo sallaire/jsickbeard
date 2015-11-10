@@ -1,5 +1,6 @@
 package org.sallaire.dao.db.engine;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +45,7 @@ public class MapDB implements IDBEngine {
 	public <T> Collection<T> getValues(String collection) {
 		try (DB db = txMaker.makeTx()) {
 			Collection<?> value = db.hashMap(collection, Serializer.LONG, Serializer.JAVA).values();
-			return (Collection<T>) value;
+			return new ArrayList<>((Collection<T>) value);
 		}
 	}
 

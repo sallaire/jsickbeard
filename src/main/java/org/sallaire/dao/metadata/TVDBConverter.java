@@ -1,4 +1,4 @@
-package org.sallaire.converter;
+package org.sallaire.dao.metadata;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;

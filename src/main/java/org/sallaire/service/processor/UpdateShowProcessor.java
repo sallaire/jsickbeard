@@ -1,4 +1,4 @@
-package org.sallaire.processor;
+package org.sallaire.service.processor;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -8,9 +8,9 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.sallaire.converter.TVDBConverter;
 import org.sallaire.dao.DaoException;
 import org.sallaire.dao.db.TvShowDao;
+import org.sallaire.dao.metadata.TVDBConverter;
 import org.sallaire.dao.metadata.TVDBDao;
 import org.sallaire.dto.Episode;
 import org.sallaire.dto.Episode.Status;
@@ -42,7 +42,7 @@ public class UpdateShowProcessor {
 			lastUpdate = Instant.now().getEpochSecond();
 		}
 		try {
-			updateItems = tvDbDao.getShowsToUpdate(Instant.now().getEpochSecond());
+			updateItems = tvDbDao.getShowsToUpdate(lastUpdate);
 			showDao.saveLastUpdate(updateItems.getTime());
 		} catch (DaoException e) {
 			LOGGER.error("Unable to get update lists from tvdb API", e);
@@ -64,7 +64,7 @@ public class UpdateShowProcessor {
 			final LocalDate now = LocalDate.now();
 			currentEpisodes.stream().filter(e -> e.getAirDate().isBefore(now) && e.getStatus() == Status.UNAIRED).forEach(e -> {
 				e.setStatus(Status.WANTED);
-				showDao.saveWantedEpisode(e.getId(), e);
+				showDao.saveWantedEpisode(e);
 			});
 			showDao.saveShowEpisodes(showId, entry.getValue());
 		}

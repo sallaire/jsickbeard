@@ -1,4 +1,4 @@
-package org.sallaire.client.deluge;
+package org.sallaire.service.client.deluge;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,11 +12,11 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.io.IOUtils;
-import org.sallaire.client.IClient;
 import org.sallaire.dto.ClientConfiguration;
 import org.sallaire.dto.Episode;
 import org.sallaire.dto.TvShowConfiguration;
-import org.sallaire.provider.Torrent;
+import org.sallaire.service.client.IClient;
+import org.sallaire.service.provider.Torrent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

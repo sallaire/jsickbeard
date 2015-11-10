@@ -1,5 +1,6 @@
 package org.sallaire.dao.db;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +40,12 @@ public class TvShowDao {
 		dbEngine.store(IDBEngine.EPISODE, showId, episodes);
 	}
 
+	public void saveShowEpisode(Episode episode) {
+		List<Episode> episodes = getShowEpisodes(episode.getShowId());
+		episodes.stream().filter(e -> e.getId().equals(episode.getShowId())).forEach(e -> e = episode);
+		dbEngine.store(IDBEngine.EPISODE, episode.getShowId(), episodes);
+	}
+
 	public Map<Long, List<Episode>> getAllShowEpisodes() {
 		return dbEngine.getAll(IDBEngine.EPISODE);
 	}
@@ -51,20 +58,24 @@ public class TvShowDao {
 		dbEngine.store(IDBEngine.UPDATE_TIME, 0L, lastUpdate);
 	}
 
-	public Episode getWantedEpisode(long id) {
-		return dbEngine.get(IDBEngine.WANTED_EPISODE, id);
+	public Collection<Episode> getWantedEpisodes() {
+		return dbEngine.getValues(IDBEngine.WANTED_EPISODE);
 	}
 
-	public void saveWantedEpisode(long id, Episode episode) {
-		dbEngine.store(IDBEngine.WANTED_EPISODE, id, episode);
+	public void saveWantedEpisode(Episode episode) {
+		dbEngine.store(IDBEngine.WANTED_EPISODE, episode.getId(), episode);
 	}
 
-	public Episode getSnatchedEpisode(long id) {
-		return dbEngine.get(IDBEngine.SNATCHED_EPISODE, id);
+	public void removeWantedEpisode(long id) {
+		dbEngine.remove(IDBEngine.WANTED_EPISODE, id);
 	}
 
-	public void saveSnatchedEpisode(long id, Episode episode) {
-		dbEngine.store(IDBEngine.SNATCHED_EPISODE, id, episode);
+	public Collection<Episode> getSnatchedEpisodes() {
+		return dbEngine.getValues(IDBEngine.SNATCHED_EPISODE);
+	}
+
+	public void saveSnatchedEpisode(Episode episode) {
+		dbEngine.store(IDBEngine.SNATCHED_EPISODE, episode.getId(), episode);
 	}
 
 	public void removeSnatchedEpisode(long id) {

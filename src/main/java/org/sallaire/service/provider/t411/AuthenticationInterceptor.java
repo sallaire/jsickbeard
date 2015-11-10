@@ -1,4 +1,4 @@
-package org.sallaire.provider.t411;
+package org.sallaire.service.provider.t411;
 
 import java.io.IOException;
 

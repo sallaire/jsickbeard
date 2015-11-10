@@ -1,4 +1,4 @@
-package org.sallaire.provider.t411.dto;
+package org.sallaire.service.provider.t411.dto;
 
 import java.util.List;
 
