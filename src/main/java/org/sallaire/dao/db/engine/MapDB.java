@@ -77,7 +77,7 @@ public class MapDB implements IDBEngine {
 	@Override
 	public void remove(String collection, Long id) {
 		try (DB db = txMaker.makeTx()) {
-			db.hashMap(collection, Serializer.STRING, Serializer.JAVA).remove(id);
+			db.hashMap(collection, Serializer.LONG, Serializer.JAVA).remove(id);
 			db.commit();
 		}
 	}

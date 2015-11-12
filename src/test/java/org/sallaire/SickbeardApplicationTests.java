@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sallaire.dao.db.TvShowDao;
 import org.sallaire.service.ShowService;
+import org.sallaire.service.TorrentService;
 import org.sallaire.service.processor.WantedShowProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -24,9 +25,23 @@ public class SickbeardApplicationTests {
 	@Autowired
 	private ShowService showService;
 
+	@Autowired
+	private TorrentService torrentService;
+
 	@Test
 	public void contextLoads() {
-		proc.updateShow();
+		// TvShowConfiguration conf = showDao.getShowConfiguration(281623L);
+		// conf.setLocation("/home/mediacenter/content/series/");
+		// showDao.saveShowConfiguration(281623L, conf);
+		//
+		// for (Episode ep : showDao.getShowEpisodes(281623L)) {
+		// ep.setEpisode(22);
+		// ep.setSeason(1);
+		// ep.setShowId(281623L);
+		// showDao.saveWantedEpisode(ep);
+		// break;
+		// }
+		// proc.updateShow();
 	}
 
 }

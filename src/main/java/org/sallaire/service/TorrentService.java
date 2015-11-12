@@ -56,6 +56,8 @@ public class TorrentService {
 		for (IProvider provider : providers) {
 			ProviderConfiguration config = configurationDao.getProvider(provider.getId());
 			if (config != null) {
+				// Init provider with its parameters
+				provider.configurationChanged(config.getParameters());
 				providersOrder.put(provider.getId(), config.getOrder());
 				if (config.isActivated()) {
 					activatedProviders.add(provider.getId());
@@ -107,7 +109,7 @@ public class TorrentService {
 					// Update episode status to snatched
 					episode.setStatus(Status.SNATCHED);
 					List<Episode> episodes = showDao.getShowEpisodes(episode.getShowId());
-					episodes.stream().filter(e -> e.getId().equals(episode.getShowId())).forEach(e -> {
+					episodes.stream().filter(e -> e.getId().equals(episode.getId())).forEach(e -> {
 						e.setStatus(Status.SNATCHED);
 						e.addFileName(torrentToDownload.getName());
 						showDao.saveSnatchedEpisode(episode);

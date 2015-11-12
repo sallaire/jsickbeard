@@ -174,8 +174,9 @@ public class T411Provider implements IProvider {
 			for (String param : params) {
 				builder.addParameter(configuration.getQualityKey(), param);
 			}
+		} else {
+			filterQuality = true;
 		}
-		filterQuality = true;
 
 		try {
 			LOGGER.info("Searching episode with request [{}]", builder.build());
@@ -238,6 +239,7 @@ public class T411Provider implements IProvider {
 
 		LOGGER.debug("Posting request to T411 authentication [{}]", configuration.getAuthPath());
 		return restTemplate.postForObject(configuration.getAuthPath(), map, Authorization.class).getToken();
+		// TODO tester retour en cas de mauvais password
 	}
 
 	@Override

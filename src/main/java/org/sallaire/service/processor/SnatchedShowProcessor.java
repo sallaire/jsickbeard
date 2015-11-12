@@ -3,9 +3,12 @@ package org.sallaire.service.processor;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.util.Collection;
 
 import org.sallaire.dao.db.TvShowDao;
 import org.sallaire.dto.Episode;
+import org.sallaire.dto.Episode.Status;
 import org.sallaire.dto.TvShowConfiguration;
 import org.sallaire.service.FileHelper.Finder;
 import org.slf4j.Logger;
@@ -24,21 +27,21 @@ public class SnatchedShowProcessor {
 
 	@Scheduled(cron = "15 * * * * *")
 	public void updateShow() {
-		// Collection<Episode> episodes = showDao.getWantedEpisodes();
-		// for (Episode episode : episodes) {
-		// LOGGER.debug("Search for snatched episode {}", episode);
-		// try {
-		// if (searchFile(episode)) {
-		// LOGGER.debug("Episode found, remove it from list of snatched episodes", episode);
-		// episode.setDownloadDate(LocalDate.now());
-		// episode.setStatus(Status.DOWNLOADED);
-		// showDao.saveShowEpisode(episode);
-		// showDao.removeSnatchedEpisode(episode.getId());
-		// }
-		// } catch (IOException e) {
-		// LOGGER.error("Error while checking downloaded file for episode {}", episode);
-		// }
-		// }
+		Collection<Episode> episodes = showDao.getWantedEpisodes();
+		for (Episode episode : episodes) {
+			LOGGER.debug("Search for snatched episode {}", episode);
+			try {
+				if (searchFile(episode)) {
+					LOGGER.debug("Episode found, remove it from list of snatched episodes", episode);
+					episode.setDownloadDate(LocalDate.now());
+					episode.setStatus(Status.DOWNLOADED);
+					showDao.saveShowEpisode(episode);
+					showDao.removeSnatchedEpisode(episode.getId());
+				}
+			} catch (IOException e) {
+				LOGGER.error("Error while checking downloaded file for episode {}", episode);
+			}
+		}
 	}
 
 	private boolean searchFile(Episode episode) throws IOException {
