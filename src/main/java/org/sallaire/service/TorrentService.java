@@ -112,7 +112,7 @@ public class TorrentService {
 					episodes.stream().filter(e -> e.getId().equals(episode.getId())).forEach(e -> {
 						e.setStatus(Status.SNATCHED);
 						e.addFileName(torrentToDownload.getName());
-						showDao.saveSnatchedEpisode(episode);
+						showDao.saveSnatchedEpisode(e);
 					});
 					showDao.saveShowEpisodes(episode.getShowId(), episodes);
 					return true;

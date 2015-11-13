@@ -12,6 +12,13 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.conn.util.PublicSuffixMatcherLoader;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.CookieSpecRegistries;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.cookie.DefaultCookieSpecProvider;
+import org.apache.http.impl.cookie.DefaultCookieSpecProvider.CompatibilityLevel;
 import org.sallaire.dto.ClientConfiguration;
 import org.sallaire.dto.Episode;
 import org.sallaire.dto.TvShowConfiguration;
@@ -57,7 +64,15 @@ public class DelugeClient implements IClient {
 
 		// Initialize client
 		LOGGER.debug("Initializing deluge rest client");
-		restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+		HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+		CloseableHttpClient client = HttpClients.custom() //
+				.setDefaultCookieSpecRegistry( //
+						CookieSpecRegistries.createDefaultBuilder() //
+								.register(CookieSpecs.DEFAULT, new DefaultCookieSpecProvider(CompatibilityLevel.DEFAULT, PublicSuffixMatcherLoader.getDefault(), new String[] { "EEE, dd MMM yyyy HH:mm:ss z" }, false)) //
+								.build()) //
+				.build();
+		factory.setHttpClient(client);
+		restTemplate = new RestTemplate(factory);
 		restTemplate.setMessageConverters(converters);
 		LOGGER.debug("Deluge rest client initialized");
 		LOGGER.debug("Deluge client initialized");

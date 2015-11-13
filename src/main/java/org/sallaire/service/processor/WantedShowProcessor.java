@@ -22,9 +22,10 @@ public class WantedShowProcessor {
 	@Autowired
 	private TorrentService torrentService;
 
-	@Scheduled(cron = "0 * * * * *")
+	@Scheduled(cron = "0 0 * * * *")
 	public void updateShow() {
 		Collection<Episode> episodes = showDao.getWantedEpisodes();
+		LOGGER.info("Starting wanted show processor with {} wanted episodes", episodes.size());
 		for (Episode episode : episodes) {
 			LOGGER.debug("Try to retrieve episode {}", episode);
 			if (torrentService.searchAndGetEpisode(episode)) {
@@ -32,6 +33,7 @@ public class WantedShowProcessor {
 				showDao.removeWantedEpisode(episode.getId());
 			}
 		}
+		LOGGER.info("Wanted show processor done");
 	}
 
 }

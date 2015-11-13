@@ -25,9 +25,10 @@ public class SnatchedShowProcessor {
 	@Autowired
 	private TvShowDao showDao;
 
-	@Scheduled(cron = "15 * * * * *")
+	@Scheduled(cron = "0 15 * * * *")
 	public void updateShow() {
-		Collection<Episode> episodes = showDao.getWantedEpisodes();
+		Collection<Episode> episodes = showDao.getSnatchedEpisodes();
+		LOGGER.info("Starting snatched show processor with {} snatched episodes", episodes.size());
 		for (Episode episode : episodes) {
 			LOGGER.debug("Search for snatched episode {}", episode);
 			try {
@@ -42,17 +43,23 @@ public class SnatchedShowProcessor {
 				LOGGER.error("Error while checking downloaded file for episode {}", episode);
 			}
 		}
+		LOGGER.info("Snatched show processor done");
 	}
 
 	private boolean searchFile(Episode episode) throws IOException {
-		TvShowConfiguration showConfig = showDao.getShowConfiguration(episode.getShowId());
-		String location = showConfig.getLocation();
-		boolean filesFound = true;
-		for (String fileName : episode.getFileNames()) {
-			Finder finder = new Finder(fileName);
-			Files.walkFileTree(Paths.get(location), finder);
-			filesFound &= finder.isFound();
+		if (episode.getFileNames() != null) {
+			TvShowConfiguration showConfig = showDao.getShowConfiguration(episode.getShowId());
+			String location = showConfig.getLocation();
+			boolean filesFound = true;
+			for (String fileName : episode.getFileNames()) {
+				Finder finder = new Finder(fileName);
+				Files.walkFileTree(Paths.get(location), finder);
+				filesFound &= finder.isFound();
+			}
+			return filesFound;
+		} else {
+			LOGGER.warn("Episode {} is set to SNATCHED, but no file is associated", episode);
+			return false;
 		}
-		return filesFound;
 	}
 }
