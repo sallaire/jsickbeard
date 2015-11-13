@@ -32,6 +32,10 @@ public class TvShowDao {
 		dbEngine.store(IDBEngine.SHOW, tvShow.getId(), tvShow);
 	}
 
+	public Collection<TvShow> getShows() {
+		return dbEngine.getValues(IDBEngine.SHOW);
+	}
+
 	public List<Episode> getShowEpisodes(Long id) {
 		return dbEngine.get(IDBEngine.EPISODE, id);
 	}

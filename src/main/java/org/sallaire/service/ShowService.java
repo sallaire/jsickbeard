@@ -1,11 +1,14 @@
 package org.sallaire.service;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.sallaire.dao.DaoException;
 import org.sallaire.dao.db.TvShowDao;
 import org.sallaire.dao.metadata.TVDBDao;
+import org.sallaire.dto.Episode;
 import org.sallaire.dto.Episode.Status;
+import org.sallaire.dto.TvShow;
 import org.sallaire.dto.TvShowConfiguration;
 import org.sallaire.dto.TvShowConfiguration.Quality;
 import org.sallaire.dto.tvdb.ISearchResult;
@@ -62,5 +65,17 @@ public class ShowService {
 			LOGGER.error("Unable to search show from tvdb", e);
 			return null;
 		}
+	}
+
+	public TvShow getShow(Long id) {
+		return showDao.getShow(id);
+	}
+
+	public List<Episode> getEpisodes(Long showId) {
+		return showDao.getShowEpisodes(showId);
+	}
+
+	public Collection<TvShow> getShows() {
+		return showDao.getShows();
 	}
 }

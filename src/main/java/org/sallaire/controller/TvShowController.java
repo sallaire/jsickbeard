@@ -1,7 +1,10 @@
 package org.sallaire.controller;
 
+import java.util.Collection;
 import java.util.List;
 
+import org.sallaire.dto.Episode;
+import org.sallaire.dto.TvShow;
 import org.sallaire.dto.tvdb.ISearchResult;
 import org.sallaire.service.ShowService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,22 +19,30 @@ public class TvShowController {
 
 	@Autowired
 	private ShowService showService;
-	//
-	// @RequestMapping(value = "/tvshow/{id}", method = RequestMethod.GET)
-	// public String getShow(@PathVariable("id") Long id, Model uiModel) {
-	// TvShow show = showDao.findOne(id);
-	// uiModel.addAttribute("tvShow", show);
-	// return "home";
-	// }
 
 	@RequestMapping(value = "/tvshow", method = RequestMethod.GET)
-	public List<? extends ISearchResult> searchShow(@RequestParam("name") String name, @RequestParam("lang") String lang) {
+	public Collection<? extends ISearchResult> searchShow(@RequestParam("name") String name, @RequestParam("lang") String lang) {
 		return showService.search(name, lang);
 	}
 
 	@RequestMapping(value = "/tvshow/{id}", method = RequestMethod.POST)
 	public void addShow(@PathVariable("id") Long id, @RequestParam("location") String location, @RequestParam("status") String initalStatus, @RequestParam("quality") String quality, @RequestParam("audio") String audioLang) {
 		showService.add(id, location, initalStatus, quality, audioLang);
+	}
+
+	@RequestMapping(value = "/tvshow/{id}", method = RequestMethod.GET)
+	public TvShow getShow(@PathVariable("id") Long id) {
+		return showService.getShow(id);
+	}
+
+	@RequestMapping(value = "/tvshow/{id}/episodes", method = RequestMethod.GET)
+	public List<Episode> getEpisodes(@PathVariable("id") Long id) {
+		return showService.getEpisodes(id);
+	}
+
+	@RequestMapping(value = "/tvshows", method = RequestMethod.GET)
+	public Collection<TvShow> getShows() {
+		return showService.getShows();
 	}
 
 }
