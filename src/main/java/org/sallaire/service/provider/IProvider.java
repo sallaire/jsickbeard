@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import org.sallaire.dto.TvShowConfiguration.Quality;
+import org.sallaire.dto.user.Quality;
 
 public interface IProvider {
 

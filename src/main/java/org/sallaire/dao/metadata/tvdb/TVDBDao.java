@@ -1,4 +1,4 @@
-package org.sallaire.dao.metadata;
+package org.sallaire.dao.metadata.tvdb;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,8 +8,8 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXB;
 
@@ -25,16 +25,19 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.sallaire.dao.DaoException;
-import org.sallaire.dto.tvdb.ISearchResult;
+import org.sallaire.dao.metadata.IMetaDataDao;
+import org.sallaire.dto.metadata.Episode;
+import org.sallaire.dto.metadata.SearchResult;
+import org.sallaire.dto.metadata.TvShow;
 import org.sallaire.dto.tvdb.ShowData;
+import org.sallaire.dto.tvdb.TVDBSearchResult;
 import org.sallaire.dto.tvdb.TVDBSearchResults;
 import org.sallaire.dto.tvdb.UpdateItems;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Repository;
 
-@Repository
-public class TVDBDao {
+//@Repository
+public class TVDBDao implements IMetaDataDao {
 	private static final String API_KEY = "CCB5F7ABBDFFA0DF";
 	private static final String TVDB_URL = "thetvdb.com/api/";
 	private static final String SEARCH_QUERY = "GetSeries.php";
@@ -65,29 +68,34 @@ public class TVDBDao {
 
 	}
 
-	public List<? extends ISearchResult> searchForShows(String name, String lang) throws DaoException {
+	public List<SearchResult> searchForShows(String name, String lang) throws DaoException {
 		try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
 			URIBuilder builder = new URIBuilder();
 			builder.setScheme("http").setHost(TVDB_URL).setPath(SEARCH_QUERY).setParameter("seriesname", name).setParameter("lang", lang);
 			HttpGet httpget = new HttpGet(builder.build());
-			return httpclient.execute(httpget, new TVDBHandler<TVDBSearchResults>(TVDBSearchResults.class)).getResults();
+			List<TVDBSearchResult> results = httpclient.execute(httpget, new TVDBHandler<TVDBSearchResults>(TVDBSearchResults.class)).getResults();
+			return TVDBConverter.convertSearchResults(results);
 		} catch (IOException | URISyntaxException e) {
 			throw new DaoException("Error while querying TVDB url", e);
 		}
 	}
 
-	public UpdateItems getShowsToUpdate(Long fromTime) throws DaoException {
+	public List<Long> getShowsToUpdate(Long fromTime) throws DaoException {
 		try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
 			URIBuilder builder = new URIBuilder();
 			builder.setScheme("http").setHost(TVDB_URL).setPath(UPDATE_QUERY).setParameter("time", fromTime.toString());
 			HttpGet httpget = new HttpGet(builder.build());
-			return httpclient.execute(httpget, new TVDBHandler<UpdateItems>(UpdateItems.class));
+			return httpclient.execute(httpget, new TVDBHandler<UpdateItems>(UpdateItems.class)).getShowIds();
 		} catch (IOException | URISyntaxException e) {
 			throw new DaoException("Error while querying TVDB url", e);
 		}
 	}
 
-	public ShowData getShowInformation(Long id, String lang) throws DaoException {
+	public TvShow getShowInformation(Long id, String lang) throws DaoException {
+		return TVDBConverter.convertFromTVDB(getShowData(id, lang).getShowInfo());
+	}
+
+	private ShowData getShowData(Long id, String lang) throws DaoException {
 		LOGGER.debug("[TVDB] Getting show information for tvdb id {} and lang {}", id, lang);
 		try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
 			URIBuilder builder = new URIBuilder();
@@ -116,8 +124,8 @@ public class TVDBDao {
 		}
 	}
 
-	public static void main(String[] args) throws DaoException {
-		System.out.println(new TVDBDao().getShowsToUpdate(1446138000L));
-		System.out.println(Instant.now().getEpochSecond());
+	@Override
+	public List<Episode> getShowEpisodes(Long id, String lang) throws DaoException {
+		return getShowData(id, lang).getEpisodes().stream().map(e -> TVDBConverter.convertFromTVDB(id, e)).collect(Collectors.toList());
 	}
 }

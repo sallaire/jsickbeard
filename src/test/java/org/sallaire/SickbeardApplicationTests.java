@@ -2,10 +2,8 @@ package org.sallaire;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sallaire.dao.db.TvShowDao;
-import org.sallaire.service.ShowService;
-import org.sallaire.service.TorrentService;
-import org.sallaire.service.processor.WantedShowProcessor;
+import org.sallaire.dao.DaoException;
+import org.sallaire.dao.metadata.tmdb.TMDBDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -17,31 +15,16 @@ import org.springframework.test.context.web.WebAppConfiguration;
 public class SickbeardApplicationTests {
 
 	@Autowired
-	private WantedShowProcessor proc;
-
-	@Autowired
-	private TvShowDao showDao;
-
-	@Autowired
-	private ShowService showService;
-
-	@Autowired
-	private TorrentService torrentService;
+	private TMDBDao tmdbDao;
 
 	@Test
 	public void contextLoads() {
-		// TvShowConfiguration conf = showDao.getShowConfiguration(281623L);
-		// conf.setLocation("/home/mediacenter/content/series/");
-		// showDao.saveShowConfiguration(281623L, conf);
-		//
-		// for (Episode ep : showDao.getShowEpisodes(281623L)) {
-		// ep.setEpisode(22);
-		// ep.setSeason(1);
-		// ep.setShowId(281623L);
-		// showDao.saveWantedEpisode(ep);
-		// break;
-		// }
-		// proc.updateShow();
+		try {
+			tmdbDao.getShowEpisodes(1396L, "fr");
+		} catch (DaoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

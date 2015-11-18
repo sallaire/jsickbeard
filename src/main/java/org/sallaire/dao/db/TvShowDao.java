@@ -5,9 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.sallaire.dao.db.engine.IDBEngine;
-import org.sallaire.dto.Episode;
-import org.sallaire.dto.TvShow;
-import org.sallaire.dto.TvShowConfiguration;
+import org.sallaire.dto.metadata.Episode;
+import org.sallaire.dto.metadata.TvShow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -15,14 +14,6 @@ import org.springframework.stereotype.Repository;
 public class TvShowDao {
 	@Autowired
 	private IDBEngine dbEngine;
-
-	public TvShowConfiguration getShowConfiguration(Long id) {
-		return dbEngine.get(IDBEngine.SHOW_CONFIGURATION, id);
-	}
-
-	public void saveShowConfiguration(Long showId, TvShowConfiguration configuration) {
-		dbEngine.store(IDBEngine.SHOW_CONFIGURATION, showId, configuration);
-	}
 
 	public TvShow getShow(Long id) {
 		return dbEngine.get(IDBEngine.SHOW, id);
@@ -36,17 +27,18 @@ public class TvShowDao {
 		return dbEngine.getValues(IDBEngine.SHOW);
 	}
 
-	public List<Episode> getShowEpisodes(Long id) {
+	public Collection<Episode> getShowEpisodes(Long id) {
 		return dbEngine.get(IDBEngine.EPISODE, id);
 	}
 
-	public void saveShowEpisodes(Long showId, List<Episode> episodes) {
+	public void saveShowEpisodes(Long showId, Collection<Episode> episodes) {
 		dbEngine.store(IDBEngine.EPISODE, showId, episodes);
 	}
 
 	public void saveShowEpisode(Episode episode) {
-		List<Episode> episodes = getShowEpisodes(episode.getShowId());
-		episodes.stream().filter(e -> e.getId().equals(episode.getShowId())).forEach(e -> e = episode);
+		Collection<Episode> episodes = getShowEpisodes(episode.getShowId());
+		episodes.remove(episode);
+		episodes.add(episode);
 		dbEngine.store(IDBEngine.EPISODE, episode.getShowId(), episodes);
 	}
 
@@ -66,23 +58,4 @@ public class TvShowDao {
 		return dbEngine.getValues(IDBEngine.WANTED_EPISODE);
 	}
 
-	public void saveWantedEpisode(Episode episode) {
-		dbEngine.store(IDBEngine.WANTED_EPISODE, episode.getId(), episode);
-	}
-
-	public void removeWantedEpisode(long id) {
-		dbEngine.remove(IDBEngine.WANTED_EPISODE, id);
-	}
-
-	public Collection<Episode> getSnatchedEpisodes() {
-		return dbEngine.getValues(IDBEngine.SNATCHED_EPISODE);
-	}
-
-	public void saveSnatchedEpisode(Episode episode) {
-		dbEngine.store(IDBEngine.SNATCHED_EPISODE, episode.getId(), episode);
-	}
-
-	public void removeSnatchedEpisode(long id) {
-		dbEngine.remove(IDBEngine.SNATCHED_EPISODE, id);
-	}
 }

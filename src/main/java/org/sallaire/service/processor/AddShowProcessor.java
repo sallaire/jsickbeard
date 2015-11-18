@@ -2,23 +2,21 @@ package org.sallaire.service.processor;
 
 import java.time.LocalDate;
 import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.sallaire.dao.DaoException;
 import org.sallaire.dao.db.TvShowDao;
-import org.sallaire.dao.metadata.TVDBConverter;
-import org.sallaire.dao.metadata.TVDBDao;
-import org.sallaire.dto.Episode;
-import org.sallaire.dto.Episode.Status;
-import org.sallaire.dto.TvShow;
-import org.sallaire.dto.tvdb.EpisodeInfo;
-import org.sallaire.dto.tvdb.ShowData;
-import org.sallaire.dto.tvdb.ShowInfo;
+import org.sallaire.dao.db.UserDao;
+import org.sallaire.dao.metadata.IMetaDataDao;
+import org.sallaire.dto.metadata.Episode;
+import org.sallaire.dto.metadata.TvShow;
+import org.sallaire.dto.user.EpisodeKey;
+import org.sallaire.dto.user.EpisodeStatus;
+import org.sallaire.dto.user.Status;
+import org.sallaire.dto.user.TvShowConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,10 +31,13 @@ public class AddShowProcessor {
 	private final BlockingQueue<Entry<Long, Status>> queue = new LinkedBlockingQueue<>();
 
 	@Autowired
-	private TVDBDao tvdbDao;
+	private IMetaDataDao metaDataDao;
 
 	@Autowired
 	private TvShowDao showDao;
+
+	@Autowired
+	private UserDao userDao;
 
 	@Async
 	public void startShowProcessor() {
@@ -49,16 +50,36 @@ public class AddShowProcessor {
 
 				showId = entry.getKey();
 				initialStatus = entry.getValue();
-				LOGGER.info("Adding show [{}] with initial status [{}]", showId, initialStatus);
 
-				ShowData data = tvdbDao.getShowInformation(showId, "fr");
-				LOGGER.debug("Show data retrieved from TVDB");
+				LOGGER.debug("Retrieving show configuration");
+				TvShowConfiguration showConfiguration = userDao.getShowConfiguration(showId);
+				if (showConfiguration != null) {
+					LOGGER.info("Adding show [{}] with initial status [{}]", showId, initialStatus);
+					Collection<Episode> episodes = showDao.getShowEpisodes(showId);
+					if (episodes == null) {
+						LOGGER.debug("Processing show generic data");
+						TvShow tvShow = metaDataDao.getShowInformation(showId, "fr");
+						LOGGER.debug("Storing show generic data to db");
+						showDao.saveShow(tvShow);
+						LOGGER.debug("Show generic data stored to db");
 
-				processShowInfo(data.getShowInfo());
+						LOGGER.debug("Storing show episode data to db");
+						episodes = metaDataDao.getShowEpisodes(showId, "fr");
+						showDao.saveShowEpisodes(showId, episodes);
+						LOGGER.debug("Show episode data stored to db");
 
-				processShowEpisodes(showId, data.getEpisodes(), initialStatus);
+					} else {
+						LOGGER.debug("Show generic data are already in db, skip to episodes status");
 
-				LOGGER.info("Show [{} - {}] processed successfully", showId, data.getShowInfo().getName());
+					}
+					LOGGER.debug("Processing episodes status");
+					processEpisodesStatus(showConfiguration, episodes, initialStatus);
+					LOGGER.debug("Episodes status processed");
+
+					LOGGER.info("Show [{}] processed successfully", showId);
+				} else {
+					LOGGER.warn("No show configuration found for show {}, it will not be added", showId);
+				}
 			} catch (DaoException e) {
 				LOGGER.error("Unable to get show informations for id [{}], show will not be added in db", showId, e);
 			} catch (InterruptedException e) {
@@ -66,34 +87,29 @@ public class AddShowProcessor {
 				Thread.currentThread().interrupt();
 			}
 		}
+
 	}
 
-	private void processShowEpisodes(Long showId, List<EpisodeInfo> episodeInfos, Status initialStatus) {
-		LOGGER.debug("Processing {} episodes data", episodeInfos != null ? episodeInfos.size() : 0);
-		List<Episode> dbEpisodes = new ArrayList<>();
-		if (CollectionUtils.isNotEmpty(episodeInfos)) {
-			for (EpisodeInfo episodeInfo : episodeInfos) {
-				Episode dbEpisode = TVDBConverter.convertFromTVDB(showId, episodeInfo);
-				if (dbEpisode.getAirDate().isAfter(LocalDate.now())) {
-					dbEpisode.setStatus(Status.UNAIRED);
-				} else {
-					dbEpisode.setStatus(initialStatus);
-				}
-				dbEpisodes.add(dbEpisode);
+	private void processEpisodesStatus(TvShowConfiguration showConfig, Collection<Episode> episodes, Status initialStatus) {
+		LOGGER.debug("Processing {} episodes user data", episodes != null ? episodes.size() : 0);
+		episodes.stream().forEach(e -> {
+			EpisodeStatus epStatus = new EpisodeStatus();
+			EpisodeKey epKey = new EpisodeKey();
+			epStatus.setEpisodeKey(epKey);
+			epKey.setLang(showConfig.getAudioLang());
+			epKey.setQuality(showConfig.getQuality());
+			epKey.setShowId(showConfig.getId());
+			epKey.setSeason(e.getSeason());
+			epKey.setNumber(e.getEpisode());
+			if (e.getAirDate().isAfter(LocalDate.now())) {
+				epStatus.setStatus(Status.UNAIRED);
+			} else {
+				epStatus.setStatus(initialStatus);
 			}
-		}
+			LOGGER.debug("Adding Episode status {} for episode S{}E{} and show {}", epStatus.getStatus(), epKey.getSeason(), epKey.getNumber(), showConfig.getId());
+			userDao.saveEpisodeStatus(epStatus);
+		});
 
-		LOGGER.debug("Storing show episode data to db");
-		showDao.saveShowEpisodes(showId, dbEpisodes);
-		LOGGER.debug("Show episode data stored to db");
-	}
-
-	private void processShowInfo(ShowInfo showInfo) {
-		LOGGER.debug("Processing show generic data");
-		TvShow tvShow = TVDBConverter.convertFromTVDB(showInfo);
-		LOGGER.debug("Storing show generic data to db");
-		showDao.saveShow(tvShow);
-		LOGGER.debug("Show generic data stored to db");
 	}
 
 	public void addShow(Long id, Status initialStatus) {

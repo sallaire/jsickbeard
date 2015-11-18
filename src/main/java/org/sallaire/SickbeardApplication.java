@@ -5,6 +5,7 @@ import java.nio.file.Files;
 
 import javax.annotation.PostConstruct;
 
+import org.jsondoc.spring.boot.starter.EnableJSONDoc;
 import org.sallaire.service.processor.AddShowProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +18,11 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@ComponentScan(basePackages = { "org.sallaire.dao", "org.sallaire.service", "org.sallaire.controller" })
 @EnableAsync
 @EnableScheduling
 @EnableConfigurationProperties
+@EnableJSONDoc
+@ComponentScan(basePackages = { "org.sallaire.dao", "org.sallaire.service", "org.sallaire.controller" })
 public class SickbeardApplication {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SickbeardApplication.class);

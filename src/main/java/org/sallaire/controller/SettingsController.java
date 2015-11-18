@@ -4,7 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.sallaire.dto.ClientConfiguration;
+import org.sallaire.dto.configuration.ClientConfiguration;
 import org.sallaire.service.TorrentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;

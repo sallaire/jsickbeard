@@ -6,10 +6,10 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Collection;
 
-import org.sallaire.dao.db.TvShowDao;
-import org.sallaire.dto.Episode;
-import org.sallaire.dto.Episode.Status;
-import org.sallaire.dto.TvShowConfiguration;
+import org.sallaire.dao.db.UserDao;
+import org.sallaire.dto.user.EpisodeStatus;
+import org.sallaire.dto.user.Status;
+import org.sallaire.dto.user.TvShowConfiguration;
 import org.sallaire.service.FileHelper.Finder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,21 +23,21 @@ public class SnatchedShowProcessor {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SnatchedShowProcessor.class);
 
 	@Autowired
-	private TvShowDao showDao;
+	private UserDao userDao;
 
 	@Scheduled(cron = "0 15 * * * *")
 	public void updateShow() {
-		Collection<Episode> episodes = showDao.getSnatchedEpisodes();
+		Collection<EpisodeStatus> episodes = userDao.getSnatchedEpisodes();
 		LOGGER.info("Starting snatched show processor with {} snatched episodes", episodes.size());
-		for (Episode episode : episodes) {
+		for (EpisodeStatus episode : episodes) {
 			LOGGER.debug("Search for snatched episode {}", episode);
 			try {
 				if (searchFile(episode)) {
 					LOGGER.debug("Episode found, remove it from list of snatched episodes", episode);
 					episode.setDownloadDate(LocalDate.now());
 					episode.setStatus(Status.DOWNLOADED);
-					showDao.saveShowEpisode(episode);
-					showDao.removeSnatchedEpisode(episode.getId());
+					userDao.saveEpisodeStatus(episode);
+					userDao.removeSnatchedEpisode(episode);
 				}
 			} catch (IOException e) {
 				LOGGER.error("Error while checking downloaded file for episode {}", episode);
@@ -46,9 +46,9 @@ public class SnatchedShowProcessor {
 		LOGGER.info("Snatched show processor done");
 	}
 
-	private boolean searchFile(Episode episode) throws IOException {
+	private boolean searchFile(EpisodeStatus episode) throws IOException {
 		if (episode.getFileNames() != null) {
-			TvShowConfiguration showConfig = showDao.getShowConfiguration(episode.getShowId());
+			TvShowConfiguration showConfig = userDao.getShowConfiguration(episode.getEpisodeKey().getShowId());
 			String location = showConfig.getLocation();
 			boolean filesFound = true;
 			for (String fileName : episode.getFileNames()) {

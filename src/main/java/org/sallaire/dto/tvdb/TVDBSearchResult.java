@@ -4,7 +4,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "Series")
-public class TVDBSearchResult implements ISearchResult {
+public class TVDBSearchResult {
 	private Long id;
 	private String language;
 
@@ -16,7 +16,7 @@ public class TVDBSearchResult implements ISearchResult {
 
 	private String network;
 
-	private Long imdbId;
+	private String imdbId;
 
 	public TVDBSearchResult() {
 		super();
@@ -75,22 +75,12 @@ public class TVDBSearchResult implements ISearchResult {
 	}
 
 	@XmlElement(name = "IMDB_ID")
-	public Long getImdbId() {
+	public String getImdbId() {
 		return imdbId;
 	}
 
-	public void setImdbId(Long imdbId) {
+	public void setImdbId(String imdbId) {
 		this.imdbId = imdbId;
-	}
-
-	@Override
-	public Long getRefId() {
-		return imdbId;
-	}
-
-	@Override
-	public String getDate() {
-		return firstAired;
 	}
 
 }

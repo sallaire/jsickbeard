@@ -1,4 +1,4 @@
-package org.sallaire.dto;
+package org.sallaire.dto.user;
 
 import java.io.Serializable;
 import java.util.List;
@@ -7,11 +7,7 @@ public class TvShowConfiguration implements Serializable {
 
 	private static final long serialVersionUID = -3605866887324566453L;
 
-	public enum Quality {
-		SD, P720, P1080;
-	}
-
-	private long id;
+	private long showId;
 
 	private String location;
 
@@ -30,11 +26,11 @@ public class TvShowConfiguration implements Serializable {
 	}
 
 	public long getId() {
-		return id;
+		return showId;
 	}
 
 	public void setId(long id) {
-		this.id = id;
+		this.showId = id;
 	}
 
 	public String getLocation() {

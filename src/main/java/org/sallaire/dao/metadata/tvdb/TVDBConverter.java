@@ -1,15 +1,20 @@
-package org.sallaire.dao.metadata;
+package org.sallaire.dao.metadata.tvdb;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import org.sallaire.dto.Episode;
-import org.sallaire.dto.TvShow;
+import org.sallaire.dto.metadata.Episode;
+import org.sallaire.dto.metadata.SearchResult;
+import org.sallaire.dto.metadata.TvShow;
 import org.sallaire.dto.tvdb.EpisodeInfo;
 import org.sallaire.dto.tvdb.ShowInfo;
+import org.sallaire.dto.tvdb.TVDBSearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +31,7 @@ public class TVDBConverter {
 		tvShow.setImdbId(showInfo.getImdbId());
 		tvShow.setName(showInfo.getName());
 		tvShow.setDescription(showInfo.getDescription());
-		tvShow.setNetwork(showInfo.getNetwork());
+		tvShow.setNetwork(Arrays.asList(showInfo.getNetwork()));
 		tvShow.setGenre(showInfo.getGenre());
 		if (showInfo.getAirDay() != null) {
 			try {
@@ -47,6 +52,8 @@ public class TVDBConverter {
 			} catch (DateTimeParseException e) {
 				LOGGER.warn("Unable to parse first air date [{}]", showInfo.getFirstAired(), e);
 			}
+		}
+		if (showInfo.getAirTime() != null) {
 			try {
 				tvShow.setAirTime(LocalTime.parse(showInfo.getAirTime(), TIME_FORMAT_EN));
 			} catch (DateTimeParseException e) {
@@ -70,9 +77,7 @@ public class TVDBConverter {
 		dbEpisode.setName(episodeInfo.getName());
 		dbEpisode.setSeason(episodeInfo.getSeasonNumber());
 		dbEpisode.setEpisode(episodeInfo.getEpisodeNumber());
-		dbEpisode.setLastUpdated(episodeInfo.getLastUpdated());
 		dbEpisode.setDescription(episodeInfo.getDescription());
-		dbEpisode.setLang(episodeInfo.getLang());
 		if (episodeInfo.getFirstAired() != null) {
 			try {
 				dbEpisode.setAirDate(LocalDate.parse(episodeInfo.getFirstAired()));
@@ -81,5 +86,16 @@ public class TVDBConverter {
 			}
 		}
 		return dbEpisode;
+	}
+
+	public static List<SearchResult> convertSearchResults(List<TVDBSearchResult> searchResults) {
+		return searchResults.stream().map(s -> {
+			SearchResult r = new SearchResult();
+			r.setId(s.getId());
+			r.setFirstAired(s.getFirstAired());
+			r.setName(s.getName());
+			r.setOverview(s.getOverview());
+			return r;
+		}).collect(Collectors.toList());
 	}
 }

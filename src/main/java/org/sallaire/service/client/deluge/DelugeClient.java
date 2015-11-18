@@ -19,9 +19,9 @@ import org.apache.http.impl.client.CookieSpecRegistries;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.cookie.DefaultCookieSpecProvider;
 import org.apache.http.impl.cookie.DefaultCookieSpecProvider.CompatibilityLevel;
-import org.sallaire.dto.ClientConfiguration;
-import org.sallaire.dto.Episode;
-import org.sallaire.dto.TvShowConfiguration;
+import org.sallaire.dto.configuration.ClientConfiguration;
+import org.sallaire.dto.user.EpisodeStatus;
+import org.sallaire.dto.user.TvShowConfiguration;
 import org.sallaire.service.client.IClient;
 import org.sallaire.service.provider.Torrent;
 import org.slf4j.Logger;
@@ -78,7 +78,7 @@ public class DelugeClient implements IClient {
 		LOGGER.debug("Deluge client initialized");
 	}
 
-	public void addTorrent(Torrent torrent, TvShowConfiguration showConfiguration, Episode episode) throws IOException {
+	public void addTorrent(Torrent torrent, TvShowConfiguration showConfiguration, EpisodeStatus episode) throws IOException {
 
 		// Authentication
 		String delugeUrl = userConfiguration.getUrl() + configuration.getPath();
@@ -116,12 +116,12 @@ public class DelugeClient implements IClient {
 		}
 	}
 
-	private Map<String, String> getParameters(TvShowConfiguration showConfiguration, Episode episode) {
+	private Map<String, String> getParameters(TvShowConfiguration showConfiguration, EpisodeStatus episode) {
 		Map<String, String> params = new HashMap<>();
 		if (userConfiguration.getMoveShow()) {
 			params.put("move_completed", "true");
 			if (userConfiguration.getSeasonPattern() != null) {
-				params.put("move_completed_path", showConfiguration.getLocation() + String.format(userConfiguration.getSeasonPattern(), episode.getSeason()));
+				params.put("move_completed_path", showConfiguration.getLocation() + String.format(userConfiguration.getSeasonPattern(), episode.getEpisodeKey().getSeason()));
 			} else {
 				params.put("move_completed_path", showConfiguration.getLocation());
 			}

@@ -1,8 +1,8 @@
 package org.sallaire.dao.db;
 
 import org.sallaire.dao.db.engine.IDBEngine;
-import org.sallaire.dto.ClientConfiguration;
-import org.sallaire.dto.ProviderConfiguration;
+import org.sallaire.dto.configuration.ClientConfiguration;
+import org.sallaire.dto.configuration.ProviderConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

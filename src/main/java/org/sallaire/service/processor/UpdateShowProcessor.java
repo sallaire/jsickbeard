@@ -2,20 +2,20 @@ package org.sallaire.service.processor;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.sallaire.dao.DaoException;
 import org.sallaire.dao.db.TvShowDao;
-import org.sallaire.dao.metadata.TVDBConverter;
-import org.sallaire.dao.metadata.TVDBDao;
-import org.sallaire.dto.Episode;
-import org.sallaire.dto.Episode.Status;
-import org.sallaire.dto.tvdb.ShowData;
-import org.sallaire.dto.tvdb.UpdateItems;
+import org.sallaire.dao.db.UserDao;
+import org.sallaire.dao.metadata.IMetaDataDao;
+import org.sallaire.dto.metadata.Episode;
+import org.sallaire.dto.metadata.TvShow;
+import org.sallaire.dto.user.EpisodeKey;
+import org.sallaire.dto.user.EpisodeStatus;
+import org.sallaire.dto.user.Status;
+import org.sallaire.dto.user.TvShowConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,78 +31,87 @@ public class UpdateShowProcessor {
 	private TvShowDao showDao;
 
 	@Autowired
-	private TVDBDao tvDbDao;
+	private IMetaDataDao metaDataDao;
+
+	@Autowired
+	private UserDao userDao;
 
 	@Scheduled(cron = "0 0 2 * * *")
 	public void updateShow() {
 		Long lastUpdate = showDao.getLastUpdate();
 		LOGGER.info("Starting update show processor, last update = {}", lastUpdate);
-		UpdateItems updateItems = null;
+		List<Long> updateItems = new ArrayList<>();
 
 		if (lastUpdate == null) {
 			lastUpdate = Instant.now().getEpochSecond();
 		}
 		try {
-			updateItems = tvDbDao.getShowsToUpdate(lastUpdate);
-			showDao.saveLastUpdate(updateItems.getTime());
+			Long newUpdateTime = Instant.now().getEpochSecond();
+			updateItems = metaDataDao.getShowsToUpdate(lastUpdate);
+			showDao.saveLastUpdate(newUpdateTime);
 		} catch (DaoException e) {
 			LOGGER.error("Unable to get update lists from tvdb API", e);
 		}
 
-		Map<Long, List<Episode>> epidodesByShow = showDao.getAllShowEpisodes();
-		LOGGER.debug("{} show to process", epidodesByShow.size());
+		Collection<TvShow> shows = showDao.getShows();
+		LOGGER.debug("{} show to process", shows.size());
 
 		Long showId = null;
-		for (Entry<Long, List<Episode>> entry : epidodesByShow.entrySet()) {
-			showId = entry.getKey();
-			List<Episode> currentEpisodes = entry.getValue();
-			LOGGER.debug("processing show {} with {} episodes", showId, currentEpisodes.size());
+		for (TvShow show : shows) {
+			showId = show.getId();
+			LOGGER.debug("processing show {}", showId);
+
+			LOGGER.debug("Retrieve show configuration");
+			TvShowConfiguration showConfig = userDao.getShowConfiguration(showId);
+			LOGGER.debug("Show configuration retrieved");
 
 			// Check if the show has been updated
-			if (updateItems != null && updateItems.getShowIds() != null && updateItems.getShowIds().contains(showId)) {
+			if (updateItems.contains(showId)) {
 				LOGGER.debug("show {} has to be refreshed, ", showId);
-				currentEpisodes = updateShow(showId, currentEpisodes);
+				updateShow(showConfig);
 			}
 
 			// Now check if one or several episodes has to be set to wanted status
+			Collection<Episode> episodes = showDao.getShowEpisodes(showId);
 			final LocalDate now = LocalDate.now();
-			LOGGER.debug("Checking if episodes has been aired and set hem to wanted");
-			currentEpisodes.stream().filter(e -> e.getAirDate().isBefore(now) && e.getStatus() == Status.UNAIRED).forEach(e -> {
-				LOGGER.debug("Epsiode S{}E{} has been aired ({}) and is set to wanted", e.getSeason(), e.getEpisode(), e.getAirDate());
-				e.setStatus(Status.WANTED);
-				showDao.saveWantedEpisode(e);
+			LOGGER.debug("Checking if episodes has been aired and set them to wanted");
+			episodes.stream().filter(e -> e.getAirDate().isBefore(now)).forEach(e -> {
+				EpisodeKey epKey = new EpisodeKey(showConfig, e);
+				EpisodeStatus epStatus = userDao.getEpisodeStatus(epKey);
+				if (epStatus.getStatus() == Status.UNAIRED) {
+					LOGGER.debug("Epsiode S{}E{} has been aired ({}) and is set to wanted", e.getSeason(), e.getEpisode(), e.getAirDate());
+					epStatus.setStatus(Status.WANTED);
+					userDao.saveEpisodeStatus(epStatus);
+					userDao.saveWantedEpisode(epStatus);
+				}
 			});
-			showDao.saveShowEpisodes(showId, entry.getValue());
 		}
 		LOGGER.info("Update show processor done");
 	}
 
-	private List<Episode> updateShow(final Long id, List<Episode> currentEpisodes) {
+	private void updateShow(TvShowConfiguration showConfig) {
 		try {
-			LOGGER.debug("Retrieve show informations");
-			ShowData showData = tvDbDao.getShowInformation(id, "fr");
-			showDao.saveShow(TVDBConverter.convertFromTVDB(showData.getShowInfo()));
 
-			LOGGER.debug("Process {} episodes for show {}", showData.getEpisodes().size(), showData.getShowInfo().getName());
-			List<Episode> updatedEpisodes = showData.getEpisodes().stream().map(e -> TVDBConverter.convertFromTVDB(id, e)).collect(Collectors.toList());
-			Map<Long, Episode> currentEpisodesById = currentEpisodes.stream().collect(Collectors.toMap(Episode::getId, Function.identity()));
+			LOGGER.debug("Retrieve show informations");
+			TvShow tvShow = metaDataDao.getShowInformation(showConfig.getId(), "fr");
+			showDao.saveShow(metaDataDao.getShowInformation(showConfig.getId(), "fr"));
+			LOGGER.debug("Show informations saved");
+
+			LOGGER.debug("Retrieve show episodes");
+			List<Episode> updatedEpisodes = metaDataDao.getShowEpisodes(showConfig.getId(), "fr");
+			showDao.saveShowEpisodes(showConfig.getId(), updatedEpisodes);
+			LOGGER.debug("Process {} episodes for show {}", updatedEpisodes.size(), tvShow.getName());
+
 			updatedEpisodes.stream().forEach(e -> {
-				if (currentEpisodesById.containsKey(e.getId())) {
-					Episode currentEpisode = currentEpisodesById.get(e.getId());
-					e.setDownloadDate(currentEpisode.getDownloadDate());
-					e.setStatus(currentEpisode.getStatus());
-					e.setFileNames(currentEpisode.getFileNames());
-				} else {
-					LOGGER.debug("new epsiode found (S{}E{}), set status to unaired", e.getSeason(), e.getEpisode());
-					e.setStatus(Status.UNAIRED);
+				EpisodeKey epKey = new EpisodeKey(showConfig, e);
+				if (userDao.getEpisodeStatus(epKey) == null) {
+					LOGGER.debug("New episode {}-{} found, add it to status episode", e.getSeason(), e.getEpisode());
+					EpisodeStatus epStatus = new EpisodeStatus(epKey, Status.UNAIRED);
+					userDao.saveEpisodeStatus(epStatus);
 				}
 			});
-
-			// Don't update episode now, it will be done after status wanted check
-			return updatedEpisodes;
 		} catch (DaoException e) {
-			LOGGER.error("Unbale to get show [{}] informations", id, e);
+			LOGGER.error("Unable to get show [{}] informations", showConfig.getId(), e);
 		}
-		return currentEpisodes;
 	}
 }

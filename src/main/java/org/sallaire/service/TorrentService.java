@@ -13,12 +13,13 @@ import javax.annotation.PostConstruct;
 
 import org.sallaire.dao.db.ConfigurationDao;
 import org.sallaire.dao.db.TvShowDao;
-import org.sallaire.dto.ClientConfiguration;
-import org.sallaire.dto.Episode;
-import org.sallaire.dto.Episode.Status;
-import org.sallaire.dto.ProviderConfiguration;
-import org.sallaire.dto.TvShow;
-import org.sallaire.dto.TvShowConfiguration;
+import org.sallaire.dao.db.UserDao;
+import org.sallaire.dto.configuration.ClientConfiguration;
+import org.sallaire.dto.configuration.ProviderConfiguration;
+import org.sallaire.dto.metadata.TvShow;
+import org.sallaire.dto.user.EpisodeStatus;
+import org.sallaire.dto.user.Status;
+import org.sallaire.dto.user.TvShowConfiguration;
 import org.sallaire.service.client.IClient;
 import org.sallaire.service.provider.IProvider;
 import org.sallaire.service.provider.Torrent;
@@ -40,6 +41,9 @@ public class TorrentService {
 
 	@Autowired
 	private TvShowDao showDao;
+
+	@Autowired
+	private UserDao userDao;
 
 	@Autowired
 	private ConfigurationDao configurationDao;
@@ -81,14 +85,14 @@ public class TorrentService {
 		providers.sort((p1, p2) -> Integer.compare(providersOrder.get(p1.getId()), providersOrder.get(p2.getId())));
 	}
 
-	public boolean searchAndGetEpisode(Episode episode) {
-		TvShowConfiguration config = showDao.getShowConfiguration(episode.getShowId());
-		TvShow show = showDao.getShow(episode.getShowId());
+	public boolean searchAndGetEpisode(EpisodeStatus episode) {
+		TvShowConfiguration config = userDao.getShowConfiguration(episode.getEpisodeKey().getShowId());
+		TvShow show = showDao.getShow(episode.getEpisodeKey().getShowId());
 		Torrent torrent = null;
 		for (IProvider provider : providers) {
 			if (activatedProviders.contains(provider.getId())) {
 				try {
-					torrent = provider.findEpisode(show.getName(), config.getAudioLang(), episode.getSeason(), episode.getEpisode(), config.getQuality(), episode.getFileNames());
+					torrent = provider.findEpisode(show.getName(), episode.getEpisodeKey().getLang(), episode.getEpisodeKey().getSeason(), episode.getEpisodeKey().getNumber(), episode.getEpisodeKey().getQuality(), episode.getFileNames());
 					if (torrent != null) {
 						LOGGER.info("Episode [{}] found with provider [{}]", episode, provider.getId());
 						break;
@@ -108,13 +112,8 @@ public class TorrentService {
 
 					// Update episode status to snatched
 					episode.setStatus(Status.SNATCHED);
-					List<Episode> episodes = showDao.getShowEpisodes(episode.getShowId());
-					episodes.stream().filter(e -> e.getId().equals(episode.getId())).forEach(e -> {
-						e.setStatus(Status.SNATCHED);
-						e.addFileName(torrentToDownload.getName());
-						showDao.saveSnatchedEpisode(e);
-					});
-					showDao.saveShowEpisodes(episode.getShowId(), episodes);
+					userDao.saveEpisodeStatus(episode);
+					userDao.saveSnatchedEpisode(episode);
 					return true;
 				} catch (IOException e) {
 					LOGGER.error("Unable to send torrent to client", e);

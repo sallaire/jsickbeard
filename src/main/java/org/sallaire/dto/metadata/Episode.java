@@ -1,17 +1,11 @@
-package org.sallaire.dto;
+package org.sallaire.dto.metadata;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Episode implements Serializable {
 
 	private static final long serialVersionUID = -7197568948202724063L;
-
-	public enum Status {
-		WANTED, SNATCHED, DOWNLOADED, SKIPPED, IGNORED, ARCHIVED, UNAIRED
-	}
 
 	private Long id;
 	private String imdbId;
@@ -20,12 +14,7 @@ public class Episode implements Serializable {
 	private Integer episode;
 	private String name;
 	private LocalDate airDate;
-	private String lang;
 	private String description;
-	private Status status;
-	private List<String> fileNames;
-	private LocalDate downloadDate;
-	private Long lastUpdated;
 
 	public Long getId() {
 		return id;
@@ -83,14 +72,6 @@ public class Episode implements Serializable {
 		this.airDate = airDate;
 	}
 
-	public String getLang() {
-		return lang;
-	}
-
-	public void setLang(String lang) {
-		this.lang = lang;
-	}
-
 	public String getDescription() {
 		return description;
 	}
@@ -99,47 +80,45 @@ public class Episode implements Serializable {
 		this.description = description;
 	}
 
-	public Status getStatus() {
-		return status;
-	}
-
-	public void setStatus(Status status) {
-		this.status = status;
-	}
-
-	public List<String> getFileNames() {
-		return fileNames;
-	}
-
-	public void setFileNames(List<String> fileNames) {
-		this.fileNames = fileNames;
-	}
-
-	public void addFileName(String fileName) {
-		if (this.fileNames == null) {
-			fileNames = new ArrayList<>();
-		}
-		fileNames.add(fileName);
-	}
-
-	public LocalDate getDownloadDate() {
-		return downloadDate;
-	}
-
-	public void setDownloadDate(LocalDate downloadDate) {
-		this.downloadDate = downloadDate;
-	}
-
-	public Long getLastUpdated() {
-		return lastUpdated;
-	}
-
-	public void setLastUpdated(Long lastUpdated) {
-		this.lastUpdated = lastUpdated;
-	}
-
 	@Override
 	public String toString() {
 		return "Episode [id=" + id + ", showId=" + showId + ", season=" + season + ", episode=" + episode + ", name=" + name + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((episode == null) ? 0 : episode.hashCode());
+		result = prime * result + ((season == null) ? 0 : season.hashCode());
+		result = prime * result + ((showId == null) ? 0 : showId.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Episode other = (Episode) obj;
+		if (episode == null) {
+			if (other.episode != null)
+				return false;
+		} else if (!episode.equals(other.episode))
+			return false;
+		if (season == null) {
+			if (other.season != null)
+				return false;
+		} else if (!season.equals(other.season))
+			return false;
+		if (showId == null) {
+			if (other.showId != null)
+				return false;
+		} else if (!showId.equals(other.showId))
+			return false;
+		return true;
 	}
 }

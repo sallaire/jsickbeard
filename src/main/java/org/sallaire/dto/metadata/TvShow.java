@@ -1,9 +1,10 @@
-package org.sallaire.dto;
+package org.sallaire.dto.metadata;
 
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 public class TvShow implements Serializable {
 
@@ -13,7 +14,7 @@ public class TvShow implements Serializable {
 	private String imdbId;
 	private String name;
 	private String description;
-	private String network;
+	private List<String> network;
 	private String genre;
 	private Integer runtime;
 	private DayOfWeek airDay;
@@ -61,11 +62,11 @@ public class TvShow implements Serializable {
 		this.imdbId = imdbId;
 	}
 
-	public String getNetwork() {
+	public List<String> getNetwork() {
 		return network;
 	}
 
-	public void setNetwork(String network) {
+	public void setNetwork(List<String> network) {
 		this.network = network;
 	}
 

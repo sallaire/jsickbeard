@@ -17,7 +17,7 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
-import org.sallaire.dto.TvShowConfiguration.Quality;
+import org.sallaire.dto.user.Quality;
 import org.sallaire.service.provider.IProvider;
 import org.sallaire.service.provider.Torrent;
 import org.sallaire.service.provider.t411.dto.Authorization;
