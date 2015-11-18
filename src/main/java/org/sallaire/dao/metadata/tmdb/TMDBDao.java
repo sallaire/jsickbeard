@@ -1,0 +1,71 @@
+package org.sallaire.dao.metadata.tmdb;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.sallaire.dao.DaoException;
+import org.sallaire.dao.metadata.IMetaDataDao;
+import org.sallaire.dto.metadata.Episode;
+import org.sallaire.dto.metadata.SearchResult;
+import org.sallaire.dto.metadata.TvShow;
+import org.springframework.stereotype.Repository;
+
+import info.movito.themoviedbapi.TmdbApi;
+import info.movito.themoviedbapi.TmdbTV.TvMethod;
+import info.movito.themoviedbapi.TvResultsPage;
+import info.movito.themoviedbapi.model.changes.ChangesResultsPage;
+import info.movito.themoviedbapi.model.tv.TvSeason;
+import info.movito.themoviedbapi.model.tv.TvSeries;
+
+@Repository
+public class TMDBDao implements IMetaDataDao {
+	private static final String API_KEY = "d9685252c19bdeab3c302887363d4a23";
+
+	private String imagesUrl;
+
+	private String getImagesUrl() {
+		if (imagesUrl == null) {
+			imagesUrl = new TmdbApi(API_KEY).getConfiguration().getBaseUrl() + "w342";
+		}
+		return imagesUrl;
+	}
+
+	public List<SearchResult> searchForShows(String name, String lang) {
+		TvResultsPage resultPage = new TmdbApi(API_KEY).getSearch().searchTv(name, lang, 0);
+		return TMDBConverter.convertSearchResults(getImagesUrl(), resultPage.getResults());
+	}
+
+	@Override
+	public List<Long> getShowsToUpdate(Long fromTime) throws DaoException {
+		List<Long> results = new ArrayList<>();
+		LocalDate localDate = LocalDate.ofEpochDay(fromTime);
+		Integer nbPages = 1;
+		for (int i = 0; i < nbPages; i++) {
+			ChangesResultsPage resultsPage = new TmdbApi(API_KEY).getChanges().getTvSeriesChangesList(0, localDate.toString(), null);
+			nbPages = resultsPage.getTotalPages();
+			results.addAll(resultsPage.getResults().stream().map(r -> new Long(r.getId())).collect(Collectors.toList()));
+		}
+
+		return results;
+	}
+
+	@Override
+	public TvShow getShowInformation(Long id, String lang) throws DaoException {
+		TvSeries tvSeries = new TmdbApi(API_KEY).getTvSeries().getSeries(id.intValue(), lang, TvMethod.external_ids, TvMethod.images);
+		return TMDBConverter.convertFromTvSeries(tvSeries);
+	}
+
+	@Override
+	public List<Episode> getShowEpisodes(Long id, String lang) throws DaoException {
+		List<Episode> episodes = new ArrayList<>();
+		TvSeries tvSeries = new TmdbApi(API_KEY).getTvSeries().getSeries(id.intValue(), lang);
+		for (int i = 1; i <= tvSeries.getNumberOfSeasons(); i++) {
+			TvSeason tvSeason = new TmdbApi(API_KEY).getTvSeasons().getSeason(id.intValue(), i, lang);
+			episodes.addAll(TMDBConverter.convertFromTvSeason(id, tvSeason));
+		}
+		return episodes;
+	}
+
+}
