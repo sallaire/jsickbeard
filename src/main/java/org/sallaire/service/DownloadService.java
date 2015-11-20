@@ -29,9 +29,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class TorrentService {
+public class DownloadService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(TorrentService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DownloadService.class);
 
 	@Autowired
 	private List<IClient> clients;
@@ -126,10 +126,13 @@ public class TorrentService {
 	}
 
 	public Map<String, String> getProviderConfiguration(String id) {
+		LOGGER.info("Get {} provider information", id);
 		ProviderConfiguration config = configurationDao.getProvider(id);
 		if (config != null) {
+			LOGGER.info("Provider configuration found");
 			return config.getParameters();
 		} else {
+			LOGGER.info("Provider configuration not found");
 			return new HashMap<>();
 		}
 	}
@@ -139,6 +142,7 @@ public class TorrentService {
 	}
 
 	public void saveProvider(String id, Map<String, String> parameters) {
+		LOGGER.info("Saving provider {} with params {}", id, parameters);
 		ProviderConfiguration config = configurationDao.getProvider(id);
 		if (config != null) {
 			config.setParameters(parameters);
@@ -148,22 +152,33 @@ public class TorrentService {
 			config.setOrder(-1);
 			config.setParameters(parameters);
 		}
+		LOGGER.debug("Save provider configuration to DB");
 		configurationDao.saveProvider(id, config);
+		LOGGER.debug("Provider configuration saved to DB");
+
+		LOGGER.debug("Update provider configuration in provider singleton");
 		providers.stream().filter(p -> p.getId().equals(id)).forEach(p -> p.configurationChanged(parameters));
+		LOGGER.debug("Provider singleton updated");
+		LOGGER.info("Provider {} saved", id);
 	}
 
 	public void saveProviders(LinkedHashMap<String, Boolean> parameters) {
+		LOGGER.info("Save providers configuration");
 		int i = 0;
 		Map<String, Integer> providersOrder = new HashMap<>();
 		for (Entry<String, Boolean> entry : parameters.entrySet()) {
 			String id = entry.getKey();
+			LOGGER.debug("Retrieve provider {} configuration in DB", id);
 			ProviderConfiguration conf = configurationDao.getProvider(id);
 			if (conf == null) {
+				LOGGER.debug("Provider {} configuration doesn't exist yet, create it", id);
 				conf = new ProviderConfiguration();
 			}
 			conf.setActivated(entry.getValue());
 			conf.setOrder(i++);
+			LOGGER.debug("Provider {} is now in position {} and is activated : {}", id, conf.getOrder(), conf.isActivated());
 			configurationDao.saveProvider(entry.getKey(), conf);
+			LOGGER.debug("Provider saved in DB");
 			if (conf.isActivated()) {
 				activatedProviders.add(id);
 			} else {
@@ -171,12 +186,22 @@ public class TorrentService {
 			}
 			providersOrder.put(id, conf.getOrder());
 		}
+		LOGGER.debug("Sort providers singletons");
 		sortProviders(providersOrder);
+		LOGGER.info("Providers configuration saved");
 	}
 
 	public void saveClient(ClientConfiguration config) {
+		LOGGER.info("Saving client configuration {}", config.getClient());
+		LOGGER.debug("Save client configuration to DB");
 		configurationDao.saveClientConfiguration(config);
+		LOGGER.debug("Client configuration saved to DB");
+		LOGGER.debug("Update client singleton");
 		clients.stream().filter(c -> c.getId().equals(config.getClient())).forEach(c -> client = c);
+		LOGGER.debug("Client singleton updated with {}", client.getId());
+		LOGGER.debug("Update client configuration in singleton");
 		client.configurationChanged(config);
+		LOGGER.debug("Client configuration updated in singleton");
+		LOGGER.info("Client configuration {} saved", config.getClient());
 	}
 }

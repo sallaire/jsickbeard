@@ -23,88 +23,87 @@ public class MapDB implements IDBEngine {
 		txMaker = DBMaker.fileDB(DB_LOCATION.toFile()).closeOnJvmShutdown().fileMmapEnableIfSupported().makeTxMaker();
 	}
 
-	@Override
-	public <T> void store(String collection, Long id, T value) {
-		try (DB db = txMaker.makeTx()) {
-			db.hashMap(collection, Serializer.LONG, Serializer.JAVA).put(id, value);
-			db.commit();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T get(String collection, Long id) {
-		try (DB db = txMaker.makeTx()) {
-			Object value = db.hashMap(collection, Serializer.LONG, Serializer.JAVA).get(id);
-			return (T) value;
-		}
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> Collection<T> getValues(String collection) {
 		try (DB db = txMaker.makeTx()) {
-			Collection<?> value = db.hashMap(collection, Serializer.LONG, Serializer.JAVA).values();
+			Collection<?> value = db.hashMap(collection).values();
 			return new ArrayList<>((Collection<T>) value);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Map<Long, T> getAll(String collection) {
+	public <K, V> Map<K, V> getAll(String collection) {
 		try (DB db = txMaker.makeTx()) {
-			return new HashMap<Long, T>((Map<Long, T>) db.hashMap(collection, Serializer.LONG, Serializer.JAVA));
+			return new HashMap<K, V>((Map<K, V>) db.hashMap(collection));
 		}
+	}
+
+	@Override
+	public <T> void store(String collection, Long id, T value) {
+		store(collection, id, value, Serializer.LONG);
 	}
 
 	@Override
 	public <T> void store(String collection, String id, T value) {
+		store(collection, id, value, Serializer.STRING);
+	}
+
+	@Override
+	public <T> void store(String collection, Object id, T value) {
+		store(collection, id, value, Serializer.JAVA);
+	}
+
+	public <K, V> void store(String collection, K id, V value, Serializer<K> keySerializer) {
 		try (DB db = txMaker.makeTx()) {
-			db.hashMap(collection, Serializer.STRING, Serializer.JAVA).put(id, value);
+			db.hashMap(collection, keySerializer, Serializer.JAVA).put(id, value);
 			db.commit();
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T get(String collection, Long id) {
+		return get(collection, id, Serializer.LONG);
+	}
+
 	@Override
 	public <T> T get(String collection, String id) {
+		return get(collection, id, Serializer.STRING);
+	}
+
+	@Override
+	public <T> T get(String collection, Object id) {
+		return get(collection, id, Serializer.JAVA);
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> T get(String collection, Object id, Serializer<?> keySerializer) {
 		try (DB db = txMaker.makeTx()) {
-			Object value = db.hashMap(collection, Serializer.STRING, Serializer.JAVA).get(id);
+			Object value = db.hashMap(collection, keySerializer, Serializer.JAVA).get(id);
 			return (T) value;
 		}
 	}
 
 	@Override
 	public void remove(String collection, Long id) {
-		try (DB db = txMaker.makeTx()) {
-			db.hashMap(collection, Serializer.LONG, Serializer.JAVA).remove(id);
-			db.commit();
-		}
-	}
-
-	@Override
-	public <T> void store(String collection, Object id, T value) {
-		try (DB db = txMaker.makeTx()) {
-			db.hashMap(collection, Serializer.JAVA, Serializer.JAVA).put(id, value);
-			db.commit();
-		}
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public <T> T get(String collection, Object id) {
-		try (DB db = txMaker.makeTx()) {
-			Object value = db.hashMap(collection, Serializer.JAVA, Serializer.JAVA).get(id);
-			return (T) value;
-		}
+		remove(collection, id, Serializer.LONG);
 	}
 
 	@Override
 	public void remove(String collection, Object id) {
+		remove(collection, id, Serializer.JAVA);
+	}
+
+	@Override
+	public void remove(String collection, String id) {
+		remove(collection, id, Serializer.STRING);
+	}
+
+	private void remove(String collection, Object id, Serializer<?> keySerializer) {
 		try (DB db = txMaker.makeTx()) {
-			db.hashMap(collection, Serializer.JAVA, Serializer.JAVA).remove(id);
+			db.hashMap(collection, keySerializer, Serializer.JAVA).remove(id);
 			db.commit();
 		}
-
 	}
 }

@@ -37,7 +37,7 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class DelugeClient implements IClient {
 
-	private static final String ID = "deluge";
+	public static final String ID = "deluge";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DelugeClient.class);
 

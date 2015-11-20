@@ -50,44 +50,49 @@ public class AddShowProcessor {
 
 				showId = entry.getKey();
 				initialStatus = entry.getValue();
+				processShow(showId, initialStatus);
 
-				LOGGER.debug("Retrieving show configuration");
-				TvShowConfiguration showConfiguration = userDao.getShowConfiguration(showId);
-				if (showConfiguration != null) {
-					LOGGER.info("Adding show [{}] with initial status [{}]", showId, initialStatus);
-					Collection<Episode> episodes = showDao.getShowEpisodes(showId);
-					if (episodes == null) {
-						LOGGER.debug("Processing show generic data");
-						TvShow tvShow = metaDataDao.getShowInformation(showId, "fr");
-						LOGGER.debug("Storing show generic data to db");
-						showDao.saveShow(tvShow);
-						LOGGER.debug("Show generic data stored to db");
-
-						LOGGER.debug("Storing show episode data to db");
-						episodes = metaDataDao.getShowEpisodes(showId, "fr");
-						showDao.saveShowEpisodes(showId, episodes);
-						LOGGER.debug("Show episode data stored to db");
-
-					} else {
-						LOGGER.debug("Show generic data are already in db, skip to episodes status");
-
-					}
-					LOGGER.debug("Processing episodes status");
-					processEpisodesStatus(showConfiguration, episodes, initialStatus);
-					LOGGER.debug("Episodes status processed");
-
-					LOGGER.info("Show [{}] processed successfully", showId);
-				} else {
-					LOGGER.warn("No show configuration found for show {}, it will not be added", showId);
-				}
-			} catch (DaoException e) {
-				LOGGER.error("Unable to get show informations for id [{}], show will not be added in db", showId, e);
 			} catch (InterruptedException e) {
 				LOGGER.error("Error while retrieving show from queue", e);
 				Thread.currentThread().interrupt();
 			}
 		}
+	}
 
+	private void processShow(Long showId, Status initialStatus) {
+		try {
+			LOGGER.debug("Retrieving show configuration");
+			TvShowConfiguration showConfiguration = userDao.getShowConfiguration(showId);
+			if (showConfiguration != null) {
+				LOGGER.info("Adding show [{}] with initial status [{}]", showId, initialStatus);
+				Collection<Episode> episodes = showDao.getShowEpisodes(showId);
+				if (episodes == null) {
+					LOGGER.debug("Processing show generic data");
+					TvShow tvShow = metaDataDao.getShowInformation(showId, "fr");
+					LOGGER.debug("Storing show generic data to db");
+					showDao.saveShow(tvShow);
+					LOGGER.debug("Show generic data stored to db");
+
+					LOGGER.debug("Storing show episode data to db");
+					episodes = metaDataDao.getShowEpisodes(showId, "fr");
+					showDao.saveShowEpisodes(showId, episodes);
+					LOGGER.debug("Show episode data stored to db");
+
+				} else {
+					LOGGER.debug("Show generic data are already in db, skip to episodes status");
+
+				}
+				LOGGER.debug("Processing episodes status");
+				processEpisodesStatus(showConfiguration, episodes, initialStatus);
+				LOGGER.debug("Episodes status processed");
+
+				LOGGER.info("Show [{}] processed successfully", showId);
+			} else {
+				LOGGER.warn("No show configuration found for show {}, it will not be added", showId);
+			}
+		} catch (DaoException e) {
+			LOGGER.error("Unable to get show informations for id [{}], show will not be added in db", showId, e);
+		}
 	}
 
 	private void processEpisodesStatus(TvShowConfiguration showConfig, Collection<Episode> episodes, Status initialStatus) {

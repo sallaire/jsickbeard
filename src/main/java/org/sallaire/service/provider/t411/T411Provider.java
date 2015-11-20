@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.sallaire.dto.user.Quality;
@@ -37,9 +38,9 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class T411Provider implements IProvider {
 
-	private static final String ID = "t411";
-	private static final String USER = "user";
-	private static final String PASSWORD = "password";
+	public static final String ID = "t411";
+	public static final String USER = "user";
+	public static final String PASSWORD = "password";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(T411Provider.class);
 
@@ -249,8 +250,17 @@ public class T411Provider implements IProvider {
 
 	@Override
 	public void configurationChanged(Map<String, String> parameters) {
-		user = parameters.get(USER);
-		password = parameters.get(PASSWORD);
+		if (MapUtils.isNotEmpty(parameters)) {
+			LOGGER.debug("T411 configuration changed, update parameters : ");
+			user = parameters.get(USER);
+			LOGGER.debug(" user = {}", user);
+			password = parameters.get(PASSWORD);
+			LOGGER.debug(" password = {}", StringUtils.repeat("X", password.length()));
+		} else {
+			LOGGER.debug("Cleaning T411 configuration");
+			user = "";
+			password = "";
+		}
 	}
 
 }

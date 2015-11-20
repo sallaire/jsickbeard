@@ -20,6 +20,7 @@ public interface IDBEngine {
 	static final String UPDATE_TIME = "updateTime";
 	static final String PROVIDER_CONFIGURATION = "providerConfiguration";
 	static final String CLIENT_CONFIGURATION = "clientConfiguration";
+	static final String ACCOUNT = "account";
 
 	<T> void store(String collection, Long id, T value);
 
@@ -35,11 +36,13 @@ public interface IDBEngine {
 
 	<T> Collection<T> getValues(String collection);
 
-	<T> Map<Long, T> getAll(String collection);
+	<K, V> Map<K, V> getAll(String collection);
 
 	void remove(String collection, Object id);
 
 	void remove(String collection, Long id);
+
+	void remove(String collection, String id);
 
 	public static IDBEngine getDbEngine() {
 		return new MapDB();

@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.sallaire.dao.db.UserDao;
 import org.sallaire.dto.user.EpisodeStatus;
-import org.sallaire.service.TorrentService;
+import org.sallaire.service.DownloadService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class WantedShowProcessor {
 	private UserDao userDao;
 
 	@Autowired
-	private TorrentService torrentService;
+	private DownloadService torrentService;
 
 	@Scheduled(cron = "0 0 * * * *")
 	public void process() {
