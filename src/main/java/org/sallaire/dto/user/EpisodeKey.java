@@ -120,4 +120,9 @@ public class EpisodeKey implements Serializable {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "EpisodeKey [showId=" + showId + ", season=" + season + ", number=" + number + ", quality=" + quality + ", lang=" + lang + "]";
+	}
+
 }

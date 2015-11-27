@@ -7,8 +7,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.sallaire.dao.DaoException;
+import org.sallaire.dao.db.DownloadDao;
 import org.sallaire.dao.db.TvShowDao;
-import org.sallaire.dao.db.UserDao;
 import org.sallaire.dao.metadata.IMetaDataDao;
 import org.sallaire.dto.metadata.Episode;
 import org.sallaire.dto.metadata.TvShow;
@@ -34,7 +34,7 @@ public class UpdateShowProcessor {
 	private IMetaDataDao metaDataDao;
 
 	@Autowired
-	private UserDao userDao;
+	private DownloadDao downloadDao;
 
 	@Scheduled(cron = "0 0 2 * * *")
 	public void updateShow() {
@@ -62,7 +62,7 @@ public class UpdateShowProcessor {
 			LOGGER.debug("processing show {}", showId);
 
 			LOGGER.debug("Retrieve show configuration");
-			TvShowConfiguration showConfig = userDao.getShowConfiguration(showId);
+			TvShowConfiguration showConfig = downloadDao.getShowConfiguration(showId);
 			LOGGER.debug("Show configuration retrieved");
 
 			// Check if the show has been updated
@@ -77,12 +77,12 @@ public class UpdateShowProcessor {
 			LOGGER.debug("Checking if episodes has been aired and set them to wanted");
 			episodes.stream().filter(e -> e.getAirDate().isBefore(now)).forEach(e -> {
 				EpisodeKey epKey = new EpisodeKey(showConfig, e);
-				EpisodeStatus epStatus = userDao.getEpisodeStatus(epKey);
+				EpisodeStatus epStatus = downloadDao.getEpisodeStatus(epKey);
 				if (epStatus.getStatus() == Status.UNAIRED) {
 					LOGGER.debug("Epsiode S{}E{} has been aired ({}) and is set to wanted", e.getSeason(), e.getEpisode(), e.getAirDate());
 					epStatus.setStatus(Status.WANTED);
-					userDao.saveEpisodeStatus(epStatus);
-					userDao.saveWantedEpisode(epStatus);
+					downloadDao.saveEpisodeStatus(epStatus);
+					downloadDao.saveWantedEpisode(epStatus);
 				}
 			});
 		}
@@ -104,10 +104,10 @@ public class UpdateShowProcessor {
 
 			updatedEpisodes.stream().forEach(e -> {
 				EpisodeKey epKey = new EpisodeKey(showConfig, e);
-				if (userDao.getEpisodeStatus(epKey) == null) {
+				if (downloadDao.getEpisodeStatus(epKey) == null) {
 					LOGGER.debug("New episode {}-{} found, add it to status episode", e.getSeason(), e.getEpisode());
 					EpisodeStatus epStatus = new EpisodeStatus(epKey, Status.UNAIRED);
-					userDao.saveEpisodeStatus(epStatus);
+					downloadDao.saveEpisodeStatus(epStatus);
 				}
 			});
 		} catch (DaoException e) {

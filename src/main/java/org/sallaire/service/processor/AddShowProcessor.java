@@ -8,8 +8,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.sallaire.dao.DaoException;
+import org.sallaire.dao.db.DownloadDao;
 import org.sallaire.dao.db.TvShowDao;
-import org.sallaire.dao.db.UserDao;
 import org.sallaire.dao.metadata.IMetaDataDao;
 import org.sallaire.dto.metadata.Episode;
 import org.sallaire.dto.metadata.TvShow;
@@ -37,7 +37,7 @@ public class AddShowProcessor {
 	private TvShowDao showDao;
 
 	@Autowired
-	private UserDao userDao;
+	private DownloadDao downloadDao;
 
 	@Async
 	public void startShowProcessor() {
@@ -62,7 +62,7 @@ public class AddShowProcessor {
 	private void processShow(Long showId, Status initialStatus) {
 		try {
 			LOGGER.debug("Retrieving show configuration");
-			TvShowConfiguration showConfiguration = userDao.getShowConfiguration(showId);
+			TvShowConfiguration showConfiguration = downloadDao.getShowConfiguration(showId);
 			if (showConfiguration != null) {
 				LOGGER.info("Adding show [{}] with initial status [{}]", showId, initialStatus);
 				Collection<Episode> episodes = showDao.getShowEpisodes(showId);
@@ -112,7 +112,7 @@ public class AddShowProcessor {
 				epStatus.setStatus(initialStatus);
 			}
 			LOGGER.debug("Adding Episode status {} for episode S{}E{} and show {}", epStatus.getStatus(), epKey.getSeason(), epKey.getNumber(), showConfig.getId());
-			userDao.saveEpisodeStatus(epStatus);
+			downloadDao.saveEpisodeStatus(epStatus);
 		});
 
 	}

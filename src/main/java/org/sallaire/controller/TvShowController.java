@@ -6,6 +6,8 @@ import java.util.List;
 import org.sallaire.dto.metadata.Episode;
 import org.sallaire.dto.metadata.SearchResult;
 import org.sallaire.dto.metadata.TvShow;
+import org.sallaire.dto.user.EpisodeStatus;
+import org.sallaire.service.DownloadService;
 import org.sallaire.service.ShowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +21,9 @@ public class TvShowController {
 
 	@Autowired
 	private ShowService showService;
+
+	@Autowired
+	private DownloadService downloadService;
 
 	@RequestMapping(value = "/tvshow", method = RequestMethod.GET)
 	public Collection<SearchResult> searchShow(@RequestParam("name") String name, @RequestParam("lang") String lang) {
@@ -58,5 +63,15 @@ public class TvShowController {
 	@RequestMapping(value = "/tvshow/{id}/episode/{epId}", method = RequestMethod.DELETE)
 	public void truncateDownloadedEpisode(@PathVariable("id") Long id, @PathVariable("epId") Long episodeId) {
 		showService.truncateDownloadedEpisode(id, episodeId);
+	}
+
+	@RequestMapping(value = "/tvshow/{id}/episode/{season}/{episode}/status", method = RequestMethod.GET)
+	public EpisodeStatus getEpisodeStatus(@PathVariable("id") Long id, @PathVariable("season") Integer season, @PathVariable("episode") Integer episode, @RequestParam("quality") String quality, @RequestParam("lang") String lang) {
+		return downloadService.getEpisodeStatus(id, season, episode, quality, lang);
+	}
+
+	@RequestMapping(value = "/tvshow/episodes/status", method = RequestMethod.GET)
+	public Collection<EpisodeStatus> getEpisodeStatus() {
+		return downloadService.getEpisodeStatus();
 	}
 }

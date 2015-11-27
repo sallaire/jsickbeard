@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Collection;
 
-import org.sallaire.dao.db.UserDao;
+import org.sallaire.dao.db.DownloadDao;
 import org.sallaire.dto.user.EpisodeStatus;
 import org.sallaire.dto.user.Status;
 import org.sallaire.dto.user.TvShowConfiguration;
@@ -23,11 +23,11 @@ public class SnatchedShowProcessor {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SnatchedShowProcessor.class);
 
 	@Autowired
-	private UserDao userDao;
+	private DownloadDao downloadDao;
 
 	@Scheduled(cron = "0 15 * * * *")
 	public void updateShow() {
-		Collection<EpisodeStatus> episodes = userDao.getSnatchedEpisodes();
+		Collection<EpisodeStatus> episodes = downloadDao.getSnatchedEpisodes();
 		LOGGER.info("Starting snatched show processor with {} snatched episodes", episodes.size());
 		for (EpisodeStatus episode : episodes) {
 			LOGGER.debug("Search for snatched episode {}", episode);
@@ -36,8 +36,8 @@ public class SnatchedShowProcessor {
 					LOGGER.debug("Episode found, remove it from list of snatched episodes", episode);
 					episode.setDownloadDate(LocalDate.now());
 					episode.setStatus(Status.DOWNLOADED);
-					userDao.saveEpisodeStatus(episode);
-					userDao.removeSnatchedEpisode(episode);
+					downloadDao.saveEpisodeStatus(episode);
+					downloadDao.removeSnatchedEpisode(episode);
 				}
 			} catch (IOException e) {
 				LOGGER.error("Error while checking downloaded file for episode {}", episode);
@@ -48,7 +48,7 @@ public class SnatchedShowProcessor {
 
 	private boolean searchFile(EpisodeStatus episode) throws IOException {
 		if (episode.getFileNames() != null) {
-			TvShowConfiguration showConfig = userDao.getShowConfiguration(episode.getEpisodeKey().getShowId());
+			TvShowConfiguration showConfig = downloadDao.getShowConfiguration(episode.getEpisodeKey().getShowId());
 			String location = showConfig.getLocation();
 			boolean filesFound = true;
 			for (String fileName : episode.getFileNames()) {

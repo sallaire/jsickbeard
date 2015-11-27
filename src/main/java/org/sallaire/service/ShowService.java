@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.sallaire.dao.DaoException;
+import org.sallaire.dao.db.DownloadDao;
 import org.sallaire.dao.db.TvShowDao;
-import org.sallaire.dao.db.UserDao;
 import org.sallaire.dao.metadata.IMetaDataDao;
 import org.sallaire.dto.metadata.Episode;
 import org.sallaire.dto.metadata.SearchResult;
@@ -36,7 +36,7 @@ public class ShowService {
 	private TvShowDao showDao;
 
 	@Autowired
-	private UserDao userDao;
+	private DownloadDao downloadDao;
 
 	@Autowired
 	private AddShowProcessor showProcessor;
@@ -56,6 +56,7 @@ public class ShowService {
 		}
 		configuration.setQuality(convertedQuality);
 		configuration.setAudioLang(audioLang);
+		configuration.setLocation(location);
 		Status convertedInitialStatus = Status.SKIPPED;
 		try {
 			convertedInitialStatus = Status.valueOf(initalStatus);
@@ -63,7 +64,7 @@ public class ShowService {
 			LOGGER.warn("Check of inital status {} fails, default status {} will be set", initalStatus, Status.SKIPPED, e);
 		}
 		LOGGER.debug("Store show configuration", id);
-		userDao.saveShowConfiguration(id, configuration);
+		downloadDao.saveShowConfiguration(id, configuration);
 		LOGGER.debug("Show configuration stored", id);
 
 		LOGGER.info("Adding show to AddShow queue");
@@ -95,17 +96,17 @@ public class ShowService {
 		try {
 			final Status convertedStatus = Status.valueOf(status);
 			List<EpisodeStatus> episodesToSearch = new ArrayList<>();
-			TvShowConfiguration showConfig = userDao.getShowConfiguration(showId);
+			TvShowConfiguration showConfig = downloadDao.getShowConfiguration(showId);
 
 			Collection<Episode> episodes = showDao.getShowEpisodes(showId);
 			episodes.stream().filter(e -> ids.contains(e.getId())).forEach(e -> {
 				EpisodeKey epKey = new EpisodeKey(showConfig, e);
-				EpisodeStatus epStatus = userDao.getEpisodeStatus(epKey);
+				EpisodeStatus epStatus = downloadDao.getEpisodeStatus(epKey);
 				epStatus.setStatus(convertedStatus);
 				if (convertedStatus == Status.WANTED) {
 					episodesToSearch.add(epStatus);
 				}
-				userDao.saveEpisodeStatus(epStatus);
+				downloadDao.saveEpisodeStatus(epStatus);
 			});
 			if (!episodesToSearch.isEmpty()) {
 				wantedShowProcessor.process(episodesToSearch);
@@ -116,12 +117,12 @@ public class ShowService {
 	}
 
 	public void searchEpisode(Long showId, Long episodeId) {
-		TvShowConfiguration showConfig = userDao.getShowConfiguration(showId);
+		TvShowConfiguration showConfig = downloadDao.getShowConfiguration(showId);
 		Collection<Episode> episodes = showDao.getShowEpisodes(showId);
 		Optional<Episode> ep = episodes.stream().filter(e -> e.getId().equals(episodeId)).findFirst();
 		if (ep.isPresent()) {
 			EpisodeKey episodeKey = new EpisodeKey(showConfig, ep.get());
-			EpisodeStatus epStatus = userDao.getEpisodeStatus(episodeKey);
+			EpisodeStatus epStatus = downloadDao.getEpisodeStatus(episodeKey);
 			if (epStatus.getStatus() != Status.UNAIRED) {
 				LOGGER.debug("Processing search for episode {}", ep.get());
 				wantedShowProcessor.process(epStatus);
@@ -134,15 +135,15 @@ public class ShowService {
 	}
 
 	public void truncateDownloadedEpisode(Long showId, Long episodeId) {
-		TvShowConfiguration showConfig = userDao.getShowConfiguration(showId);
+		TvShowConfiguration showConfig = downloadDao.getShowConfiguration(showId);
 		Collection<Episode> episodes = showDao.getShowEpisodes(showId);
 		Optional<Episode> ep = episodes.stream().filter(e -> e.getId().equals(episodeId)).findFirst();
 		if (ep.isPresent()) {
 			EpisodeKey episodeKey = new EpisodeKey(showConfig, ep.get());
-			EpisodeStatus epStatus = userDao.getEpisodeStatus(episodeKey);
+			EpisodeStatus epStatus = downloadDao.getEpisodeStatus(episodeKey);
 			epStatus.setFileNames(new ArrayList<>());
 			LOGGER.debug("Saving episode {} with empty file names", ep.get());
-			userDao.saveEpisodeStatus(epStatus);
+			downloadDao.saveEpisodeStatus(epStatus);
 			LOGGER.debug("Episode {} modified", ep.get());
 		} else {
 			LOGGER.warn("unable to find an episode for show id {} and episode id {}", showId, episodeId);

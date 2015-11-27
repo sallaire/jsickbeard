@@ -11,16 +11,28 @@ import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.Serializer;
 import org.mapdb.TxMaker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
+
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Repository
 public class MapDB implements IDBEngine {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(MapDB.class);
+
+	private ObjectMapper objectMapper = new ObjectMapper();
 
 	private TxMaker txMaker;
 
 	@PostConstruct
 	public void init() {
 		txMaker = DBMaker.fileDB(DB_LOCATION.toFile()).closeOnJvmShutdown().fileMmapEnableIfSupported().makeTxMaker();
+		objectMapper.setSerializationInclusion(Include.NON_NULL).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -52,7 +64,11 @@ public class MapDB implements IDBEngine {
 
 	@Override
 	public <T> void store(String collection, Object id, T value) {
-		store(collection, id, value, Serializer.JAVA);
+		try {
+			store(collection, objectMapper.writeValueAsString(id), value, Serializer.STRING);
+		} catch (JsonProcessingException e) {
+			LOGGER.error("Error while saving object with key [{}]", e, id);
+		}
 	}
 
 	public <K, V> void store(String collection, K id, V value, Serializer<K> keySerializer) {
@@ -74,7 +90,12 @@ public class MapDB implements IDBEngine {
 
 	@Override
 	public <T> T get(String collection, Object id) {
-		return get(collection, id, Serializer.JAVA);
+		try {
+			return get(collection, objectMapper.writeValueAsString(id), Serializer.STRING);
+		} catch (JsonProcessingException e) {
+			LOGGER.error("Error while retrieving object with key [{}]", e, id);
+		}
+		return null;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -92,7 +113,11 @@ public class MapDB implements IDBEngine {
 
 	@Override
 	public void remove(String collection, Object id) {
-		remove(collection, id, Serializer.JAVA);
+		try {
+			remove(collection, objectMapper.writeValueAsString(id), Serializer.STRING);
+		} catch (JsonProcessingException e) {
+			LOGGER.error("Error while removing object with key [{}]", e, id);
+		}
 	}
 
 	@Override
@@ -103,6 +128,13 @@ public class MapDB implements IDBEngine {
 	private void remove(String collection, Object id, Serializer<?> keySerializer) {
 		try (DB db = txMaker.makeTx()) {
 			db.hashMap(collection, keySerializer, Serializer.JAVA).remove(id);
+			db.commit();
+		}
+	}
+
+	public void drop(String collection) {
+		try (DB db = txMaker.makeTx()) {
+			db.hashMap(collection).clear();
 			db.commit();
 		}
 	}

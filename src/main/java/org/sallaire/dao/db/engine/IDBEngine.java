@@ -44,6 +44,8 @@ public interface IDBEngine {
 
 	void remove(String collection, String id);
 
+	public void drop(String collection);
+
 	public static IDBEngine getDbEngine() {
 		return new MapDB();
 	}

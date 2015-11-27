@@ -2,6 +2,7 @@ package org.sallaire.dao.metadata.tmdb;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,7 +35,9 @@ public class TMDBDao implements IMetaDataDao {
 
 	public List<SearchResult> searchForShows(String name, String lang) {
 		TvResultsPage resultPage = new TmdbApi(API_KEY).getSearch().searchTv(name, lang, 0);
-		return TMDBConverter.convertSearchResults(getImagesUrl(), resultPage.getResults());
+		List<TvSeries> rawResults = resultPage.getResults();
+		Collections.sort(rawResults, (r1, r2) -> Double.compare(r2.getPopularity(), r1.getPopularity()));
+		return TMDBConverter.convertSearchResults(getImagesUrl(), rawResults);
 	}
 
 	@Override
@@ -42,7 +45,7 @@ public class TMDBDao implements IMetaDataDao {
 		List<Long> results = new ArrayList<>();
 		LocalDate localDate = LocalDate.ofEpochDay(fromTime);
 		Integer nbPages = 1;
-		for (int i = 0; i < nbPages; i++) {
+		for (int i = 1; i <= nbPages; i++) {
 			ChangesResultsPage resultsPage = new TmdbApi(API_KEY).getChanges().getTvSeriesChangesList(0, localDate.toString(), null);
 			nbPages = resultsPage.getTotalPages();
 			results.addAll(resultsPage.getResults().stream().map(r -> new Long(r.getId())).collect(Collectors.toList()));

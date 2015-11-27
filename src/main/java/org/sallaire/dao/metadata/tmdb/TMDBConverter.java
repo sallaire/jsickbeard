@@ -26,7 +26,9 @@ public class TMDBConverter {
 			r.setName(s.getName());
 			r.setOverview(s.getOverview());
 			r.setCountries(s.getOriginCountry());
-			r.setImage(imageUrl + s.getPosterPath());
+			if (s.getPosterPath() != null) {
+				r.setImage(imageUrl + s.getPosterPath());
+			}
 			return r;
 		}).collect(Collectors.toList());
 	}

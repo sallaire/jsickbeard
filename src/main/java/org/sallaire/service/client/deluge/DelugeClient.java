@@ -3,6 +3,8 @@ package org.sallaire.service.client.deluge;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -121,7 +123,8 @@ public class DelugeClient implements IClient {
 		if (userConfiguration.getMoveShow()) {
 			params.put("move_completed", "true");
 			if (userConfiguration.getSeasonPattern() != null) {
-				params.put("move_completed_path", showConfiguration.getLocation() + String.format(userConfiguration.getSeasonPattern(), episode.getEpisodeKey().getSeason()));
+				Path path = Paths.get(showConfiguration.getLocation(), String.format(userConfiguration.getSeasonPattern(), episode.getEpisodeKey().getSeason()));
+				params.put("move_completed_path", path.toString());
 			} else {
 				params.put("move_completed_path", showConfiguration.getLocation());
 			}
