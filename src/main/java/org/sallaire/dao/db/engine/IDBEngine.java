@@ -16,6 +16,7 @@ public interface IDBEngine {
 	static final String EPISODE = "episode";
 	static final String EPISODE_STATUS = "episodeStatus";
 	static final String WANTED_EPISODE = "wantedEpisode";
+	static final String DOWNLOADED_EPISODE = "downloadedEpisode";
 	static final String SNATCHED_EPISODE = "snatchedEpisode";
 	static final String UPDATE_TIME = "updateTime";
 	static final String PROVIDER_CONFIGURATION = "providerConfiguration";
@@ -26,19 +27,19 @@ public interface IDBEngine {
 
 	<T> void store(String collection, String id, T value);
 
-	<T> void store(String collection, Object id, T value);
+	<K, V> void store(String collection, K id, V value);
 
 	<T> T get(String collection, Long id);
 
 	<T> T get(String collection, String id);
 
-	<T> T get(String collection, Object id);
+	<K, T> T get(String collection, K id);
 
 	<T> Collection<T> getValues(String collection);
 
 	<K, V> Map<K, V> getAll(String collection);
 
-	void remove(String collection, Object id);
+	<K> void remove(String collection, K id);
 
 	void remove(String collection, Long id);
 

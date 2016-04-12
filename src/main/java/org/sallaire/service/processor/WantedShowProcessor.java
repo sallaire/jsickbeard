@@ -1,6 +1,8 @@
 package org.sallaire.service.processor;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -72,7 +74,13 @@ public class WantedShowProcessor {
 		Torrent torrent = null;
 		for (IProvider provider : downloadService.getActiveProviders()) {
 			try {
-				torrent = provider.findEpisode(show.getName(), episode.getEpisodeKey().getLang(), episode.getEpisodeKey().getSeason(), episode.getEpisodeKey().getNumber(), episode.getEpisodeKey().getQuality(), episode.getFileNames());
+				Collection<String> namesToSearch = null;
+				if (config.getCustomNames().isEmpty()) {
+					namesToSearch = Arrays.asList(show.getName());
+				} else {
+					namesToSearch = new ArrayList<>(config.getCustomNames());
+				}
+				torrent = provider.findEpisode(namesToSearch, episode.getEpisodeKey().getLang(), episode.getEpisodeKey().getSeason(), episode.getEpisodeKey().getNumber(), episode.getEpisodeKey().getQuality(), episode.getFileNames());
 				if (torrent != null) {
 					LOGGER.info("Episode [{}] found with provider [{}]", episode, provider.getId());
 					break;
@@ -93,6 +101,7 @@ public class WantedShowProcessor {
 					// Update episode status to snatched
 					episode.setStatus(Status.SNATCHED);
 					episode.addFileName(torrentToDownload.getName());
+					episode.setDownloadDate(LocalDate.now());
 					downloadDao.saveEpisodeStatus(episode);
 					downloadDao.saveSnatchedEpisode(episode);
 					return true;

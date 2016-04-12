@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sallaire.dto.user.Quality;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,9 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(locations = "classpath:t411.properties", ignoreUnknownFields = true, prefix = "t411")
 public class T411Configuration {
+
+	private static final String EPISODE_SEP = "[.\\s-_]?";
+
 	private String protocol;
 	private String host;
 	private String searchPath;
@@ -39,7 +43,7 @@ public class T411Configuration {
 	private List<String> quality720;
 	private List<String> quality1080;
 
-	private String epsiodeFormat;
+	private String episodeFormat;
 
 	private List<Pattern> voRegex;
 	private List<Pattern> vfRegex;
@@ -112,16 +116,20 @@ public class T411Configuration {
 		this.subCategory = subCategory;
 	}
 
-	public Integer getEpisode() {
-		return episode;
+	public Integer getEpisode(Integer number) {
+		if (number < 9) {
+			return episode + number;
+		} else {
+			return episode + number + 1;
+		}
 	}
 
 	public void setEpisode(Integer episode) {
 		this.episode = episode;
 	}
 
-	public Integer getSeason() {
-		return season;
+	public Integer getSeason(Integer number) {
+		return season + number;
 	}
 
 	public void setSeason(Integer season) {
@@ -221,12 +229,12 @@ public class T411Configuration {
 		}
 	}
 
-	public String getEpsiodeFormat() {
-		return epsiodeFormat;
+	public String getEpisodeFormat() {
+		return episodeFormat;
 	}
 
 	public void setEpsiodeFormat(String epsiodeFormat) {
-		this.epsiodeFormat = epsiodeFormat;
+		this.episodeFormat = epsiodeFormat;
 	}
 
 	public List<Pattern> getVoRegex() {
@@ -259,6 +267,11 @@ public class T411Configuration {
 		} else {
 			return getVoRegex();
 		}
+	}
+
+	public List<Pattern> getEpisodeRegex(String name, Integer season, Integer Number) {
+		String pattern = name.replace(" ", EPISODE_SEP) + EPISODE_SEP + "S" + StringUtils.leftPad(season.toString(), 2, '0') + EPISODE_SEP + "E" + StringUtils.leftPad(episode.toString(), 2, '0');
+		return Arrays.asList(Pattern.compile(pattern, Pattern.CASE_INSENSITIVE));
 	}
 
 	public List<Pattern> getP720Regex() {

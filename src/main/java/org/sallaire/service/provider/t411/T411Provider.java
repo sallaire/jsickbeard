@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -76,17 +77,19 @@ public class T411Provider implements IProvider {
 	}
 
 	@Override
-	public Torrent findEpisode(String name, String audioLang, Integer season, Integer number, Quality quality, List<String> excludedFiles) throws IOException {
+	public Torrent findEpisode(Collection<String> names, String audioLang, Integer season, Integer number, Quality quality, List<String> excludedFiles) throws IOException {
 
 		LOGGER.debug("Authenticating to T411");
 		authenticationInterceptor.setToken(login());
 
 		List<SearchResult> results = null;
-		for (Integer option : Option.getOptionsToCheck()) {
-			results = findEpisode(name, audioLang, season, number, quality, option, excludedFiles);
-			if (CollectionUtils.isNotEmpty(results)) {
-				LOGGER.debug("Results found for episode, stopping search");
-				break;
+		for (String name : names) {
+			for (Integer option : Option.getOptionsToCheck()) {
+				results = findEpisode(name, audioLang, season, number, quality, option, excludedFiles);
+				if (CollectionUtils.isNotEmpty(results)) {
+					LOGGER.debug("Results found for episode, stopping search");
+					break;
+				}
 			}
 		}
 
@@ -152,11 +155,13 @@ public class T411Provider implements IProvider {
 				.addParameter(configuration.getCategoryKey(), configuration.getCategory()) //
 				.addParameter(configuration.getSubCategoryKey(), configuration.getSubCategory());
 
+		boolean filterNumber = false;
 		if (Option.NUMBER.isActivated(option)) {
-			builder.addParameter(configuration.getSeasonKey(), "" + (configuration.getSeason() + season)) //
-					.addParameter(configuration.getEpisodeKey(), "" + (configuration.getEpisode() + number));
+			builder.addParameter(configuration.getSeasonKey(), String.valueOf(configuration.getSeason(season))) //
+					.addParameter(configuration.getEpisodeKey(), String.valueOf(configuration.getEpisode(number)));
 		} else {
-			builder.setPath("/torrents/search/" + String.format(configuration.getEpsiodeFormat(), name, season, number));
+			filterNumber = true;
+			builder.setPath("/torrents/search/" + String.format(configuration.getEpisodeFormat(), name, season, number));
 		}
 
 		boolean filterLang = false;
@@ -201,6 +206,11 @@ public class T411Provider implements IProvider {
 				});
 
 				// Now we have to filter results according to quality/language if necessary
+				if (filterNumber) {
+					LOGGER.info("Filter results for episode name [{}] and number [S{}E{}]", name, season, number);
+					filterResults(results.getTorrents(), configuration.getEpisodeRegex(name, season, number));
+					LOGGER.info("{} results after filter", results.getTorrents().size());
+				}
 				if (filterLang) {
 					LOGGER.info("Filter results for audio lang [{}]", audioLang);
 					filterResults(results.getTorrents(), configuration.getLangRegex(audioLang));

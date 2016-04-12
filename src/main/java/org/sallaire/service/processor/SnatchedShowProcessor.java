@@ -37,7 +37,8 @@ public class SnatchedShowProcessor {
 					episode.setDownloadDate(LocalDate.now());
 					episode.setStatus(Status.DOWNLOADED);
 					downloadDao.saveEpisodeStatus(episode);
-					downloadDao.removeSnatchedEpisode(episode);
+					downloadDao.saveDownloadedEpisode(episode);
+					downloadDao.removeSnatchedEpisode(episode.getEpisodeKey());
 				}
 			} catch (IOException e) {
 				LOGGER.error("Error while checking downloaded file for episode {}", episode);
@@ -52,6 +53,7 @@ public class SnatchedShowProcessor {
 			String location = showConfig.getLocation();
 			boolean filesFound = true;
 			for (String fileName : episode.getFileNames()) {
+				LOGGER.debug("Try to find file [{}] in directory [{}]", fileName, location);
 				Finder finder = new Finder(fileName);
 				Files.walkFileTree(Paths.get(location), finder);
 				filesFound &= finder.isFound();

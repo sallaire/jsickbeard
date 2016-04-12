@@ -1,9 +1,11 @@
 package org.sallaire.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.sallaire.dao.DaoException;
 import org.sallaire.dao.db.DownloadDao;
@@ -44,7 +46,7 @@ public class ShowService {
 	@Autowired
 	private WantedShowProcessor wantedShowProcessor;
 
-	public void add(Long id, String location, String initalStatus, String quality, String audioLang) {
+	public void add(Long id, String location, String initalStatus, String quality, String audioLang, List<String> customNames) {
 		LOGGER.debug("Process show configuration for show {}", id);
 		TvShowConfiguration configuration = new TvShowConfiguration();
 		configuration.setId(id);
@@ -57,6 +59,7 @@ public class ShowService {
 		configuration.setQuality(convertedQuality);
 		configuration.setAudioLang(audioLang);
 		configuration.setLocation(location);
+		configuration.setCustomNames(customNames);
 		Status convertedInitialStatus = Status.SKIPPED;
 		try {
 			convertedInitialStatus = Status.valueOf(initalStatus);
@@ -69,6 +72,30 @@ public class ShowService {
 
 		LOGGER.info("Adding show to AddShow queue");
 		showProcessor.addShow(id, convertedInitialStatus);
+	}
+
+	public void update(Long id, String location, String quality, String audioLang, List<String> customNames) {
+		LOGGER.debug("Process show configuration for show {}", id);
+		TvShowConfiguration configuration = downloadDao.getShowConfiguration(id);
+		if (configuration != null) {
+			if (quality != null) {
+				try {
+					configuration.setQuality(Quality.valueOf(quality));
+				} catch (IllegalArgumentException e) {
+					LOGGER.warn("Check of quality {} fails, no quality will be set", quality, e);
+				}
+			}
+			if (audioLang != null) {
+				configuration.setAudioLang(audioLang);
+			}
+			if (location != null) {
+				configuration.setLocation(location);
+			}
+			configuration.setCustomNames(customNames);
+			LOGGER.debug("Update show configuration", id);
+			downloadDao.saveShowConfiguration(id, configuration);
+			LOGGER.debug("Show configuration updated", id);
+		}
 	}
 
 	public List<SearchResult> search(String name, String lang) {
@@ -148,5 +175,16 @@ public class ShowService {
 		} else {
 			LOGGER.warn("unable to find an episode for show id {} and episode id {}", showId, episodeId);
 		}
+	}
+
+	public List<Episode> getUpcomingEpisodes(int from, int length) {
+		Collection<Episode> episodes = new ArrayList<>();
+		showDao.getAllShowEpisodes().values().forEach(e -> episodes.addAll(e));
+		LocalDate now = LocalDate.now();
+		return episodes.stream() //
+				.filter(e -> !e.getAirDate().isBefore(now)) //
+				.sorted((e1, e2) -> e1.getAirDate().compareTo(e2.getAirDate())) //
+				.skip(from).limit(length) //
+				.collect(Collectors.toList());
 	}
 }

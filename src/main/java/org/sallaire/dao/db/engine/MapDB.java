@@ -25,14 +25,13 @@ public class MapDB implements IDBEngine {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MapDB.class);
 
-	private ObjectMapper objectMapper = new ObjectMapper();
+	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().setSerializationInclusion(Include.NON_NULL).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
 	private TxMaker txMaker;
 
 	@PostConstruct
 	public void init() {
 		txMaker = DBMaker.fileDB(DB_LOCATION.toFile()).closeOnJvmShutdown().fileMmapEnableIfSupported().makeTxMaker();
-		objectMapper.setSerializationInclusion(Include.NON_NULL).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -63,9 +62,9 @@ public class MapDB implements IDBEngine {
 	}
 
 	@Override
-	public <T> void store(String collection, Object id, T value) {
+	public <K, V> void store(String collection, K id, V value) {
 		try {
-			store(collection, objectMapper.writeValueAsString(id), value, Serializer.STRING);
+			store(collection, OBJECT_MAPPER.writeValueAsString(id), value, Serializer.STRING);
 		} catch (JsonProcessingException e) {
 			LOGGER.error("Error while saving object with key [{}]", e, id);
 		}
@@ -89,9 +88,9 @@ public class MapDB implements IDBEngine {
 	}
 
 	@Override
-	public <T> T get(String collection, Object id) {
+	public <K, T> T get(String collection, K id) {
 		try {
-			return get(collection, objectMapper.writeValueAsString(id), Serializer.STRING);
+			return get(collection, OBJECT_MAPPER.writeValueAsString(id), Serializer.STRING);
 		} catch (JsonProcessingException e) {
 			LOGGER.error("Error while retrieving object with key [{}]", e, id);
 		}
@@ -112,9 +111,9 @@ public class MapDB implements IDBEngine {
 	}
 
 	@Override
-	public void remove(String collection, Object id) {
+	public <K> void remove(String collection, K id) {
 		try {
-			remove(collection, objectMapper.writeValueAsString(id), Serializer.STRING);
+			remove(collection, OBJECT_MAPPER.writeValueAsString(id), Serializer.STRING);
 		} catch (JsonProcessingException e) {
 			LOGGER.error("Error while removing object with key [{}]", e, id);
 		}

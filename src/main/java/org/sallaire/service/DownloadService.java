@@ -170,8 +170,25 @@ public class DownloadService {
 		return downloadDao.getWantedEpisodes();
 	}
 
+	public Collection<EpisodeStatus> getDownloadedEpisodes(int from, int length) {
+		return downloadDao.getDownloadedEpisodes().stream() //
+				.sorted((e1, e2) -> e2.getDownloadDate().compareTo(e1.getDownloadDate())) //
+				.skip(from).limit(length) //
+				.collect(Collectors.toList());
+	}
+
 	public void deleteSnatchedEpisodes() {
 		downloadDao.dropSnatchedEpisodes();
+	}
+
+	public void deleteSnatchedEpisode(Long showId, Integer season, Integer number, String quality, String lang) {
+		try {
+			Quality convertedQuality = Quality.valueOf(quality);
+			EpisodeKey episodeKey = new EpisodeKey(showId, season, number, convertedQuality, lang);
+			downloadDao.removeSnatchedEpisode(episodeKey);
+		} catch (IllegalArgumentException e) {
+			LOGGER.error("Unable to delete snatched episode, quality [{}] could not be resolved", quality, e);
+		}
 	}
 
 	public EpisodeStatus getEpisodeStatus(Long showId, Integer season, Integer episode, String quality, String lang) {

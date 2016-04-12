@@ -31,8 +31,13 @@ public class TvShowController {
 	}
 
 	@RequestMapping(value = "/tvshow/{id}", method = RequestMethod.POST)
-	public void addShow(@PathVariable("id") Long id, @RequestParam("location") String location, @RequestParam("status") String initalStatus, @RequestParam("quality") String quality, @RequestParam("audio") String audioLang) {
-		showService.add(id, location, initalStatus, quality, audioLang);
+	public void addShow(@PathVariable("id") Long id, @RequestParam("location") String location, @RequestParam("status") String initalStatus, @RequestParam("quality") String quality, @RequestParam("audio") String audioLang, @RequestParam(value = "customName", required = false) List<String> customNames) {
+		showService.add(id, location, initalStatus, quality, audioLang, customNames);
+	}
+
+	@RequestMapping(value = "/tvshow/{id}", method = RequestMethod.PUT)
+	public void updateShow(@PathVariable("id") Long id, @RequestParam(value = "location", required = false) String location, @RequestParam(value = "quality", required = false) String quality, @RequestParam(value = "audio", required = false) String audioLang, @RequestParam(value = "customName", required = false) List<String> customNames) {
+		showService.update(id, location, quality, audioLang, customNames);
 	}
 
 	@RequestMapping(value = "/tvshow/{id}", method = RequestMethod.GET)

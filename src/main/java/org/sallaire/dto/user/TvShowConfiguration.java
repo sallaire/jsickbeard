@@ -1,6 +1,7 @@
 package org.sallaire.dto.user;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TvShowConfiguration implements Serializable {
@@ -74,6 +75,9 @@ public class TvShowConfiguration implements Serializable {
 	}
 
 	public List<String> getCustomNames() {
+		if (customNames == null) {
+			customNames = new ArrayList<>();
+		}
 		return customNames;
 	}
 

@@ -43,8 +43,8 @@ public class DownloadDao {
 		dbEngine.store(IDBEngine.SNATCHED_EPISODE, episodeStatus.getEpisodeKey(), episodeStatus);
 	}
 
-	public void removeSnatchedEpisode(EpisodeStatus episodeStatus) {
-		dbEngine.remove(IDBEngine.SNATCHED_EPISODE, episodeStatus.getEpisodeKey());
+	public void removeSnatchedEpisode(EpisodeKey episodeKey) {
+		dbEngine.remove(IDBEngine.SNATCHED_EPISODE, episodeKey);
 	}
 
 	public void saveEpisodeStatus(EpisodeStatus episodeStatus) {
@@ -61,5 +61,13 @@ public class DownloadDao {
 
 	public void dropSnatchedEpisodes() {
 		dbEngine.drop(IDBEngine.SNATCHED_EPISODE);
+	}
+
+	public Collection<EpisodeStatus> getDownloadedEpisodes() {
+		return dbEngine.getValues(IDBEngine.DOWNLOADED_EPISODE);
+	}
+
+	public void saveDownloadedEpisode(EpisodeStatus episodeStatus) {
+		dbEngine.store(IDBEngine.DOWNLOADED_EPISODE, episodeStatus.getEpisodeKey(), episodeStatus);
 	}
 }
