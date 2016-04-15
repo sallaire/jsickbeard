@@ -28,9 +28,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableConfigurationProperties
 @EnableJSONDoc
 @ComponentScan(basePackages = { "org.sallaire.dao", "org.sallaire.service", "org.sallaire.controller" })
-public class SickbeardApplication {
+public class JackbeardApplication {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SickbeardApplication.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(JackbeardApplication.class);
 
 	@Autowired
 	private AddShowProcessor showProcessor;
@@ -45,16 +45,16 @@ public class SickbeardApplication {
 
 	public static void main(String[] args) {
 		LOGGER.info("Starting application...");
-		if (Files.notExists(SickBeardConstants.APPLICATION_DIRECTORY)) {
-			LOGGER.debug("Create sickbeard directory");
+		if (Files.notExists(JackBeardConstants.APPLICATION_DIRECTORY)) {
+			LOGGER.debug("Create jackbeard directory");
 			try {
-				Files.createDirectory(SickBeardConstants.APPLICATION_DIRECTORY);
+				Files.createDirectory(JackBeardConstants.APPLICATION_DIRECTORY);
 			} catch (IOException e) {
-				LOGGER.error("Unable to create SickBeard directory in [{}]", SickBeardConstants.APPLICATION_DIRECTORY, e);
+				LOGGER.error("Unable to create JackBeard directory in [{}]", JackBeardConstants.APPLICATION_DIRECTORY, e);
 			}
-			LOGGER.debug("Sickbeard directory [{}] created", SickBeardConstants.APPLICATION_DIRECTORY);
+			LOGGER.debug("Jackbeard directory [{}] created", JackBeardConstants.APPLICATION_DIRECTORY);
 		}
-		SpringApplication.run(SickbeardApplication.class, args);
+		SpringApplication.run(JackbeardApplication.class, args);
 
 		LOGGER.info("Application started");
 	}

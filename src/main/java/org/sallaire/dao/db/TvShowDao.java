@@ -19,6 +19,10 @@ public class TvShowDao {
 		return dbEngine.get(IDBEngine.SHOW, id);
 	}
 
+	public void removeShow(Long id) {
+		dbEngine.remove(IDBEngine.SHOW, id);
+	}
+
 	public void saveShow(TvShow tvShow) {
 		dbEngine.store(IDBEngine.SHOW, tvShow.getId(), tvShow);
 	}
@@ -29,6 +33,10 @@ public class TvShowDao {
 
 	public Collection<Episode> getShowEpisodes(Long id) {
 		return dbEngine.get(IDBEngine.EPISODE, id);
+	}
+
+	public void removeShowEpisodes(Long id) {
+		dbEngine.remove(IDBEngine.EPISODE, id);
 	}
 
 	public void saveShowEpisodes(Long showId, Collection<Episode> episodes) {

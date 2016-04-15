@@ -33,24 +33,7 @@ public class EpisodeConverter {
 					.stream() //
 					.filter(e -> e.getEpisode().equals(episodeStatus.getEpisodeKey().getNumber()) && e.getSeason().equals(episodeStatus.getEpisodeKey().getSeason())) //
 					.findFirst().get();
-			FullEpisode fullEpisode = new FullEpisode();
-			fullEpisode.setEpisodeId(ep.getId());
-			fullEpisode.setDescription(ep.getDescription());
-			fullEpisode.setName(ep.getName());
-			fullEpisode.setAirDate(ep.getAirDate());
-			fullEpisode.setSeason(episodeStatus.getEpisodeKey().getSeason());
-			fullEpisode.setNumber(episodeStatus.getEpisodeKey().getNumber());
-			fullEpisode.setDownloadDate(episodeStatus.getDownloadDate());
-			fullEpisode.setFileNames(episodeStatus.getFileNames());
-			fullEpisode.setLang(episodeStatus.getEpisodeKey().getLang());
-			fullEpisode.setQuality(episodeStatus.getEpisodeKey().getQuality());
-			fullEpisode.setStatus(episodeStatus.getStatus());
-			fullEpisode.setBanner(show.getBanner());
-			fullEpisode.setPoster(show.getPoster());
-			fullEpisode.setShowId(showId);
-			fullEpisode.setShowName(show.getName());
-			fullEpisode.setLang(episodeStatus.getEpisodeKey().getLang());
-
+			FullEpisode fullEpisode = new FullEpisode(show, ep, episodeStatus);
 			fullEpisodes.add(fullEpisode);
 		}
 		return fullEpisodes;
@@ -65,17 +48,7 @@ public class EpisodeConverter {
 				showCache.put(showId, showDao.getShow(showId));
 			}
 			TvShow show = showCache.get(showId);
-			FullEpisode fullEpisode = new FullEpisode();
-			fullEpisode.setEpisodeId(episode.getId());
-			fullEpisode.setDescription(episode.getDescription());
-			fullEpisode.setName(episode.getName());
-			fullEpisode.setAirDate(episode.getAirDate());
-			fullEpisode.setSeason(episode.getSeason());
-			fullEpisode.setNumber(episode.getEpisode());
-			fullEpisode.setBanner(show.getBanner());
-			fullEpisode.setPoster(show.getPoster());
-			fullEpisode.setShowId(showId);
-			fullEpisode.setShowName(show.getName());
+			FullEpisode fullEpisode = new FullEpisode(show, episode, null);
 
 			fullEpisodes.add(fullEpisode);
 		}

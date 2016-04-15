@@ -5,11 +5,11 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Map;
 
-import org.sallaire.SickBeardConstants;
+import org.sallaire.JackBeardConstants;
 
 public interface IDBEngine {
 
-	static final Path DB_LOCATION = Paths.get(SickBeardConstants.APPLICATION_DIRECTORY.toString(), "sickbeard.db");
+	static final Path DB_LOCATION = Paths.get(JackBeardConstants.APPLICATION_DIRECTORY.toString(), "jackbeard.db");
 
 	static final String SHOW_CONFIGURATION = "showConfiguration";
 	static final String SHOW = "show";

@@ -1,5 +1,6 @@
 package org.sallaire.service;
 
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,10 +8,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+import org.sallaire.JackBeardConstants;
 import org.sallaire.dao.DaoException;
 import org.sallaire.dao.db.DownloadDao;
 import org.sallaire.dao.db.TvShowDao;
 import org.sallaire.dao.metadata.IMetaDataDao;
+import org.sallaire.dto.api.FullEpisode;
+import org.sallaire.dto.api.FullShow;
+import org.sallaire.dto.api.TvShowConfigurationParam;
 import org.sallaire.dto.metadata.Episode;
 import org.sallaire.dto.metadata.SearchResult;
 import org.sallaire.dto.metadata.TvShow;
@@ -46,32 +52,36 @@ public class ShowService {
 	@Autowired
 	private WantedShowProcessor wantedShowProcessor;
 
-	public void add(Long id, String location, String initalStatus, String quality, String audioLang, List<String> customNames) {
+	public void add(Long id, TvShowConfigurationParam showConfig) {
 		LOGGER.debug("Process show configuration for show {}", id);
 		TvShowConfiguration configuration = new TvShowConfiguration();
 		configuration.setId(id);
-		Quality convertedQuality = Quality.SD;
-		try {
-			convertedQuality = Quality.valueOf(quality);
-		} catch (IllegalArgumentException e) {
-			LOGGER.warn("Check of quality {} fails, default quality {} will be set", quality, Quality.SD, e);
+		if (showConfig.getQuality() == null) {
+			LOGGER.warn("No quality configured, default quality {} will be set", Quality.SD);
+			configuration.setQuality(Quality.SD);
+		} else {
+			configuration.setQuality(showConfig.getQuality());
 		}
-		configuration.setQuality(convertedQuality);
-		configuration.setAudioLang(audioLang);
-		configuration.setLocation(location);
-		configuration.setCustomNames(customNames);
-		Status convertedInitialStatus = Status.SKIPPED;
-		try {
-			convertedInitialStatus = Status.valueOf(initalStatus);
-		} catch (IllegalArgumentException e) {
-			LOGGER.warn("Check of inital status {} fails, default status {} will be set", initalStatus, Status.SKIPPED, e);
+		configuration.setAudioLang(showConfig.getAudio());
+		if (StringUtils.isEmpty(showConfig.getLocation())) {
+			Path defaultLocation = JackBeardConstants.DOWNLAD_DIRECTORY.resolve(StringUtils.stripAccents(showConfig.getName()).replaceAll("[^\\w\\s-]", ""));
+			LOGGER.debug("No location is set, using default one [{}]", defaultLocation);
+			configuration.setLocation(defaultLocation.toString());
+		} else {
+			configuration.setLocation(showConfig.getLocation());
+		}
+		configuration.setCustomNames(showConfig.getCustomNames());
+		Status initialStatus = showConfig.getStatus();
+		if (showConfig.getStatus() == null) {
+			initialStatus = Status.SKIPPED;
+			LOGGER.warn("Initial status is not configured, default status {} will be set", Status.SKIPPED);
 		}
 		LOGGER.debug("Store show configuration", id);
 		downloadDao.saveShowConfiguration(id, configuration);
 		LOGGER.debug("Show configuration stored", id);
 
 		LOGGER.info("Adding show to AddShow queue");
-		showProcessor.addShow(id, convertedInitialStatus);
+		showProcessor.addShow(id, initialStatus);
 	}
 
 	public void update(Long id, String location, String quality, String audioLang, List<String> customNames) {
@@ -108,7 +118,39 @@ public class ShowService {
 	}
 
 	public TvShow getShow(Long id) {
-		return showDao.getShow(id);
+		try {
+			return metaDataDao.getShowInformation(id, "fr");
+		} catch (DaoException e) {
+			LOGGER.error("Unable to find results for show {}", id, e);
+		}
+		return null;
+	}
+
+	public void unFollowShow(Long showId) {
+		TvShowConfiguration showConfig = downloadDao.getShowConfiguration(showId);
+		Collection<Episode> episodes = showDao.getShowEpisodes(showId);
+		// Remove episodes status
+		for (Episode episode : episodes) {
+			downloadDao.removeEpisodeStatus(new EpisodeKey(showConfig, episode));
+		}
+		// Remove episodes
+		showDao.removeShowEpisodes(showId);
+		// Remove show
+		showDao.removeShow(showId);
+		// Remove showconfig
+		downloadDao.removeShowConfiguration(showId);
+	}
+
+	public FullShow getFullShow(Long showId) {
+		TvShow show = showDao.getShow(showId);
+		Collection<Episode> episodes = showDao.getShowEpisodes(showId);
+		TvShowConfiguration showConfig = downloadDao.getShowConfiguration(showId);
+		Collection<FullEpisode> fullEpisodes = new ArrayList<>();
+
+		episodes.stream().forEach(e -> {
+			fullEpisodes.add(new FullEpisode(show, e, downloadDao.getEpisodeStatus(new EpisodeKey(showConfig, e))));
+		});
+		return new FullShow(show, showConfig, fullEpisodes);
 	}
 
 	public Collection<Episode> getEpisodes(Long showId) {
@@ -186,5 +228,24 @@ public class ShowService {
 				.sorted((e1, e2) -> e1.getAirDate().compareTo(e2.getAirDate())) //
 				.skip(from).limit(length) //
 				.collect(Collectors.toList());
+	}
+
+	public void updateShowMetadata(Long showId) {
+		LOGGER.debug("Processing show generic data");
+		TvShow tvShow;
+		try {
+			tvShow = metaDataDao.getShowInformation(showId, "fr");
+			LOGGER.debug("Storing show generic data to db");
+			showDao.saveShow(tvShow);
+			LOGGER.debug("Show generic data stored to db");
+
+			LOGGER.debug("Storing show episode data to db");
+			List<Episode> episodes;
+			episodes = metaDataDao.getShowEpisodes(showId, "fr");
+			showDao.saveShowEpisodes(showId, episodes);
+			LOGGER.debug("Show episode data stored to db");
+		} catch (DaoException e) {
+			LOGGER.error("Error while retrieving show [{}] information from metadata API", showId, e);
+		}
 	}
 }

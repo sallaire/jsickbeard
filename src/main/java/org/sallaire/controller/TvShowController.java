@@ -3,14 +3,15 @@ package org.sallaire.controller;
 import java.util.Collection;
 import java.util.List;
 
-import org.sallaire.dto.metadata.Episode;
-import org.sallaire.dto.metadata.SearchResult;
+import org.sallaire.dto.api.FullShow;
+import org.sallaire.dto.api.TvShowConfigurationParam;
 import org.sallaire.dto.metadata.TvShow;
 import org.sallaire.dto.user.EpisodeStatus;
 import org.sallaire.service.DownloadService;
 import org.sallaire.service.ShowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,14 +26,9 @@ public class TvShowController {
 	@Autowired
 	private DownloadService downloadService;
 
-	@RequestMapping(value = "/tvshow", method = RequestMethod.GET)
-	public Collection<SearchResult> searchShow(@RequestParam("name") String name, @RequestParam("lang") String lang) {
-		return showService.search(name, lang);
-	}
-
 	@RequestMapping(value = "/tvshow/{id}", method = RequestMethod.POST)
-	public void addShow(@PathVariable("id") Long id, @RequestParam("location") String location, @RequestParam("status") String initalStatus, @RequestParam("quality") String quality, @RequestParam("audio") String audioLang, @RequestParam(value = "customName", required = false) List<String> customNames) {
-		showService.add(id, location, initalStatus, quality, audioLang, customNames);
+	public void addShow(@PathVariable("id") Long id, @RequestBody TvShowConfigurationParam showConfig) {
+		showService.add(id, showConfig);
 	}
 
 	@RequestMapping(value = "/tvshow/{id}", method = RequestMethod.PUT)
@@ -41,13 +37,13 @@ public class TvShowController {
 	}
 
 	@RequestMapping(value = "/tvshow/{id}", method = RequestMethod.GET)
-	public TvShow getShow(@PathVariable("id") Long id) {
-		return showService.getShow(id);
+	public FullShow getFullShow(@PathVariable("id") Long id) {
+		return showService.getFullShow(id);
 	}
 
-	@RequestMapping(value = "/tvshow/{id}/episodes", method = RequestMethod.GET)
-	public Collection<Episode> getEpisodes(@PathVariable("id") Long id) {
-		return showService.getEpisodes(id);
+	@RequestMapping(value = "/tvshow/{id}", method = RequestMethod.DELETE)
+	public void unFollowShow(@PathVariable("id") Long id) {
+		showService.unFollowShow(id);
 	}
 
 	@RequestMapping(value = "/tvshows", method = RequestMethod.GET)

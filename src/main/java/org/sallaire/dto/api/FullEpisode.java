@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.sallaire.dto.metadata.Episode;
+import org.sallaire.dto.metadata.TvShow;
+import org.sallaire.dto.user.EpisodeStatus;
 import org.sallaire.dto.user.Quality;
 import org.sallaire.dto.user.Status;
 
@@ -27,6 +30,30 @@ public class FullEpisode implements Serializable {
 	private List<String> fileNames;
 
 	private LocalDate downloadDate;
+
+	public FullEpisode() {
+	}
+
+	public FullEpisode(TvShow show, Episode episode, EpisodeStatus episodeStatus) {
+		setBanner(show.getBanner());
+		setPoster(show.getPoster());
+		setShowId(show.getId());
+		setShowName(show.getName());
+		setEpisodeId(episode.getId());
+		setDescription(episode.getDescription());
+		setName(episode.getName());
+		setAirDate(episode.getAirDate());
+		if (episodeStatus != null) {
+			setSeason(episodeStatus.getEpisodeKey().getSeason());
+			setNumber(episodeStatus.getEpisodeKey().getNumber());
+			setDownloadDate(episodeStatus.getDownloadDate());
+			setFileNames(episodeStatus.getFileNames());
+			setLang(episodeStatus.getEpisodeKey().getLang());
+			setQuality(episodeStatus.getEpisodeKey().getQuality());
+			setStatus(episodeStatus.getStatus());
+			setLang(episodeStatus.getEpisodeKey().getLang());
+		}
+	}
 
 	public String getShowName() {
 		return showName;

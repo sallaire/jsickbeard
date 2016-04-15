@@ -23,6 +23,10 @@ public class DownloadDao {
 		dbEngine.store(IDBEngine.SHOW_CONFIGURATION, showId, configuration);
 	}
 
+	public void removeShowConfiguration(Long showId) {
+		dbEngine.remove(IDBEngine.SHOW_CONFIGURATION, showId);
+	}
+
 	public Collection<EpisodeStatus> getWantedEpisodes() {
 		return dbEngine.getValues(IDBEngine.WANTED_EPISODE);
 	}
@@ -53,6 +57,10 @@ public class DownloadDao {
 
 	public EpisodeStatus getEpisodeStatus(EpisodeKey episodeKey) {
 		return dbEngine.get(IDBEngine.EPISODE_STATUS, episodeKey);
+	}
+
+	public void removeEpisodeStatus(EpisodeKey episodeKey) {
+		dbEngine.remove(IDBEngine.EPISODE_STATUS, episodeKey);
 	}
 
 	public Collection<EpisodeStatus> getEpisodeStatus() {

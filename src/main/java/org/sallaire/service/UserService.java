@@ -2,6 +2,7 @@ package org.sallaire.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -91,6 +92,15 @@ public class UserService implements UserDetailsService {
 
 	public void deleteAccount(String name) {
 		userDao.deleteUser(name);
+	}
+
+	public boolean authenticateAccount(String user, String password) {
+		Optional<Account> account = userDao.getAccount(user);
+		if (account.isPresent()) {
+			return account.get().getPassword().equals(passwordEncoder.encode(password));
+		} else {
+			return false;
+		}
 	}
 
 }

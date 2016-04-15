@@ -15,12 +15,12 @@
 	</repositories>
 
 	<groupId>org.sallaire</groupId>
-	<artifactId>jsickbeard</artifactId>
+	<artifactId>jackbeard</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>jsickbeard</name>
-	<description>Sickbeard java version</description>
+	<name>jackbeard</name>
+	<description>Jackbeard</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -31,7 +31,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<start-class>org.sallaire.SickbeardApplication</start-class>
+		<start-class>org.sallaire.JackbeardApplication</start-class>
 		<java.version>1.8</java.version>
 	</properties>
 
@@ -100,7 +100,7 @@
 		<dependency>
 			<groupId>info.movito</groupId>
 			<artifactId>themoviedbapi</artifactId>
-			<version>1.1</version>
+			<version>1.3</version>
 		</dependency>
 
 		<dependency>

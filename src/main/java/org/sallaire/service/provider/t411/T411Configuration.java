@@ -233,8 +233,8 @@ public class T411Configuration {
 		return episodeFormat;
 	}
 
-	public void setEpsiodeFormat(String epsiodeFormat) {
-		this.episodeFormat = epsiodeFormat;
+	public void setEpisodeFormat(String episodeFormat) {
+		this.episodeFormat = episodeFormat;
 	}
 
 	public List<Pattern> getVoRegex() {
