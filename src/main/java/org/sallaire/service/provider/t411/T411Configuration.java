@@ -269,8 +269,8 @@ public class T411Configuration {
 		}
 	}
 
-	public List<Pattern> getEpisodeRegex(String name, Integer season, Integer Number) {
-		String pattern = name.replace(" ", EPISODE_SEP) + EPISODE_SEP + "S" + StringUtils.leftPad(season.toString(), 2, '0') + EPISODE_SEP + "E" + StringUtils.leftPad(episode.toString(), 2, '0');
+	public List<Pattern> getEpisodeRegex(String name, Integer season, Integer number) {
+		String pattern = name.replace(" ", EPISODE_SEP) + EPISODE_SEP + "S" + StringUtils.leftPad(season.toString(), 2, '0') + EPISODE_SEP + "E" + StringUtils.leftPad(number.toString(), 2, '0');
 		return Arrays.asList(Pattern.compile(pattern, Pattern.CASE_INSENSITIVE));
 	}
 

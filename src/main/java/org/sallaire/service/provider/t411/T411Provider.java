@@ -208,17 +208,17 @@ public class T411Provider implements IProvider {
 				// Now we have to filter results according to quality/language if necessary
 				if (filterNumber) {
 					LOGGER.info("Filter results for episode name [{}] and number [S{}E{}]", name, season, number);
-					filterResults(results.getTorrents(), configuration.getEpisodeRegex(name, season, number));
+					results.setTorrents(filterResults(results.getTorrents(), configuration.getEpisodeRegex(name, season, number)));
 					LOGGER.info("{} results after filter", results.getTorrents().size());
 				}
 				if (filterLang) {
 					LOGGER.info("Filter results for audio lang [{}]", audioLang);
-					filterResults(results.getTorrents(), configuration.getLangRegex(audioLang));
+					results.setTorrents(filterResults(results.getTorrents(), configuration.getLangRegex(audioLang)));
 					LOGGER.info("{} results after filter", results.getTorrents().size());
 				}
 				if (filterQuality) {
 					LOGGER.info("Filter results for quality [{}]", quality);
-					filterResults(results.getTorrents(), configuration.getQualityRegex(quality));
+					results.setTorrents(filterResults(results.getTorrents(), configuration.getQualityRegex(quality)));
 					LOGGER.info("{} results after filter", results.getTorrents().size());
 				}
 			} else {
@@ -230,14 +230,14 @@ public class T411Provider implements IProvider {
 		}
 	}
 
-	private void filterResults(List<SearchResult> results, final List<Pattern> patterns) {
-		results.stream().filter(t -> {
+	private List<SearchResult> filterResults(List<SearchResult> results, final List<Pattern> patterns) {
+		return results.stream().filter(t -> {
 			for (Pattern rx : patterns)
-				if (rx.matcher(t.getName()).matches())
+				if (rx.matcher(t.getName()).find())
 					return true;
 			LOGGER.debug("Torrent {} doesn't match any pattern => reject it", t.getName());
 			return false;
-		});
+		}).collect(Collectors.toList());
 	}
 
 	private String login() throws IOException {
