@@ -128,4 +128,10 @@ public class TVDBDao implements IMetaDataDao {
 	public List<Episode> getShowEpisodes(Long id, String lang) throws DaoException {
 		return getShowData(id, lang).getEpisodes().stream().map(e -> TVDBConverter.convertFromTVDB(id, e)).collect(Collectors.toList());
 	}
+
+	@Override
+	public boolean hasShowUpdates(Long id) throws DaoException {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

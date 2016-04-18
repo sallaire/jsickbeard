@@ -15,4 +15,6 @@ public interface IMetaDataDao {
 	TvShow getShowInformation(Long id, String lang) throws DaoException;
 
 	List<Episode> getShowEpisodes(Long id, String lang) throws DaoException;
+
+	boolean hasShowUpdates(Long id) throws DaoException;
 }

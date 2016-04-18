@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.sallaire.dao.DaoException;
 import org.sallaire.dao.metadata.IMetaDataDao;
 import org.sallaire.dto.metadata.Episode;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Repository;
 import info.movito.themoviedbapi.TmdbApi;
 import info.movito.themoviedbapi.TmdbTV.TvMethod;
 import info.movito.themoviedbapi.TvResultsPage;
+import info.movito.themoviedbapi.model.changes.ChangesItems;
 import info.movito.themoviedbapi.model.changes.ChangesResultsPage;
 import info.movito.themoviedbapi.model.tv.TvSeason;
 import info.movito.themoviedbapi.model.tv.TvSeries;
@@ -69,6 +71,12 @@ public class TMDBDao implements IMetaDataDao {
 			episodes.addAll(TMDBConverter.convertFromTvSeason(id, tvSeason));
 		}
 		return episodes;
+	}
+
+	@Override
+	public boolean hasShowUpdates(Long id) throws DaoException {
+		ChangesItems changes = new TmdbApi(API_KEY).getChanges().getTvSerieChangesList(id.intValue());
+		return CollectionUtils.isNotEmpty(changes.getChangedItems());
 	}
 
 }
