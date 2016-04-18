@@ -59,7 +59,8 @@ public class TMDBDao implements IMetaDataDao {
 	@Override
 	public TvShow getShowInformation(Long id, String lang) throws DaoException {
 		TvSeries tvSeries = new TmdbApi(API_KEY).getTvSeries().getSeries(id.intValue(), lang, TvMethod.external_ids, TvMethod.images);
-		return TMDBConverter.convertFromTvSeries(tvSeries);
+		TvSeries enTvSeries = new TmdbApi(API_KEY).getTvSeries().getSeries(id.intValue(), "en", TvMethod.external_ids, TvMethod.images);
+		return TMDBConverter.convertFromTvSeries(tvSeries, enTvSeries);
 	}
 
 	@Override
@@ -68,7 +69,8 @@ public class TMDBDao implements IMetaDataDao {
 		TvSeries tvSeries = new TmdbApi(API_KEY).getTvSeries().getSeries(id.intValue(), lang);
 		for (int i = 1; i <= tvSeries.getNumberOfSeasons(); i++) {
 			TvSeason tvSeason = new TmdbApi(API_KEY).getTvSeasons().getSeason(id.intValue(), i, lang);
-			episodes.addAll(TMDBConverter.convertFromTvSeason(id, tvSeason));
+			TvSeason defaultLangTvSeason = new TmdbApi(API_KEY).getTvSeasons().getSeason(id.intValue(), i, "en");
+			episodes.addAll(TMDBConverter.convertFromTvSeason(id, tvSeason, defaultLangTvSeason));
 		}
 		return episodes;
 	}

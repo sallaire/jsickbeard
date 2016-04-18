@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import javax.annotation.PostConstruct;
 
 import org.jsondoc.spring.boot.starter.EnableJSONDoc;
-import org.sallaire.dto.user.Account.Role;
 import org.sallaire.service.UserService;
 import org.sallaire.service.processor.AddShowProcessor;
 import org.slf4j.Logger;
@@ -30,44 +29,44 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @ComponentScan(basePackages = { "org.sallaire.dao", "org.sallaire.service", "org.sallaire.controller" })
 public class JackbeardApplication {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(JackbeardApplication.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JackbeardApplication.class);
 
-	@Autowired
-	private AddShowProcessor showProcessor;
+    @Autowired
+    private AddShowProcessor showProcessor;
 
-	@Autowired
-	private UserService userService;
+    @Autowired
+    private UserService userService;
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+	return new BCryptPasswordEncoder();
+    }
+
+    public static void main(String[] args) {
+	LOGGER.info("Starting application...");
+	if (Files.notExists(JackBeardConstants.APPLICATION_DIRECTORY)) {
+	    LOGGER.debug("Create jackbeard directory");
+	    try {
+		Files.createDirectory(JackBeardConstants.APPLICATION_DIRECTORY);
+	    } catch (IOException e) {
+		LOGGER.error("Unable to create JackBeard directory in [{}]", JackBeardConstants.APPLICATION_DIRECTORY, e);
+	    }
+	    LOGGER.debug("Jackbeard directory [{}] created", JackBeardConstants.APPLICATION_DIRECTORY);
 	}
+	SpringApplication.run(JackbeardApplication.class, args);
 
-	public static void main(String[] args) {
-		LOGGER.info("Starting application...");
-		if (Files.notExists(JackBeardConstants.APPLICATION_DIRECTORY)) {
-			LOGGER.debug("Create jackbeard directory");
-			try {
-				Files.createDirectory(JackBeardConstants.APPLICATION_DIRECTORY);
-			} catch (IOException e) {
-				LOGGER.error("Unable to create JackBeard directory in [{}]", JackBeardConstants.APPLICATION_DIRECTORY, e);
-			}
-			LOGGER.debug("Jackbeard directory [{}] created", JackBeardConstants.APPLICATION_DIRECTORY);
-		}
-		SpringApplication.run(JackbeardApplication.class, args);
+	LOGGER.info("Application started");
+    }
 
-		LOGGER.info("Application started");
-	}
-
-	@PostConstruct
-	public void postConstruct() {
-		LOGGER.info("Starting show processor started");
-		showProcessor.startShowProcessor();
-		LOGGER.info("Show processor started");
-		LOGGER.info("Check existing user");
-		if (!userService.hasAccounts()) {
-			LOGGER.info("No user in db, creating default one");
-			userService.saveUser("admin", "admin", Role.SYSADMIN.name());
-		}
-	}
+    @PostConstruct
+    public void postConstruct() {
+	LOGGER.info("Starting show processor started");
+	showProcessor.startShowProcessor();
+	LOGGER.info("Show processor started");
+	// LOGGER.info("Check existing user");
+	// if (!userService.hasAccounts()) {
+	// LOGGER.info("No user in db, creating default one");
+	// userService.saveUser("admin", "admin", Role.SYSADMIN.name());
+	// }
+    }
 }
