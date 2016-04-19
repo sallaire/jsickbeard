@@ -21,6 +21,7 @@ import info.movito.themoviedbapi.model.changes.ChangesItems;
 import info.movito.themoviedbapi.model.changes.ChangesResultsPage;
 import info.movito.themoviedbapi.model.tv.TvSeason;
 import info.movito.themoviedbapi.model.tv.TvSeries;
+import info.movito.themoviedbapi.tools.MovieDbException;
 
 @Repository
 public class TMDBDao implements IMetaDataDao {
@@ -77,8 +78,12 @@ public class TMDBDao implements IMetaDataDao {
 
 	@Override
 	public boolean hasShowUpdates(Long id) throws DaoException {
-		ChangesItems changes = new TmdbApi(API_KEY).getChanges().getTvSerieChangesList(id.intValue());
-		return CollectionUtils.isNotEmpty(changes.getChangedItems());
+		try {
+			ChangesItems changes = new TmdbApi(API_KEY).getChanges().getTvSerieChangesList(id.intValue());
+			return CollectionUtils.isNotEmpty(changes.getChangedItems());
+		} catch (MovieDbException e) {
+			throw new DaoException("Unable to get show changes", e);
+		}
 	}
 
 }

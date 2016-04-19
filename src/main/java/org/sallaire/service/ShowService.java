@@ -17,6 +17,7 @@ import org.sallaire.dao.metadata.IMetaDataDao;
 import org.sallaire.dto.api.FullEpisode;
 import org.sallaire.dto.api.FullShow;
 import org.sallaire.dto.api.TvShowConfigurationParam;
+import org.sallaire.dto.api.UpdateEpisodeStatusParam;
 import org.sallaire.dto.metadata.Episode;
 import org.sallaire.dto.metadata.SearchResult;
 import org.sallaire.dto.metadata.TvShow;
@@ -142,15 +143,19 @@ public class ShowService {
 	}
 
 	public FullShow getFullShow(Long showId) {
+		FullShow result = null;
 		TvShow show = showDao.getShow(showId);
 		Collection<Episode> episodes = showDao.getShowEpisodes(showId);
 		TvShowConfiguration showConfig = downloadDao.getShowConfiguration(showId);
-		Collection<FullEpisode> fullEpisodes = new ArrayList<>();
+		if (show != null && showConfig != null && episodes != null) {
+			Collection<FullEpisode> fullEpisodes = new ArrayList<>();
 
-		episodes.stream().forEach(e -> {
-			fullEpisodes.add(new FullEpisode(show, e, downloadDao.getEpisodeStatus(new EpisodeKey(showConfig, e))));
-		});
-		return new FullShow(show, showConfig, fullEpisodes);
+			episodes.stream().forEach(e -> {
+				fullEpisodes.add(new FullEpisode(show, e, downloadDao.getEpisodeStatus(new EpisodeKey(showConfig, e))));
+			});
+			result = new FullShow(show, showConfig, fullEpisodes);
+		}
+		return result;
 	}
 
 	public Collection<Episode> getEpisodes(Long showId) {
@@ -161,27 +166,22 @@ public class ShowService {
 		return showDao.getShows();
 	}
 
-	public void updateEpisodesStatus(Long showId, List<Long> ids, String status) {
-		try {
-			final Status convertedStatus = Status.valueOf(status);
-			List<EpisodeStatus> episodesToSearch = new ArrayList<>();
-			TvShowConfiguration showConfig = downloadDao.getShowConfiguration(showId);
+	public void updateEpisodesStatus(Long showId, UpdateEpisodeStatusParam params) {
+		List<EpisodeStatus> episodesToSearch = new ArrayList<>();
+		TvShowConfiguration showConfig = downloadDao.getShowConfiguration(showId);
 
-			Collection<Episode> episodes = showDao.getShowEpisodes(showId);
-			episodes.stream().filter(e -> ids.contains(e.getId())).forEach(e -> {
-				EpisodeKey epKey = new EpisodeKey(showConfig, e);
-				EpisodeStatus epStatus = downloadDao.getEpisodeStatus(epKey);
-				epStatus.setStatus(convertedStatus);
-				if (convertedStatus == Status.WANTED) {
-					episodesToSearch.add(epStatus);
-				}
-				downloadDao.saveEpisodeStatus(epStatus);
-			});
-			if (!episodesToSearch.isEmpty()) {
-				wantedShowProcessor.process(episodesToSearch);
+		Collection<Episode> episodes = showDao.getShowEpisodes(showId);
+		episodes.stream().filter(e -> params.getIds().contains(e.getId())).forEach(e -> {
+			EpisodeKey epKey = new EpisodeKey(showConfig, e);
+			EpisodeStatus epStatus = downloadDao.getEpisodeStatus(epKey);
+			epStatus.setStatus(params.getStatus());
+			if (params.getStatus() == Status.WANTED) {
+				episodesToSearch.add(epStatus);
 			}
-		} catch (IllegalArgumentException e) {
-			LOGGER.warn("Check of inital status {} fails, no change will be made", status, e);
+			downloadDao.saveEpisodeStatus(epStatus);
+		});
+		if (!episodesToSearch.isEmpty()) {
+			wantedShowProcessor.process(episodesToSearch);
 		}
 	}
 
