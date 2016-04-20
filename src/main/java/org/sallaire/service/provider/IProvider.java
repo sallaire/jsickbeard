@@ -9,6 +9,8 @@ import org.sallaire.dto.user.Quality;
 
 public interface IProvider {
 
+	public static final String PROVIDER = "provider";
+
 	String getId();
 
 	Torrent findEpisode(Collection<String> name, String audioLang, Integer season, Integer number, Quality quality, List<String> excludedFiles) throws IOException;

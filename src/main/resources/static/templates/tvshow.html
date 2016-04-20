@@ -1,0 +1,50 @@
+
+	<div>
+		<h1>{{ myShow.show.name }}</h1>
+		
+		<input type="button" value="Forcer MAJ" ng-click="updateShow()"/>
+		
+		<p>{{ myShow.show.description }}</p>
+				
+		<dl>
+			<dt>Dur&eacute;e</dt>
+			<dd>{{ myShow.show.runtime }}</dd>
+
+			<dt>Jour de diffusion</dt>
+			<dd>{{ myShow.show.airDay }}</dd>
+
+			<dt>Statut</dt>
+			<dd>{{ myShow.show.status }}</dd>
+			
+			<dt>Emplacement</dt>
+			<dd>{{ myShow.showConfig.location }}</dd>
+			
+			<dt>Qualit&eacute;</dt>
+			<dd>{{ myShow.showConfig.quality }}</dd>
+			
+			<dt>Langue</dt>
+			<dd>{{ myShow.showConfig.lang }}</dd>
+		</dl>
+		<form ng-submit="updateStatus()">
+			<select name="status" ng-model="status">
+				<option value="SKIPPED">Skipped</option>
+				<option value="SNATCHED">Snatched</option>
+				<option value="WANTED">Wanted</option>
+				<option value="DOWNLOADED">Downloaded</option>
+			</select>
+			<button type="submit" class="pure-button pure-button-primary">Mettre à jour</button>
+			<br/>
+			<table>
+				<tr ng-repeat="e in myShow.episodes.slice().reverse()">
+					<td><input type="checkbox" ng-model="e.selected"/></td>
+					<td>{{ e.season }}</td>
+					<td>{{ e.number }}</td>
+					<td>{{ e.name }}</td>
+					<td>{{ e.description }}</td>
+					<td>{{ e.airDate }}</td>
+					<td>{{ e.status }}</td>
+					<td>{{ e.fileNames }}</td>
+				</tr>
+			</table>
+		</form>
+	</div>
