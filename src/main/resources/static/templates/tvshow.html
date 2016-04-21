@@ -2,6 +2,7 @@
 	<div>
 		<h1>{{ myShow.show.name }}</h1>
 		
+		<a ng-href="#tvshow/config/{{myShow.show.id}}">Editer</a>
 		<input type="button" value="Forcer MAJ" ng-click="updateShow()"/>
 		
 		<p>{{ myShow.show.description }}</p>
@@ -23,7 +24,7 @@
 			<dd>{{ myShow.showConfig.quality }}</dd>
 			
 			<dt>Langue</dt>
-			<dd>{{ myShow.showConfig.lang }}</dd>
+			<dd>{{ myShow.showConfig.audioLang }}</dd>
 		</dl>
 		<form ng-submit="updateStatus()">
 			<select name="status" ng-model="status">

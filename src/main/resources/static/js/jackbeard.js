@@ -19,9 +19,9 @@ angular.module('authentication', []);
 			.when('/overview', {
 				templateUrl: 'templates/overview.html'
 			 }) 
-			.when('/addShow/:showId', {
-				templateUrl: 'templates/addShow.html',
-				controller: 'addShow'
+			.when('/tvshow/config/:showId', {
+				templateUrl: 'templates/showConfig.html',
+				controller: 'tvShowConfig'
 			 }) 
 			.when('/login', { 
 				templateUrl: 'templates/login.html', 

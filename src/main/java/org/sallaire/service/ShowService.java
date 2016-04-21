@@ -53,10 +53,22 @@ public class ShowService {
 	@Autowired
 	private WantedShowProcessor wantedShowProcessor;
 
-	public void add(Long id, TvShowConfigurationParam showConfig) {
+	public void upsertShow(Long id, TvShowConfigurationParam showConfig) {
 		LOGGER.debug("Process show configuration for show {}", id);
-		TvShowConfiguration configuration = new TvShowConfiguration();
-		configuration.setId(id);
+		boolean existingShow = true;
+		TvShowConfiguration configuration = downloadDao.getShowConfiguration(id);
+		Status initialStatus = showConfig.getStatus();
+
+		if (configuration == null) {
+			LOGGER.debug("New show added to followed shows : {}", id);
+			existingShow = false;
+			configuration = new TvShowConfiguration();
+			configuration.setId(id);
+			if (showConfig.getStatus() == null) {
+				initialStatus = Status.SKIPPED;
+				LOGGER.warn("Initial status is not configured, default status {} will be set", Status.SKIPPED);
+			}
+		}
 		if (showConfig.getQuality() == null) {
 			LOGGER.warn("No quality configured, default quality {} will be set", Quality.SD);
 			configuration.setQuality(Quality.SD);
@@ -72,41 +84,30 @@ public class ShowService {
 			configuration.setLocation(showConfig.getLocation());
 		}
 		configuration.setCustomNames(showConfig.getCustomNames());
-		Status initialStatus = showConfig.getStatus();
-		if (showConfig.getStatus() == null) {
-			initialStatus = Status.SKIPPED;
-			LOGGER.warn("Initial status is not configured, default status {} will be set", Status.SKIPPED);
-		}
+
 		LOGGER.debug("Store show configuration", id);
 		downloadDao.saveShowConfiguration(id, configuration);
 		LOGGER.debug("Show configuration stored", id);
 
-		LOGGER.info("Adding show to AddShow queue");
-		showProcessor.addShow(id, initialStatus);
+		if (!existingShow) {
+			LOGGER.info("Adding show to AddShow queue");
+			showProcessor.addShow(id, initialStatus);
+		} else {
+			LOGGER.info("Show {} is already followed, convert existing episodes status", id);
+			downloadDao.getEpisodeStatus() //
+					.stream() //
+					.filter(e -> e.getEpisodeKey().getShowId().equals(id)) //
+					.forEach(e -> {
+						downloadDao.removeEpisodeStatus(e.getEpisodeKey());
+						e.getEpisodeKey().setQuality(showConfig.getQuality());
+						e.getEpisodeKey().setLang(showConfig.getAudio());
+						downloadDao.saveEpisodeStatus(e);
+					});
+		}
 	}
 
-	public void update(Long id, String location, String quality, String audioLang, List<String> customNames) {
-		LOGGER.debug("Process show configuration for show {}", id);
-		TvShowConfiguration configuration = downloadDao.getShowConfiguration(id);
-		if (configuration != null) {
-			if (quality != null) {
-				try {
-					configuration.setQuality(Quality.valueOf(quality));
-				} catch (IllegalArgumentException e) {
-					LOGGER.warn("Check of quality {} fails, no quality will be set", quality, e);
-				}
-			}
-			if (audioLang != null) {
-				configuration.setAudioLang(audioLang);
-			}
-			if (location != null) {
-				configuration.setLocation(location);
-			}
-			configuration.setCustomNames(customNames);
-			LOGGER.debug("Update show configuration", id);
-			downloadDao.saveShowConfiguration(id, configuration);
-			LOGGER.debug("Show configuration updated", id);
-		}
+	public TvShowConfiguration getTvShowConfiguration(Long id) {
+		return downloadDao.getShowConfiguration(id);
 	}
 
 	public List<SearchResult> search(String name, String lang) {
@@ -131,8 +132,10 @@ public class ShowService {
 		TvShowConfiguration showConfig = downloadDao.getShowConfiguration(showId);
 		Collection<Episode> episodes = showDao.getShowEpisodes(showId);
 		// Remove episodes status
-		for (Episode episode : episodes) {
-			downloadDao.removeEpisodeStatus(new EpisodeKey(showConfig, episode));
+		if (episodes != null) {
+			for (Episode episode : episodes) {
+				downloadDao.removeEpisodeStatus(new EpisodeKey(showConfig, episode));
+			}
 		}
 		// Remove episodes
 		showDao.removeShowEpisodes(showId);

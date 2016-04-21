@@ -16,24 +16,25 @@
 		</dl>
 		
 		<form ng-submit="add()">
-			<select name="quality" ng-model="quality">
+			<select name="quality" ng-model="myConfig.quality">
 				<option value="SD">SD</option>
 				<option value="P720">720p</option>
 				<option value="P1080">1080p</option>
 			</select>
 			<br/>
-			<select name="status" ng-model="status">
+			<select ng-if="myConfig.id == 'undefined'" name="status" ng-model="status">
 				<option value="SKIPPED">Skipped</option>
 				<option value="DOWNLOADED">Downloaded</option>
 				<option value="WANTED">Wanted</option>
 			</select>
 			<br/>
-			<select name="audio" ng-model="audio">
+			<select name="audio" ng-model="myConfig.audioLang">
 				<option value="fr">Français</option>
 				<option value="en">Anglais</option>
 			</select>
 			<br/>
-			<button type="submit" class="pure-button pure-button-primary">Ajouter</button>
+			<button ng-if="myConfig.id == 'undefined'" type="submit" class="pure-button pure-button-primary">Ajouter</button>
+			<button ng-if="myConfig.id !== 'undefined'" type="submit" class="pure-button pure-button-primary">Mettre à jour</button>
 		</form>
 		
 	</div>

@@ -1,4 +1,4 @@
-package org.sallaire.controller;
+package org.sallaire.controller.conf;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

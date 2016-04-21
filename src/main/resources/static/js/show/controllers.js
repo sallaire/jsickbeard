@@ -15,7 +15,7 @@ angular.module('show', [])
 				$scope.myShow = response.data;
 			}, function (response) {
                 if(response.status == 404) {
-					$location.path("/addShow/"+$routeParams.showId);
+					$location.path("/tvshow/config/"+$routeParams.showId);
 				}
             });
 		$scope.updateStatus = function() {
@@ -35,15 +35,21 @@ angular.module('show', [])
 		};
 	})
 	
-	.controller('addShow', function($scope, $http, $routeParams) {
+	.controller('tvShowConfig', function($scope, $http, $routeParams, $location) {
 		$http.get("http://37.187.19.83:9000/metadata/tvshow/"+$routeParams.showId)
 			.then(function (response) {
 				$scope.myShow = response.data;
 			});
+		$http.get("http://37.187.19.83:9000/tvshow/config/"+$routeParams.showId)
+			.then(function (response) {
+				$scope.myConfig = response.data;
+			});
 		$scope.add = function () {
-			$http.post("http://37.187.19.83:9000/tvshow/"+$routeParams.showId,
-				{ name: $scope.myShow.name, status: $scope.status, quality: $scope.quality, audio: $scope.audio }
-			);
+			$http.post("http://37.187.19.83:9000/tvshow/config/"+$routeParams.showId,
+				{ name: $scope.myShow.name, status: $scope.status, quality: $scope.myConfig.quality, audio: $scope.myConfig.audioLang }
+			).then(function (response) {
+				$location.path('/tvshow/'+$routeParams.showId);
+			});
 		};
 	})
 	

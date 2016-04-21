@@ -1,7 +1,6 @@
 package org.sallaire.controller;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.sallaire.dto.api.FullShow;
@@ -9,6 +8,7 @@ import org.sallaire.dto.api.TvShowConfigurationParam;
 import org.sallaire.dto.api.UpdateEpisodeStatusParam;
 import org.sallaire.dto.metadata.TvShow;
 import org.sallaire.dto.user.EpisodeStatus;
+import org.sallaire.dto.user.TvShowConfiguration;
 import org.sallaire.service.DownloadService;
 import org.sallaire.service.ShowService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +30,9 @@ public class TvShowController {
 	@Autowired
 	private DownloadService downloadService;
 
-	@RequestMapping(value = "/tvshow/{id}", method = RequestMethod.POST)
-	public void addShow(@PathVariable("id") Long id, @RequestBody TvShowConfigurationParam showConfig) {
-		showService.add(id, showConfig);
-	}
-
-	@RequestMapping(value = "/tvshow/{id}", method = RequestMethod.PUT)
-	public void updateShow(@PathVariable("id") Long id, @RequestParam(value = "location", required = false) String location, @RequestParam(value = "quality", required = false) String quality, @RequestParam(value = "audio", required = false) String audioLang, @RequestParam(value = "customName", required = false) List<String> customNames) {
-		showService.update(id, location, quality, audioLang, customNames);
+	@RequestMapping(value = "/tvshow/config/{id}", method = RequestMethod.POST)
+	public void upsertShow(@PathVariable("id") Long id, @RequestBody TvShowConfigurationParam showConfig) {
+		showService.upsertShow(id, showConfig);
 	}
 
 	@RequestMapping(value = "/tvshow/{id}", method = RequestMethod.GET)
@@ -48,6 +43,11 @@ public class TvShowController {
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 		}
+	}
+
+	@RequestMapping(value = "/tvshow/config/{id}", method = RequestMethod.GET)
+	public TvShowConfiguration getShowConfig(@PathVariable("id") Long id) {
+		return showService.getTvShowConfiguration(id);
 	}
 
 	@RequestMapping(value = "/tvshow/{id}", method = RequestMethod.DELETE)
