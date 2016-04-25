@@ -1,4 +1,4 @@
-# Netapsys Angular Boilerplate
+# JackBeard
 
 ## Running
 
@@ -8,10 +8,6 @@
 * gulp build : Lancer la contruction du projet vers le répertoire 'dist'
 
 ## Organisation des répertoires
-
-* coverage : 
-  * [Résultats des derniers TU](coverage/TESTS-PhantomJS_1.9.8_(Linux_0.0.0).xml)
-  * [Résultats de la couverture de test](coverage/PhantomJS 1.9.8 (Linux 0.0.0)/index.html)
 
 * dist : Répertoire cible pour la construction de l'application
 * gulp : Répertoire de paramétrage de Gulp
