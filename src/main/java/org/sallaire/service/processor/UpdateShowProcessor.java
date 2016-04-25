@@ -23,84 +23,84 @@ import org.springframework.stereotype.Component;
 @Component
 public class UpdateShowProcessor {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(UpdateShowProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateShowProcessor.class);
 
-	@Autowired
-	private TvShowDao showDao;
+    @Autowired
+    private TvShowDao showDao;
 
-	@Autowired
-	private IMetaDataDao metaDataDao;
+    @Autowired
+    private IMetaDataDao metaDataDao;
 
-	@Autowired
-	private DownloadDao downloadDao;
+    @Autowired
+    private DownloadDao downloadDao;
 
-	@Scheduled(cron = "0 0 2 * * *")
-	public void updateShow() {
-		LOGGER.info("Starting update show processor");
-		Collection<TvShow> shows = showDao.getShows();
-		LOGGER.debug("{} show to process", shows.size());
+    @Scheduled(cron = "0 0 2 * * *")
+    public void updateShow() {
+	LOGGER.info("Starting update show processor");
+	Collection<TvShow> shows = showDao.getShows();
+	LOGGER.debug("{} show to process", shows.size());
 
-		Long showId = null;
-		for (TvShow show : shows) {
-			showId = show.getId();
-			LOGGER.debug("processing show {}", showId);
+	Long showId = null;
+	for (TvShow show : shows) {
+	    showId = show.getId();
+	    LOGGER.debug("processing show {}", showId);
 
-			LOGGER.debug("Retrieve show configuration");
-			TvShowConfiguration showConfig = downloadDao.getShowConfiguration(showId);
-			LOGGER.debug("Show configuration retrieved");
+	    LOGGER.debug("Retrieve show configuration");
+	    TvShowConfiguration showConfig = downloadDao.getShowConfiguration(showId);
+	    LOGGER.debug("Show configuration retrieved");
 
-			// Check if the show has been updated
-			try {
-				if (metaDataDao.hasShowUpdates(showId)) {
-					LOGGER.debug("show {} has to be refreshed, ", showId);
-					updateShow(showConfig);
-				}
-			} catch (DaoException e) {
-				LOGGER.error("Unable to get show [{}] update informations, it will be ignored", showId, e);
-			}
-
-			// Now check if one or several episodes has to be set to wanted
-			// status
-			Collection<Episode> episodes = showDao.getShowEpisodes(showId);
-			final LocalDate now = LocalDate.now();
-			LOGGER.debug("Checking if episodes has been aired and set them to wanted");
-			episodes.stream().filter(e -> e.getAirDate().isBefore(now)).forEach(e -> {
-				EpisodeKey epKey = new EpisodeKey(showConfig, e);
-				EpisodeStatus epStatus = downloadDao.getEpisodeStatus(epKey);
-				if (epStatus.getStatus() == Status.UNAIRED) {
-					LOGGER.debug("Epsiode S{}E{} has been aired ({}) and is set to wanted", e.getSeason(), e.getEpisode(), e.getAirDate());
-					epStatus.setStatus(Status.WANTED);
-					downloadDao.saveEpisodeStatus(epStatus);
-					downloadDao.saveWantedEpisode(epStatus);
-				}
-			});
+	    // Check if the show has been updated
+	    try {
+		if (metaDataDao.hasShowUpdates(showId)) {
+		    LOGGER.debug("show {} has to be refreshed, ", showId);
+		    updateShow(showConfig);
 		}
-		LOGGER.info("Update show processor done");
-	}
+	    } catch (DaoException e) {
+		LOGGER.error("Unable to get show [{}] update informations, it will be ignored", showId, e);
+	    }
 
-	private void updateShow(TvShowConfiguration showConfig) {
-		try {
-
-			LOGGER.debug("Retrieve show informations");
-			TvShow tvShow = metaDataDao.getShowInformation(showConfig.getId(), "fr");
-			showDao.saveShow(tvShow);
-			LOGGER.debug("Show informations saved");
-
-			LOGGER.debug("Retrieve show episodes");
-			List<Episode> updatedEpisodes = metaDataDao.getShowEpisodes(showConfig.getId(), "fr");
-			showDao.saveShowEpisodes(showConfig.getId(), updatedEpisodes);
-			LOGGER.debug("Process {} episodes for show {}", updatedEpisodes.size(), tvShow.getName());
-
-			updatedEpisodes.stream().forEach(e -> {
-				EpisodeKey epKey = new EpisodeKey(showConfig, e);
-				if (downloadDao.getEpisodeStatus(epKey) == null) {
-					LOGGER.debug("New episode {}-{} found, add it to status episode", e.getSeason(), e.getEpisode());
-					EpisodeStatus epStatus = new EpisodeStatus(epKey, Status.UNAIRED);
-					downloadDao.saveEpisodeStatus(epStatus);
-				}
-			});
-		} catch (DaoException e) {
-			LOGGER.error("Unable to get show [{}] informations", showConfig.getId(), e);
+	    // Now check if one or several episodes has to be set to wanted
+	    // status
+	    Collection<Episode> episodes = showDao.getShowEpisodes(showId);
+	    final LocalDate now = LocalDate.now();
+	    LOGGER.debug("Checking if episodes has been aired and set them to wanted");
+	    episodes.stream().filter(e -> e.getAirDate().isBefore(now)).forEach(e -> {
+		EpisodeKey epKey = new EpisodeKey(showConfig, e);
+		EpisodeStatus epStatus = downloadDao.getEpisodeStatus(epKey);
+		if (epStatus.getStatus() == Status.UNAIRED) {
+		    LOGGER.debug("Epsiode S{}E{} has been aired ({}) and is set to wanted", e.getSeason(), e.getEpisode(), e.getAirDate());
+		    epStatus.setStatus(Status.WANTED);
+		    downloadDao.saveEpisodeStatus(epStatus);
+		    downloadDao.saveWantedEpisode(epStatus);
 		}
+	    });
 	}
+	LOGGER.info("Update show processor done");
+    }
+
+    private void updateShow(TvShowConfiguration showConfig) {
+	try {
+
+	    LOGGER.debug("Retrieve show informations");
+	    TvShow tvShow = metaDataDao.getShowInformation(showConfig.getId(), "en");
+	    showDao.saveShow(tvShow);
+	    LOGGER.debug("Show informations saved");
+
+	    LOGGER.debug("Retrieve show episodes");
+	    List<Episode> updatedEpisodes = metaDataDao.getShowEpisodes(showConfig.getId(), "en");
+	    showDao.saveShowEpisodes(showConfig.getId(), updatedEpisodes);
+	    LOGGER.debug("Process {} episodes for show {}", updatedEpisodes.size(), tvShow.getName());
+
+	    updatedEpisodes.stream().forEach(e -> {
+		EpisodeKey epKey = new EpisodeKey(showConfig, e);
+		if (downloadDao.getEpisodeStatus(epKey) == null) {
+		    LOGGER.debug("New episode {}-{} found, add it to status episode", e.getSeason(), e.getEpisode());
+		    EpisodeStatus epStatus = new EpisodeStatus(epKey, Status.UNAIRED);
+		    downloadDao.saveEpisodeStatus(epStatus);
+		}
+	    });
+	} catch (DaoException e) {
+	    LOGGER.error("Unable to get show [{}] informations", showConfig.getId(), e);
+	}
+    }
 }
