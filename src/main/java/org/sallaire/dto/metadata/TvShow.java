@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-
 public class TvShow implements Serializable {
 
 	private static final long serialVersionUID = 3366129342784157252L;
@@ -14,6 +13,8 @@ public class TvShow implements Serializable {
 	private Long id;
 	private String imdbId;
 	private String name;
+	private String originalName;
+	private String originalLang;
 	private String description;
 	private List<String> network;
 	private String genre;
@@ -30,7 +31,7 @@ public class TvShow implements Serializable {
 	public TvShow() {
 		super();
 	}
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -149,5 +150,21 @@ public class TvShow implements Serializable {
 
 	public void setLastUpdated(Long lastUpdated) {
 		this.lastUpdated = lastUpdated;
+	}
+
+	public String getOriginalName() {
+		return originalName;
+	}
+
+	public void setOriginalName(String originalName) {
+		this.originalName = originalName;
+	}
+
+	public String getOriginalLang() {
+		return originalLang;
+	}
+
+	public void setOriginalLang(String originalLang) {
+		this.originalLang = originalLang;
 	}
 }

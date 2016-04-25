@@ -25,6 +25,7 @@ import org.sallaire.service.provider.Torrent;
 import org.sallaire.service.provider.t411.dto.Authorization;
 import org.sallaire.service.provider.t411.dto.SearchResult;
 import org.sallaire.service.provider.t411.dto.SearchResults;
+import org.sallaire.service.util.RegexFilterConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -48,6 +49,9 @@ public class T411Provider implements IProvider {
 
 	@Autowired
 	private T411Configuration configuration;
+
+	@Autowired
+	private RegexFilterConfiguration regex;
 
 	private RestTemplate restTemplate;
 
@@ -76,6 +80,7 @@ public class T411Provider implements IProvider {
 		LOGGER.debug("T411 interceptor set");
 
 		LOGGER.debug("T411 Provider initialized");
+		MDC.remove(PROVIDER);
 	}
 
 	@Override
@@ -109,7 +114,7 @@ public class T411Provider implements IProvider {
 				throw new IOException(e);
 			}
 		}
-
+		MDC.remove(PROVIDER);
 		return null;
 
 	}
@@ -157,33 +162,25 @@ public class T411Provider implements IProvider {
 				.addParameter(configuration.getCategoryKey(), configuration.getCategory()) //
 				.addParameter(configuration.getSubCategoryKey(), configuration.getSubCategory());
 
-		boolean filterNumber = false;
 		if (Option.NUMBER.isActivated(option)) {
 			builder.addParameter(configuration.getSeasonKey(), String.valueOf(configuration.getSeason(season))) //
 					.addParameter(configuration.getEpisodeKey(), String.valueOf(configuration.getEpisode(number)));
 		} else {
-			filterNumber = true;
-			builder.setPath("/torrents/search/" + String.format(configuration.getEpisodeFormat(), name, season, number));
+			builder.setPath("/torrents/search/" + String.format(regex.getEpisodeFormat(), name, season, number));
 		}
 
-		boolean filterLang = false;
 		if (Option.LANG.isActivated(option)) {
 			List<String> params = configuration.getLangValue(audioLang);
 			for (String param : params) {
 				builder.addParameter(configuration.getLangKey(), param);
 			}
-		} else {
-			filterLang = true;
 		}
 
-		boolean filterQuality = false;
 		if (Option.QUALITY.isActivated(option)) {
 			List<String> params = configuration.getQualityValue(quality);
 			for (String param : params) {
 				builder.addParameter(configuration.getQualityKey(), param);
 			}
-		} else {
-			filterQuality = true;
 		}
 
 		try {
@@ -207,22 +204,11 @@ public class T411Provider implements IProvider {
 					}
 				});
 
-				// Now we have to filter results according to quality/language if necessary
-				if (filterNumber) {
-					LOGGER.info("Filter results for episode name [{}] and number [S{}E{}]", name, season, number);
-					results.setTorrents(filterResults(results.getTorrents(), configuration.getEpisodeRegex(name, season, number)));
-					LOGGER.info("{} results after filter", results.getTorrents().size());
-				}
-				if (filterLang) {
-					LOGGER.info("Filter results for audio lang [{}]", audioLang);
-					results.setTorrents(filterResults(results.getTorrents(), configuration.getLangRegex(audioLang)));
-					LOGGER.info("{} results after filter", results.getTorrents().size());
-				}
-				if (filterQuality) {
-					LOGGER.info("Filter results for quality [{}]", quality);
-					results.setTorrents(filterResults(results.getTorrents(), configuration.getQualityRegex(quality)));
-					LOGGER.info("{} results after filter", results.getTorrents().size());
-				}
+				// Now we have to filter results according to
+				// quality/language/episode name
+				LOGGER.info("Filter results for episode name [{}]", name);
+				results.setTorrents(filterResults(results.getTorrents(), name, quality, audioLang, season, number));
+				LOGGER.info("{} results after filter", results.getTorrents().size());
 			} else {
 				LOGGER.info("No result found for request");
 			}
@@ -232,13 +218,9 @@ public class T411Provider implements IProvider {
 		}
 	}
 
-	private List<SearchResult> filterResults(List<SearchResult> results, final List<Pattern> patterns) {
+	private List<SearchResult> filterResults(List<SearchResult> results, String showName, Quality quality, String lang, Integer season, Integer number) {
 		return results.stream().filter(t -> {
-			for (Pattern rx : patterns)
-				if (rx.matcher(t.getName()).find())
-					return true;
-			LOGGER.debug("Torrent {} doesn't match any pattern => reject it", t.getName());
-			return false;
+			return regex.matchEpisode(t.getName(), showName, season, number, quality, lang);
 		}).collect(Collectors.toList());
 	}
 
@@ -274,6 +256,7 @@ public class T411Provider implements IProvider {
 			user = "";
 			password = "";
 		}
+		MDC.remove(PROVIDER);
 	}
 
 }

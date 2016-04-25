@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.sallaire.JackBeardConstants;
 import org.sallaire.dao.DaoException;
 import org.sallaire.dao.db.DownloadDao;
 import org.sallaire.dao.db.TvShowDao;
@@ -68,7 +69,7 @@ public class AddShowProcessor {
 				Collection<Episode> episodes = showDao.getShowEpisodes(showId);
 				if (episodes == null) {
 					LOGGER.debug("Processing show generic data");
-					TvShow tvShow = metaDataDao.getShowInformation(showId, "fr");
+					TvShow tvShow = metaDataDao.getShowInformation(showId, JackBeardConstants.LANG);
 					LOGGER.debug("Storing show generic data to db");
 					showDao.saveShow(tvShow);
 					LOGGER.debug("Show generic data stored to db");
