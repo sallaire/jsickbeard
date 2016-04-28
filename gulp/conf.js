@@ -13,10 +13,10 @@ var gutil = require('gulp-util');
  *  The main paths of your project handle these with care
  */
 exports.paths = {
-  src: 'src/main/resources/static',
-  dist: 'target/dist',
+  src: 'src/main/js',
+  dist: 'src/main/resources/static',
   tmp: 'target/.tmp',
-  e2e: 'src/main/resources/static/e2e'
+  e2e: 'src/main/js/e2e'
 };
 /**
  * Tableau des proxies
@@ -34,7 +34,7 @@ exports.paths = {
  */
 exports.wiredep = {
   exclude: [/\/bootstrap\.js$/],
-  directory: 'src/main/resources/static/bower_components'
+  directory: 'src/main/js/bower_components'
 };
 
 /**

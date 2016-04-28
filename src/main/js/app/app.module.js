@@ -3,6 +3,7 @@
 
     angular.module('app', [
         'app.authentication',
+        'app.resource',
         'app.logger',
         'app.core',
         'app.login',

@@ -4,7 +4,7 @@
   "private": true,
   "cacheDirectories": [
     "node_modules",
-    "src/main/resources/static/bower_components"
+    "src/main/js/bower_components"
   ],
   "version": "1.0.0",
   "dependencies": {

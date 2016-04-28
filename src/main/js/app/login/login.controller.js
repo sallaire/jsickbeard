@@ -7,26 +7,26 @@
     function LoginController($state, logger, authorization) {
         var ctrl = this;
 
-        ctrl.user = {
-            username: '',
-            password: ''
-        };
+        ctrl.user = {username: '', password: ''};
 
         ctrl.login = login;
         //////////////////////////
 
         function login() {
-            authorization.login(ctrl.user, success, faillure)
+
+            authorization.setCredentials(ctrl.user.username, ctrl.user.password);
+
+            authorization.login(ctrl.user)
                 .then(success)
-                .catch(faillure);
+                .catch(failure);
 
             function success(data) {
                 logger.success('success login', data);
-                authorization.setCredentials(user.username, user.password);
                 $state.go('home');
             }
 
-            function faillure(response) {
+            function failure(response) {
+                authorization.clearCredentials(ctrl.user.username, ctrl.user.password);
                 logger.error('L\'identifiant ou le mot de passe que vous avez entré est ' +
                     'incorrect.');
             }

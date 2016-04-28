@@ -1,6 +1,6 @@
 {
   "name": "JackBeard",
-  "appPath": "src/main/resources/statuc/",
+  "appPath": "src/main/js/",
   "version": "0.0.1",
   "dependencies": {
     "angular": "~1.5.3",
