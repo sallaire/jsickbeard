@@ -11,7 +11,7 @@
     $logProvider.debugEnabled(true);
     
     // Suppression du spinner lors des chargement XHR
-    cfpLoadingBarProvider.includeSpinner = false;
+    cfpLoadingBarProvider.includeSpinner = true;
   }
 
 })();

@@ -2,7 +2,7 @@
     'use strict';
 
     angular
-        .module('app.logger', ['app.core'])
+        .module('app.core')
         .factory('logger', logger);
 
     /* @ngInject */
@@ -43,18 +43,18 @@
             $log.info('Info: ' + message, data || '');
         }
 
-        function success(message, data, title) {
+        function success(message, data) {
             showSimpleToast(message);
             $log.info('Success: ' + message, data || '');
         }
 
-        function warning(message, data, title) {
+        function warning(message, data) {
             showSimpleToast(message);
             $log.warn('Warning: ' + message, data || '');
         }
 
-        function debug(message, data, title) {
+        function debug(message, data) {
             $log.debug('Debug: ' + message, data || '');
         }
     }
-}());
+})();

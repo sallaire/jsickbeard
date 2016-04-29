@@ -1,10 +1,12 @@
 (function () {
     'use strict';
 
-    angular.module('app.login', ['app.core', 'app.authentication']).controller('LoginController', LoginController);
+    angular
+        .module('app.login')
+        .controller('LoginController', LoginController);
 
     /* @ngInject */
-    function LoginController($state, logger, authorization) {
+    function LoginController($state, logger, LoginService) {
         var ctrl = this;
 
         ctrl.user = {username: '', password: ''};
@@ -14,9 +16,7 @@
 
         function login() {
 
-            authorization.setCredentials(ctrl.user.username, ctrl.user.password);
-
-            authorization.login(ctrl.user)
+            LoginService.login(ctrl.user)
                 .then(success)
                 .catch(failure);
 
@@ -25,7 +25,7 @@
                 $state.go('home');
             }
 
-            function failure(response) {
+            function failure() {
                 authorization.clearCredentials(ctrl.user.username, ctrl.user.password);
                 logger.error('L\'identifiant ou le mot de passe que vous avez entré est ' +
                     'incorrect.');

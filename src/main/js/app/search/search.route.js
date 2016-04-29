@@ -1,7 +1,9 @@
 (function () {
     'use strict';
 
-    angular.module('app.search').config(searchStateConfig);
+    angular
+        .module('app.search')
+        .config(searchStateConfig);
 
     /* @ngInject */
     function searchStateConfig($stateProvider) {
@@ -12,7 +14,7 @@
         return {
             url: '/search',
             parent: 'connected',
-            views:{
+            views: {
                 'content@': {
                     templateUrl: 'app/search/search.html',
                     controller: 'SearchController',

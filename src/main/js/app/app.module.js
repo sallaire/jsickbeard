@@ -2,12 +2,11 @@
     'use strict';
 
     angular.module('app', [
-        'app.authentication',
-        'app.resource',
-        'app.logger',
+        /* Shared modules */
         'app.core',
+        /* Feature areas */
         'app.login',
-        'app.header',
+        'app.layout',
         'app.home',
         'app.search'
     ]);

@@ -2,7 +2,7 @@
   'use strict';
 
   angular
-    .module('app.header',  ['app.core'])
+    .module('app.layout')
     .controller('HeaderController', Controller);
 
   /** @ngInject */

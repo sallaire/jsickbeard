@@ -1,10 +1,12 @@
 (function () {
     'use strict';
 
-    angular.module('app.authentication', ['app.core']).factory('authorization', Authorization);
+    angular
+        .module('app.core')
+        .factory('authorization', Authorization);
 
     /** @ngInject */
-    function Authorization($cookies, User) {
+    function Authorization($cookies) {
         var service = {};
 
         service.setCredentials = function (username, password) {
@@ -13,15 +15,12 @@
                 authentication: btoa(username + ':' + password)
             };
 
-            $cookies.put('credentials', currentUser);
+            $cookies.put('currentUser', currentUser);
+            return currentUser.authentication;
         };
 
         service.clearCredentials = function () {
-            $cookies.remove('credentials');
-        };
-
-        service.login = function () {
-            return User.get();
+            $cookies.remove('currentUser');
         };
 
         return service;

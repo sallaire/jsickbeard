@@ -12,7 +12,5 @@
             'ngMaterial',
             'ui.router',
             'angular-loading-bar',
-            'angular-momentjs',
-            'underscore',
-            'md.data.table']);
+            'angular-momentjs']);
 })();

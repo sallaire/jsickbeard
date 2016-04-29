@@ -1,29 +1,31 @@
-(function() {
-	'use strict';
+(function () {
+    'use strict';
 
-	angular.module('app.search', ['app.core']).controller('SearchController', Controller);
+    angular
+        .module('app.search')
+        .controller('SearchController', Controller);
 
-	/** @ngInject */
-	function Controller(_) {
-		var ctrl = this;
+    /** @ngInject */
+    function Controller() {
+        var ctrl = this;
 
         ctrl.search = {};
 
-		ctrl.clearSearch = clearSearch;
+        ctrl.clearSearch = clearSearch;
 
-		ctrl.activate = function() {
-		};
+        ctrl.activate = function () {
+        };
 
-		ctrl.activate();
+        ctrl.activate();
 
-		ctrl.addTvShow = function() {
-			ctrl.tvshow = {
-				name : ''
-			};
-		};
+        ctrl.addTvShow = function () {
+            ctrl.tvshow = {
+                name: ''
+            };
+        };
 
-		function clearSearch() {
-			ctrl.search = {};
-		}
-	}
+        function clearSearch() {
+            ctrl.search = {};
+        }
+    }
 })();

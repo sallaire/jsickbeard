@@ -1,7 +1,9 @@
 (function () {
     'use strict';
 
-    angular.module('app.login').config(loginStateConfig);
+    angular
+        .module('app.login')
+        .config(loginStateConfig);
 
     /* @ngInject */
     function loginStateConfig($stateProvider) {
@@ -12,7 +14,7 @@
         return {
             url: '/login',
             parent: 'disconnected',
-            views:{
+            views: {
                 'content@': {
                     templateUrl: 'app/login/login.html',
                     controller: 'LoginController',

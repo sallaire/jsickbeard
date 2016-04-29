@@ -1,7 +1,9 @@
 (function () {
     'use strict';
 
-    angular.module('app.authentication', ['app.core']).factory('httpInterceptor', HttpInterceptor);
+    angular
+        .module('app.core')
+        .factory('httpInterceptor', HttpInterceptor);
 
     /** @ngInject */
     function HttpInterceptor($q, $state) {

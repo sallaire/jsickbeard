@@ -1,7 +1,9 @@
 (function () {
     'use strict';
 
-    angular.module('app.core').config(routerConfig);
+    angular
+        .module('app.core')
+        .config(routerConfig);
 
     /** @ngInject */
     function routerConfig($stateProvider, $urlRouterProvider) {
@@ -31,12 +33,12 @@
             parent: 'main',
             views: {
                 'header@': {
-                    templateUrl: 'app/header/header.html',
+                    templateUrl: 'app/layout/header.html',
                     controller: 'HeaderController',
                     controllerAs: 'ctrl'
                 },
                 'menu@': {
-                    templateUrl: 'app/menu/menu.html',
+                    templateUrl: 'app/layout/nav.html',
                     controller: 'HeaderController',
                     controllerAs: 'ctrl'
                 }
@@ -53,7 +55,7 @@
             parent: 'main',
             views: {
                 'header@': {
-                    templateUrl: 'app/header/header.disconnect.html'
+                    templateUrl: 'app/layout/header.disconnect.html'
                 }
             }
         };
