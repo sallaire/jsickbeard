@@ -121,7 +121,7 @@ public class ShowService {
 
 	public TvShow getShow(Long id) {
 		try {
-			return metaDataDao.getShowInformation(id, "fr");
+			return metaDataDao.getShowInformation(id, JackBeardConstants.LANG);
 		} catch (DaoException e) {
 			LOGGER.error("Unable to find results for show {}", id, e);
 		}
@@ -237,14 +237,14 @@ public class ShowService {
 		LOGGER.debug("Processing show generic data");
 		TvShow tvShow;
 		try {
-			tvShow = metaDataDao.getShowInformation(showId, "fr");
+			tvShow = metaDataDao.getShowInformation(showId, JackBeardConstants.LANG);
 			LOGGER.debug("Storing show generic data to db");
 			showDao.saveShow(tvShow);
 			LOGGER.debug("Show generic data stored to db");
 
 			LOGGER.debug("Storing show episode data to db");
 			List<Episode> episodes;
-			episodes = metaDataDao.getShowEpisodes(showId, "fr");
+			episodes = metaDataDao.getShowEpisodes(showId, JackBeardConstants.LANG);
 			showDao.saveShowEpisodes(showId, episodes);
 			LOGGER.debug("Show episode data stored to db");
 		} catch (DaoException e) {

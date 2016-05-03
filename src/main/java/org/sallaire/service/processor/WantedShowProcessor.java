@@ -76,7 +76,7 @@ public class WantedShowProcessor {
 			try {
 				Collection<String> namesToSearch = null;
 				if (config.getCustomNames().isEmpty()) {
-					namesToSearch = Arrays.asList(show.getName());
+					namesToSearch = Arrays.asList(show.getOriginalName());
 				} else {
 					namesToSearch = new ArrayList<>(config.getCustomNames());
 				}

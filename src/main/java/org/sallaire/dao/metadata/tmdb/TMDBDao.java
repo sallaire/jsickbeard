@@ -60,8 +60,11 @@ public class TMDBDao implements IMetaDataDao {
 	@Override
 	public TvShow getShowInformation(Long id, String lang) throws DaoException {
 		TvSeries tvSeries = new TmdbApi(API_KEY).getTvSeries().getSeries(id.intValue(), lang, TvMethod.external_ids, TvMethod.images);
-		TvSeries enTvSeries = new TmdbApi(API_KEY).getTvSeries().getSeries(id.intValue(), "en", TvMethod.external_ids, TvMethod.images);
-		return TMDBConverter.convertFromTvSeries(tvSeries, enTvSeries);
+		TvSeries originalTvSeries = null;
+		if (!lang.equals(tvSeries.getOriginalLanguage())) {
+			originalTvSeries = new TmdbApi(API_KEY).getTvSeries().getSeries(id.intValue(), tvSeries.getOriginalLanguage(), TvMethod.external_ids, TvMethod.images);
+		}
+		return TMDBConverter.convertFromTvSeries(tvSeries, originalTvSeries);
 	}
 
 	@Override
@@ -70,7 +73,10 @@ public class TMDBDao implements IMetaDataDao {
 		TvSeries tvSeries = new TmdbApi(API_KEY).getTvSeries().getSeries(id.intValue(), lang);
 		for (int i = 1; i <= tvSeries.getNumberOfSeasons(); i++) {
 			TvSeason tvSeason = new TmdbApi(API_KEY).getTvSeasons().getSeason(id.intValue(), i, lang);
-			TvSeason defaultLangTvSeason = new TmdbApi(API_KEY).getTvSeasons().getSeason(id.intValue(), i, "en");
+			TvSeason defaultLangTvSeason = null;
+			if (!lang.equals(tvSeries.getOriginalLanguage())) {
+				defaultLangTvSeason = new TmdbApi(API_KEY).getTvSeasons().getSeason(id.intValue(), i, tvSeries.getOriginalLanguage());
+			}
 			episodes.addAll(TMDBConverter.convertFromTvSeason(id, tvSeason, defaultLangTvSeason));
 		}
 		return episodes;

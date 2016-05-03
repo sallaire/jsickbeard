@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
+import org.sallaire.JackBeardConstants;
 import org.sallaire.dao.DaoException;
 import org.sallaire.dao.db.DownloadDao;
 import org.sallaire.dao.db.TvShowDao;
@@ -82,12 +83,12 @@ public class UpdateShowProcessor {
 		try {
 
 			LOGGER.debug("Retrieve show informations");
-			TvShow tvShow = metaDataDao.getShowInformation(showConfig.getId(), "fr");
+			TvShow tvShow = metaDataDao.getShowInformation(showConfig.getId(), JackBeardConstants.LANG);
 			showDao.saveShow(tvShow);
 			LOGGER.debug("Show informations saved");
 
 			LOGGER.debug("Retrieve show episodes");
-			List<Episode> updatedEpisodes = metaDataDao.getShowEpisodes(showConfig.getId(), "fr");
+			List<Episode> updatedEpisodes = metaDataDao.getShowEpisodes(showConfig.getId(), JackBeardConstants.LANG);
 			showDao.saveShowEpisodes(showConfig.getId(), updatedEpisodes);
 			LOGGER.debug("Process {} episodes for show {}", updatedEpisodes.size(), tvShow.getName());
 
