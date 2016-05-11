@@ -25,10 +25,10 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.sallaire.dao.DaoException;
+import org.sallaire.dao.db.entity.Episode;
+import org.sallaire.dao.db.entity.TvShow;
 import org.sallaire.dao.metadata.IMetaDataDao;
-import org.sallaire.dto.metadata.Episode;
 import org.sallaire.dto.metadata.SearchResult;
-import org.sallaire.dto.metadata.TvShow;
 import org.sallaire.dto.tvdb.ShowData;
 import org.sallaire.dto.tvdb.TVDBSearchResult;
 import org.sallaire.dto.tvdb.TVDBSearchResults;
@@ -125,8 +125,8 @@ public class TVDBDao implements IMetaDataDao {
 	}
 
 	@Override
-	public List<Episode> getShowEpisodes(Long id, String lang) throws DaoException {
-		return getShowData(id, lang).getEpisodes().stream().map(e -> TVDBConverter.convertFromTVDB(id, e)).collect(Collectors.toList());
+	public List<Episode> getShowEpisodes(TvShow tvShow, String lang) throws DaoException {
+		return getShowData(tvShow.getSourceId(), lang).getEpisodes().stream().map(e -> TVDBConverter.convertFromTVDB(tvShow, e)).collect(Collectors.toList());
 	}
 
 	@Override

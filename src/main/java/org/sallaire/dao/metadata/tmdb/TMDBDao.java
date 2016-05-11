@@ -8,10 +8,10 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.sallaire.dao.DaoException;
+import org.sallaire.dao.db.entity.Episode;
+import org.sallaire.dao.db.entity.TvShow;
 import org.sallaire.dao.metadata.IMetaDataDao;
-import org.sallaire.dto.metadata.Episode;
 import org.sallaire.dto.metadata.SearchResult;
-import org.sallaire.dto.metadata.TvShow;
 import org.springframework.stereotype.Repository;
 
 import info.movito.themoviedbapi.TmdbApi;
@@ -68,16 +68,16 @@ public class TMDBDao implements IMetaDataDao {
 	}
 
 	@Override
-	public List<Episode> getShowEpisodes(Long id, String lang) throws DaoException {
+	public List<Episode> getShowEpisodes(TvShow tvShow, String lang) throws DaoException {
 		List<Episode> episodes = new ArrayList<>();
-		TvSeries tvSeries = new TmdbApi(API_KEY).getTvSeries().getSeries(id.intValue(), lang);
+		TvSeries tvSeries = new TmdbApi(API_KEY).getTvSeries().getSeries(tvShow.getSourceId().intValue(), lang);
 		for (int i = 1; i <= tvSeries.getNumberOfSeasons(); i++) {
-			TvSeason tvSeason = new TmdbApi(API_KEY).getTvSeasons().getSeason(id.intValue(), i, lang);
+			TvSeason tvSeason = new TmdbApi(API_KEY).getTvSeasons().getSeason(tvShow.getSourceId().intValue(), i, lang);
 			TvSeason defaultLangTvSeason = null;
 			if (!lang.equals(tvSeries.getOriginalLanguage())) {
-				defaultLangTvSeason = new TmdbApi(API_KEY).getTvSeasons().getSeason(id.intValue(), i, tvSeries.getOriginalLanguage());
+				defaultLangTvSeason = new TmdbApi(API_KEY).getTvSeasons().getSeason(tvShow.getSourceId().intValue(), i, tvSeries.getOriginalLanguage());
 			}
-			episodes.addAll(TMDBConverter.convertFromTvSeason(id, tvSeason, defaultLangTvSeason));
+			episodes.addAll(TMDBConverter.convertFromTvSeason(tvShow, tvSeason, defaultLangTvSeason));
 		}
 		return episodes;
 	}

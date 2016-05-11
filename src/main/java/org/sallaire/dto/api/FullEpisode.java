@@ -2,10 +2,11 @@ package org.sallaire.dto.api;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
+import org.sallaire.dao.db.entity.TvShow;
 import org.sallaire.dto.metadata.Episode;
-import org.sallaire.dto.metadata.TvShow;
 import org.sallaire.dto.user.EpisodeStatus;
 import org.sallaire.dto.user.Quality;
 import org.sallaire.dto.user.Status;
@@ -29,7 +30,7 @@ public class FullEpisode implements Serializable {
 	private Status status;
 	private List<String> fileNames;
 
-	private LocalDate downloadDate;
+	private LocalDateTime downloadDate;
 
 	public FullEpisode() {
 	}
@@ -159,11 +160,11 @@ public class FullEpisode implements Serializable {
 		this.fileNames = fileNames;
 	}
 
-	public LocalDate getDownloadDate() {
+	public LocalDateTime getDownloadDate() {
 		return downloadDate;
 	}
 
-	public void setDownloadDate(LocalDate downloadDate) {
+	public void setDownloadDate(LocalDateTime downloadDate) {
 		this.downloadDate = downloadDate;
 	}
 

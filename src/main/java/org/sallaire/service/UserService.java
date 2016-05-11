@@ -1,22 +1,18 @@
 package org.sallaire.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.sallaire.dao.db.UserDao;
-import org.sallaire.dto.user.Account;
-import org.sallaire.dto.user.Account.Role;
+import org.sallaire.dao.db.UserRepository;
+import org.sallaire.dao.db.entity.User;
+import org.sallaire.dao.db.entity.User.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,77 +25,92 @@ public class UserService implements UserDetailsService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
 	@Autowired
-	private UserDao userDao;
+	private UserRepository userRepository;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Account account = userDao.getAccount(username).orElseThrow(() -> new UsernameNotFoundException(username));
-		return new User(username, account.getPassword(), account.getRoles().stream().map(r -> new SimpleGrantedAuthority(r.getRoleName())).collect(Collectors.toList()));
+		User user = userRepository.getUserFromName(username);
+		if (user == null) {
+			throw new UsernameNotFoundException(username);
+		}
+		return user;
 	}
 
 	public void saveUser(String userName, String password, String role) {
 		LOGGER.info("Saving user {} with password {} and role {}", userName, StringUtils.repeat("X", password.length()), role);
 		Role convertedRole = null;
-		Role[] roles = null;
+		List<Role> roles = null;
+		User user = userRepository.getUserFromName(userName);
+		if (user == null) {
+			user = new User(userName, passwordEncoder.encode(password));
+		}
 		if (role == null) {
-			Account existingAccount = userDao.getAccount(userName).orElse(new Account());
-			if (CollectionUtils.isEmpty(existingAccount.getRoles())) {
+			if (CollectionUtils.isEmpty(user.getRoles())) {
 				LOGGER.info("No role specified for user {}, it will be set to {} by default", userName, Role.USER);
 				convertedRole = Role.USER;
 			} else {
-				roles = existingAccount.getRoles().stream().toArray(Role[]::new);
-				LOGGER.debug("User already exists in db, conserve its roles : {}", (Object[]) roles);
+				roles = user.getRoles();
+				LOGGER.debug("User already exists in db, conserve its roles : {}", roles);
 			}
 		} else {
 			try {
 				convertedRole = Role.valueOf(role);
 			} catch (IllegalArgumentException e) {
-				LOGGER.warn("Input role {} is not a valide one, should be one of {}, the user will not be saved", role, Role.values());
+				LOGGER.warn("Input role {} is not a valide one, should be one of {}, the user will be saved with default role {}", role, Role.values(), Role.USER);
+				convertedRole = Role.USER;
 			}
 		}
 		if (convertedRole != null) {
 			if (roles == null) {
 				switch (convertedRole) {
 				case USER:
-					roles = new Role[] { Role.USER };
+					roles = Arrays.asList(Role.USER);
 					break;
 				case ADMIN:
-					roles = new Role[] { Role.USER, Role.ADMIN };
+					roles = Arrays.asList(Role.USER, Role.ADMIN);
 					break;
 				case SYSADMIN:
-					roles = new Role[] { Role.USER, Role.ADMIN, Role.SYSADMIN };
+					roles = Arrays.asList(Role.USER, Role.ADMIN, Role.SYSADMIN);
 					break;
 				}
-				LOGGER.debug("Roles computed : {}", (Object[]) roles);
+				LOGGER.debug("Roles computed : {}", roles);
+				user.setRoles(roles);
 			}
-			userDao.saveAccount(new Account(userName, passwordEncoder.encode(password), roles));
+
+			userRepository.save(user);
 			LOGGER.info("User saved");
 		}
 	}
 
-	public Account getUser(String userName) {
-		Account account = userDao.getAccount(userName).orElseGet(null);
-		account.setPassword(null);
-		return account;
+	public User getUser(String userName) {
+		User user = userRepository.getUserFromName(userName);
+		if (user != null) {
+			user.setPassword(null);
+		}
+		return user;
 	}
 
-	public boolean hasAccounts() {
-		Collection<Account> existingAccounts = userDao.getAccounts().orElse(new ArrayList<>());
-		LOGGER.debug("{} accounts found in database", existingAccounts.size());
-		return !existingAccounts.isEmpty();
+	public boolean hasUsers() {
+		return userRepository.count() > 0;
 	}
 
-	public void deleteAccount(String name) {
-		userDao.deleteUser(name);
+	public void deleteUser(String name) {
+		User user = userRepository.getUserFromName(name);
+		if (user != null) {
+			userRepository.delete(user);
+			LOGGER.debug("User {} has been deleted", name);
+		} else {
+			LOGGER.warn("Unable to delete user {}, it doesn't exist in database", name);
+		}
 	}
 
-	public boolean authenticateAccount(String user, String password) {
-		Optional<Account> account = userDao.getAccount(user);
-		if (account.isPresent()) {
-			return account.get().getPassword().equals(passwordEncoder.encode(password));
+	public boolean authenticateAccount(String userName, String password) {
+		User user = userRepository.getUserFromName(userName);
+		if (user != null) {
+			return user.getPassword().equals(passwordEncoder.encode(password));
 		} else {
 			return false;
 		}
@@ -108,7 +119,7 @@ public class UserService implements UserDetailsService {
 	@PostConstruct
 	public void postConstruct() {
 		LOGGER.info("Check existing user");
-		if (!hasAccounts()) {
+		if (!hasUsers()) {
 			LOGGER.info("No user in db, creating default one");
 			saveUser("admin", "admin", Role.SYSADMIN.name());
 		}

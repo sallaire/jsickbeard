@@ -2,7 +2,7 @@ package org.sallaire.dto.api;
 
 import java.util.Collection;
 
-import org.sallaire.dto.metadata.TvShow;
+import org.sallaire.dao.db.entity.TvShow;
 import org.sallaire.dto.user.TvShowConfiguration;
 
 public class FullShow {

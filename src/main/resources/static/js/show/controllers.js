@@ -61,6 +61,9 @@ angular.module('show', [])
 		$scope.truncate = function(showId, season, number, quality, lang) {
 			$http.delete("http://37.187.19.83:9000/episode/"+showId+"/"+season+"/"+number+"/snatched?quality="+quality+"&lang="+lang);
 		}
+		$scope.search = function(showId, episodeId) {
+			$http.post("http://37.187.19.83:9000/tvshow/"+showId+"/episode/"+episodeId);
+		}
 	})
 	
 	.controller('wanted', function($scope, $http) {

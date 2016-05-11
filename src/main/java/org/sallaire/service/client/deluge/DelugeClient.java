@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -21,9 +20,8 @@ import org.apache.http.impl.client.CookieSpecRegistries;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.cookie.DefaultCookieSpecProvider;
 import org.apache.http.impl.cookie.DefaultCookieSpecProvider.CompatibilityLevel;
+import org.sallaire.dao.db.entity.Episode;
 import org.sallaire.dto.configuration.ClientConfiguration;
-import org.sallaire.dto.user.EpisodeStatus;
-import org.sallaire.dto.user.TvShowConfiguration;
 import org.sallaire.service.client.IClient;
 import org.sallaire.service.provider.Torrent;
 import org.slf4j.Logger;
@@ -80,7 +78,7 @@ public class DelugeClient implements IClient {
 		LOGGER.debug("Deluge client initialized");
 	}
 
-	public void addTorrent(Torrent torrent, TvShowConfiguration showConfiguration, EpisodeStatus episode) throws IOException {
+	public void addTorrent(Torrent torrent, Path location, Episode episode) throws IOException {
 
 		// Authentication
 		String delugeUrl = userConfiguration.getUrl() + configuration.getPath();
@@ -104,7 +102,7 @@ public class DelugeClient implements IClient {
 		}
 		addTorrentParams.getParams().add(torrent.getName());
 		addTorrentParams.getParams().add(encodedContent);
-		addTorrentParams.getParams().add(getParameters(showConfiguration, episode));
+		addTorrentParams.getParams().add(getParameters(location, episode));
 		addTorrentParams.setMethod(configuration.getAddTorrentMethod());
 		LOGGER.info("Requesting deluge with [{}] and method [{}]", authBody.getMethod());
 		response = restTemplate.postForObject(delugeUrl, addTorrentParams, DelugeResponseBody.class);
@@ -118,15 +116,15 @@ public class DelugeClient implements IClient {
 		}
 	}
 
-	private Map<String, String> getParameters(TvShowConfiguration showConfiguration, EpisodeStatus episode) {
+	private Map<String, String> getParameters(Path location, Episode episode) {
 		Map<String, String> params = new HashMap<>();
 		if (userConfiguration.getMoveShow()) {
 			params.put("move_completed", "true");
 			if (userConfiguration.getSeasonPattern() != null) {
-				Path path = Paths.get(showConfiguration.getLocation(), String.format(userConfiguration.getSeasonPattern(), episode.getEpisodeKey().getSeason()));
+				Path path = location.resolve(String.format(userConfiguration.getSeasonPattern(), episode.getSeason()));
 				params.put("move_completed_path", path.toString());
 			} else {
-				params.put("move_completed_path", showConfiguration.getLocation());
+				params.put("move_completed_path", location.toString());
 			}
 		}
 		if (userConfiguration.getStopRatio() != null) {

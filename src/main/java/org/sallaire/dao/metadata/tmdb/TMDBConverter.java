@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sallaire.dto.metadata.Episode;
+import org.sallaire.dao.db.entity.Episode;
+import org.sallaire.dao.db.entity.TvShow;
 import org.sallaire.dto.metadata.SearchResult;
-import org.sallaire.dto.metadata.TvShow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +37,7 @@ public class TMDBConverter {
 
 	public static TvShow convertFromTvSeries(TvSeries tvSeries, TvSeries defaultLang) {
 		TvShow result = new TvShow();
-		result.setId(new Long(tvSeries.getId()));
+		result.setSourceId(new Long(tvSeries.getId()));
 		result.setDescription(tvSeries.getOverview());
 		result.setImdbId(tvSeries.getExternalIds().getImdbId());
 		if (tvSeries.getFirstAirDate() != null) {
@@ -67,7 +67,7 @@ public class TMDBConverter {
 		return result;
 	}
 
-	public static List<Episode> convertFromTvSeason(Long showId, TvSeason tvSeason, TvSeason defaultLang) {
+	public static List<Episode> convertFromTvSeason(TvShow tvShow, TvSeason tvSeason, TvSeason defaultLang) {
 		return tvSeason.getEpisodes().stream().map(e -> {
 			TvEpisode defaultLangEpisode = null;
 			if (defaultLang != null) {
@@ -78,9 +78,9 @@ public class TMDBConverter {
 			episode.setSeason(tvSeason.getSeasonNumber());
 			episode.setEpisode(e.getEpisodeNumber());
 			episode.setDescription(e.getOverview());
-			episode.setId(new Long(e.getId()));
+			episode.setSourceId(new Long(e.getId()));
 			episode.setName(e.getName());
-			episode.setShowId(showId);
+			episode.setTvShow(tvShow);
 			if (e.getExternalIds() != null) {
 				episode.setImdbId(e.getExternalIds().getImdbId());
 			}
