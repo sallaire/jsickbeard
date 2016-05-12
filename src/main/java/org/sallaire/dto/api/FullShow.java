@@ -3,7 +3,7 @@ package org.sallaire.dto.api;
 import java.util.Collection;
 
 import org.sallaire.dao.db.entity.TvShow;
-import org.sallaire.dto.user.TvShowConfiguration;
+import org.sallaire.dao.db.entity.TvShowConfiguration;
 
 public class FullShow {
 	private Collection<FullEpisode> episodes;

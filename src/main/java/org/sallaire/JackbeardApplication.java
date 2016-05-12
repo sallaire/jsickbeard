@@ -6,8 +6,10 @@ import java.nio.file.Files;
 import javax.annotation.PostConstruct;
 
 import org.jsondoc.spring.boot.starter.EnableJSONDoc;
+import org.sallaire.service.processor.AddShowProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -29,8 +31,8 @@ public class JackbeardApplication {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JackbeardApplication.class);
 
-	// @Autowired
-	// private AddShowProcessor showProcessor;
+	@Autowired
+	private AddShowProcessor showProcessor;
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -56,7 +58,7 @@ public class JackbeardApplication {
 	@PostConstruct
 	public void postConstruct() {
 		LOGGER.info("Starting show processor started");
-		// showProcessor.startShowProcessor();
+		showProcessor.startShowProcessor();
 		LOGGER.info("Show processor started");
 	}
 }

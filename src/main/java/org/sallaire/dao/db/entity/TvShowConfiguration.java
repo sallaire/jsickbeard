@@ -1,5 +1,6 @@
 package org.sallaire.dao.db.entity;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.neo4j.ogm.annotation.GraphId;
@@ -16,12 +17,17 @@ public class TvShowConfiguration {
 	private String audioLang;
 
 	@Relationship(type = "FOLLOWED_BY", direction = Relationship.UNDIRECTED)
-	private Set<User> follow;
+	private Set<User> followers;
 
 	@Relationship(type = "WITH_CONFIGURATION", direction = Relationship.UNDIRECTED)
 	private Set<EpisodeStatus> episodes;
 
 	private TvShow tvShow;
+
+	public TvShowConfiguration() {
+		followers = new HashSet<>();
+		episodes = new HashSet<>();
+	}
 
 	public Long getId() {
 		return id;
@@ -55,12 +61,17 @@ public class TvShowConfiguration {
 		this.tvShow = tvShow;
 	}
 
-	public Set<User> getFollow() {
-		return follow;
+	public Set<User> getFollowers() {
+		return followers;
 	}
 
-	public void setFollow(Set<User> follow) {
-		this.follow = follow;
+	public void setFollowers(Set<User> followers) {
+		this.followers = followers;
+	}
+
+	public void addFollower(User follower) {
+		this.followers.add(follower);
+		follower.getConfigurations().add(this);
 	}
 
 	public Set<EpisodeStatus> getEpisodes() {

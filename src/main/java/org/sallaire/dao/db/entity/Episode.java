@@ -51,6 +51,7 @@ public class Episode {
 
 	public void setTvShow(TvShow tvShow) {
 		this.tvShow = tvShow;
+		tvShow.addEpisode(this);
 	}
 
 	public Integer getSeason() {

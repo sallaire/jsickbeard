@@ -3,6 +3,7 @@ package org.sallaire.dao.db.entity;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -39,7 +40,7 @@ public class TvShow {
 	private Set<TvShowConfiguration> configurations;
 
 	@Relationship(type = "HAS_EPISODES", direction = Relationship.UNDIRECTED)
-	private Set<Episode> episodes;
+	private List<Episode> episodes;
 
 	public TvShow() {
 		super();
@@ -201,11 +202,18 @@ public class TvShow {
 		this.customNames = customNames;
 	}
 
-	public Set<Episode> getEpisodes() {
+	public List<Episode> getEpisodes() {
 		return episodes;
 	}
 
-	public void setEpisodes(Set<Episode> episodes) {
+	public void setEpisodes(List<Episode> episodes) {
 		this.episodes = episodes;
+	}
+
+	public void addEpisode(Episode episode) {
+		if (episodes == null) {
+			episodes = new ArrayList<>();
+		}
+		episodes.add(episode);
 	}
 }

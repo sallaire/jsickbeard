@@ -5,9 +5,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.sallaire.dao.db.entity.Episode;
+import org.sallaire.dao.db.entity.EpisodeStatus;
 import org.sallaire.dao.db.entity.TvShow;
-import org.sallaire.dto.metadata.Episode;
-import org.sallaire.dto.user.EpisodeStatus;
 import org.sallaire.dto.user.Quality;
 import org.sallaire.dto.user.Status;
 
@@ -44,15 +44,14 @@ public class FullEpisode implements Serializable {
 		setDescription(episode.getDescription());
 		setName(episode.getName());
 		setAirDate(episode.getAirDate());
+		setSeason(episode.getSeason());
+		setNumber(episode.getEpisode());
 		if (episodeStatus != null) {
-			setSeason(episodeStatus.getEpisodeKey().getSeason());
-			setNumber(episodeStatus.getEpisodeKey().getNumber());
 			setDownloadDate(episodeStatus.getDownloadDate());
-			setFileNames(episodeStatus.getFileNames());
-			setLang(episodeStatus.getEpisodeKey().getLang());
-			setQuality(episodeStatus.getEpisodeKey().getQuality());
+			setFileNames(episodeStatus.getDownloadedFiles());
+			setLang(episodeStatus.getShowConfiguration().getAudioLang());
+			setQuality(episodeStatus.getShowConfiguration().getQuality());
 			setStatus(episodeStatus.getStatus());
-			setLang(episodeStatus.getEpisodeKey().getLang());
 		}
 	}
 

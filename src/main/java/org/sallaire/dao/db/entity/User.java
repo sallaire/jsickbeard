@@ -34,7 +34,7 @@ public class User implements UserDetails {
 	private List<Role> roles;
 
 	@Relationship(type = "FOLLOWED_BY", direction = Relationship.UNDIRECTED)
-	private Set<TvShowConfiguration> follow;
+	private Set<TvShowConfiguration> configurations;
 
 	public User() {
 		super();
@@ -45,7 +45,7 @@ public class User implements UserDetails {
 		this.name = name;
 		this.password = password;
 		this.roles = Arrays.asList(roles);
-		this.follow = new HashSet<>();
+		this.configurations = new HashSet<>();
 	}
 
 	public Long getId() {
@@ -56,12 +56,17 @@ public class User implements UserDetails {
 		this.id = id;
 	}
 
-	public Set<TvShowConfiguration> getFollow() {
-		return follow;
+	public Set<TvShowConfiguration> getConfigurations() {
+		return configurations;
 	}
 
-	public void setFollow(Set<TvShowConfiguration> follow) {
-		this.follow = follow;
+	public void setConfigurations(Set<TvShowConfiguration> configurations) {
+		this.configurations = configurations;
+	}
+
+	public void addConfiguration(TvShowConfiguration configuration) {
+		this.configurations.add(configuration);
+		configuration.getFollowers().add(this);
 	}
 
 	public String getName() {
