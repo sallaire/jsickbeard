@@ -3,30 +3,39 @@ package org.sallaire.dao.db.entity;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+
 import org.sallaire.dto.user.Quality;
 
-@NodeEntity
+@Entity
 public class TvShowConfiguration {
-	@GraphId
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
-	private String quality;
+	private Quality quality;
 	private String audioLang;
 
-	@Relationship(type = "FOLLOWED_BY", direction = Relationship.UNDIRECTED)
+	@ManyToMany(mappedBy = "configurations", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	private Set<User> followers;
 
-	@Relationship(type = "WITH_CONFIGURATION", direction = Relationship.UNDIRECTED)
-	private Set<EpisodeStatus> episodes;
+	@OneToMany(mappedBy = "episode", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<EpisodeStatus> episodeStatus;
 
+	@ManyToOne
 	private TvShow tvShow;
 
 	public TvShowConfiguration() {
 		followers = new HashSet<>();
-		episodes = new HashSet<>();
+		episodeStatus = new HashSet<>();
 	}
 
 	public Long getId() {
@@ -38,11 +47,11 @@ public class TvShowConfiguration {
 	}
 
 	public Quality getQuality() {
-		return Quality.valueOf(quality);
+		return quality;
 	}
 
 	public void setQuality(Quality quality) {
-		this.quality = quality.name();
+		this.quality = quality;
 	}
 
 	public String getAudioLang() {
@@ -71,15 +80,14 @@ public class TvShowConfiguration {
 
 	public void addFollower(User follower) {
 		this.followers.add(follower);
-		follower.getConfigurations().add(this);
 	}
 
-	public Set<EpisodeStatus> getEpisodes() {
-		return episodes;
+	public Set<EpisodeStatus> getEpisodeStatus() {
+		return episodeStatus;
 	}
 
-	public void setEpisodes(Set<EpisodeStatus> episodes) {
-		this.episodes = episodes;
+	public void setEpisodeStatus(Set<EpisodeStatus> episodeStatus) {
+		this.episodeStatus = episodeStatus;
 	}
 
 }

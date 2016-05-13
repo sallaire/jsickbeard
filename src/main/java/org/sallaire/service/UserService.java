@@ -32,7 +32,7 @@ public class UserService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User user = userRepository.getUserFromName(username);
+		User user = userRepository.findUserByName(username);
 		if (user == null) {
 			throw new UsernameNotFoundException(username);
 		}
@@ -43,7 +43,7 @@ public class UserService implements UserDetailsService {
 		LOGGER.info("Saving user {} with password {} and role {}", userName, StringUtils.repeat("X", password.length()), role);
 		Role convertedRole = null;
 		List<Role> roles = null;
-		User user = userRepository.getUserFromName(userName);
+		User user = userRepository.findUserByName(userName);
 		if (user == null) {
 			user = new User(userName, passwordEncoder.encode(password));
 		}
@@ -86,7 +86,7 @@ public class UserService implements UserDetailsService {
 	}
 
 	public User getUser(String userName) {
-		User user = userRepository.getUserFromName(userName);
+		User user = userRepository.findUserByName(userName);
 		if (user != null) {
 			user.setPassword(null);
 		}
@@ -98,7 +98,7 @@ public class UserService implements UserDetailsService {
 	}
 
 	public void deleteUser(String name) {
-		User user = userRepository.getUserFromName(name);
+		User user = userRepository.findUserByName(name);
 		if (user != null) {
 			userRepository.delete(user);
 			LOGGER.debug("User {} has been deleted", name);
@@ -108,7 +108,7 @@ public class UserService implements UserDetailsService {
 	}
 
 	public boolean authenticateAccount(String userName, String password) {
-		User user = userRepository.getUserFromName(userName);
+		User user = userRepository.findUserByName(userName);
 		if (user != null) {
 			return user.getPassword().equals(passwordEncoder.encode(password));
 		} else {

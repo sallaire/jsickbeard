@@ -27,7 +27,7 @@ public class TVDBConverter {
 
 	public static TvShow convertFromTVDB(ShowInfo showInfo) {
 		TvShow tvShow = new TvShow();
-		tvShow.setSourceId(showInfo.getId());
+		tvShow.setId(showInfo.getId());
 		tvShow.setImdbId(showInfo.getImdbId());
 		tvShow.setName(showInfo.getName());
 		tvShow.setDescription(showInfo.getDescription());
@@ -71,7 +71,7 @@ public class TVDBConverter {
 
 	public static Episode convertFromTVDB(TvShow tvShow, EpisodeInfo episodeInfo) {
 		Episode dbEpisode = new Episode();
-		dbEpisode.setSourceId(episodeInfo.getId());
+		dbEpisode.setId(episodeInfo.getId());
 		dbEpisode.setImdbId(episodeInfo.getImdbId());
 		dbEpisode.setTvShow(tvShow);
 		dbEpisode.setName(episodeInfo.getName());

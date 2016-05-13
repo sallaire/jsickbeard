@@ -92,7 +92,7 @@ public class AddShowProcessor {
 
 			LOGGER.info("Show [{}] processed successfully", showId);
 		} catch (DaoException e) {
-			LOGGER.error("Unable to get show informations for id [{}], show will not be added in db", showConfiguration.getTvShow().getSourceId(), e);
+			LOGGER.error("Unable to get show informations for id [{}], show will not be added in db", showConfiguration.getTvShow().getId(), e);
 		}
 
 	}

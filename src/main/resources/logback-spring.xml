@@ -5,20 +5,6 @@
 	<property name="LOG_FILE" value="${LOG_DIR}/jackbeard.log" />
 	<include resource="org/springframework/boot/logging/logback/base.xml" />
 
-	<!-- appender name="FILE"
-		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<encoder>
-			<pattern>${FILE_LOG_PATTERN}</pattern>
-		</encoder>
-		<file>${LOG_FILE}</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<fileNamePattern>${LOG_FILE}.%i</fileNamePattern>
-		</rollingPolicy>
-		<triggeringPolicy
-			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-			<MaxFileSize>10MB</MaxFileSize>
-		</triggeringPolicy>
-	</appender-->
 	<appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
 		<discriminator>
 			<key>provider</key>

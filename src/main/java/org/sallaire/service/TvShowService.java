@@ -35,7 +35,7 @@ public class TvShowService {
 			wantedQuality = Quality.SD;
 		}
 
-		TvShow tvShow = tvShowDao.getTvShowFromSourceId(showId);
+		TvShow tvShow = tvShowDao.findOne(showId);
 
 		if (tvShow == null) {
 			LOGGER.debug("New show added to followed shows : {}", showId);
@@ -43,11 +43,11 @@ public class TvShowService {
 			addShowProcessor.addShow(showId, showConfig, configParam.getStatus());
 		} else {
 
-			TvShowConfiguration showConfig = tvShowConfigDao.getUserConfiguration(showId, currentUser.getName());
+			TvShowConfiguration showConfig = tvShowConfigDao.findByTvShowIdAndFollowersName(showId, currentUser.getName());
 			if (showConfig != null && showConfig.getQuality() == wantedQuality && showConfig.getAudioLang().equals(configParam.getAudio())) {
 				LOGGER.debug("No change in user configuration for show {}", showId);
 			} else {
-				TvShowConfiguration wantedConfig = tvShowConfigDao.getConfiguration(showId, wantedQuality, configParam.getAudio());
+				TvShowConfiguration wantedConfig = tvShowConfigDao.findByTvShowIdAndQualityAndAudioLang(showId, wantedQuality, configParam.getAudio());
 				if (wantedConfig == null) {
 					LOGGER.debug("No configuration existing for show {}, quality {} and audio lang {}, creating one", showId, wantedQuality, configParam.getAudio());
 					wantedConfig = addConfiguration(tvShow, currentUser, wantedQuality, configParam.getAudio());

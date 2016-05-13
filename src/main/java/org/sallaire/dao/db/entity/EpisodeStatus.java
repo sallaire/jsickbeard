@@ -3,30 +3,31 @@ package org.sallaire.dao.db.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.neo4j.ogm.annotation.EndNode;
-import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.annotation.Property;
-import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.annotation.StartNode;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+
 import org.sallaire.dto.user.Status;
 
-@RelationshipEntity(type = "WITH_CONFIGURATION")
+@Entity
 public class EpisodeStatus {
-	@GraphId
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
-	@Property
 	private LocalDateTime downloadDate;
-	@Property
-	private String status;
-	@Property
+	private Status status;
+	@ElementCollection
 	private List<String> downloadedFiles;
-	@Property
 	private String provider;
 
-	@StartNode
+	@ManyToOne
 	private Episode episode;
-	@EndNode
+	@ManyToOne
 	private TvShowConfiguration showConfiguration;
 
 	public LocalDateTime getDownloadDate() {
@@ -38,11 +39,11 @@ public class EpisodeStatus {
 	}
 
 	public Status getStatus() {
-		return Status.valueOf(status);
+		return status;
 	}
 
 	public void setStatus(Status status) {
-		this.status = status.name();
+		this.status = status;
 	}
 
 	public List<String> getDownloadedFiles() {

@@ -37,7 +37,7 @@ public class TMDBConverter {
 
 	public static TvShow convertFromTvSeries(TvSeries tvSeries, TvSeries defaultLang) {
 		TvShow result = new TvShow();
-		result.setSourceId(new Long(tvSeries.getId()));
+		result.setId(new Long(tvSeries.getId()));
 		result.setDescription(tvSeries.getOverview());
 		result.setImdbId(tvSeries.getExternalIds().getImdbId());
 		if (tvSeries.getFirstAirDate() != null) {
@@ -78,7 +78,7 @@ public class TMDBConverter {
 			episode.setSeason(tvSeason.getSeasonNumber());
 			episode.setEpisode(e.getEpisodeNumber());
 			episode.setDescription(e.getOverview());
-			episode.setSourceId(new Long(e.getId()));
+			episode.setId(new Long(e.getId()));
 			episode.setName(e.getName());
 			episode.setTvShow(tvShow);
 			if (e.getExternalIds() != null) {

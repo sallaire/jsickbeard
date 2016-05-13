@@ -7,22 +7,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
+import javax.persistence.CascadeType;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
-@NodeEntity
+@Entity
 public class TvShow {
 
-	@GraphId
+	@Id
 	private Long id;
-
-	private Long sourceId;
 	private String imdbId;
 	private String name;
 	private String originalName;
 	private String originalLang;
 	private String description;
+	@ElementCollection
 	private List<String> network;
 	private String genre;
 	private Integer runtime;
@@ -34,16 +35,18 @@ public class TvShow {
 	private String fanart;
 	private String poster;
 	private Long lastUpdated;
+	@ElementCollection
 	private List<String> customNames;
 
-	@Relationship(type = "CONFIGURED_BY", direction = Relationship.UNDIRECTED)
+	@OneToMany(mappedBy = "tvShow", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<TvShowConfiguration> configurations;
 
-	@Relationship(type = "HAS_EPISODES", direction = Relationship.UNDIRECTED)
+	@OneToMany(mappedBy = "tvShow", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Episode> episodes;
 
 	public TvShow() {
 		super();
+		episodes = new ArrayList<>();
 	}
 
 	public Set<TvShowConfiguration> getConfigurations() {
@@ -56,6 +59,10 @@ public class TvShow {
 
 	public Long getId() {
 		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public String getName() {
@@ -186,14 +193,6 @@ public class TvShow {
 		this.originalLang = originalLang;
 	}
 
-	public Long getSourceId() {
-		return sourceId;
-	}
-
-	public void setSourceId(Long sourceId) {
-		this.sourceId = sourceId;
-	}
-
 	public List<String> getCustomNames() {
 		return customNames;
 	}
@@ -211,9 +210,6 @@ public class TvShow {
 	}
 
 	public void addEpisode(Episode episode) {
-		if (episodes == null) {
-			episodes = new ArrayList<>();
-		}
 		episodes.add(episode);
 	}
 }

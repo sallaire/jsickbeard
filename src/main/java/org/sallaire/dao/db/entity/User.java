@@ -7,14 +7,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-@NodeEntity
+@Entity
 public class User implements UserDetails {
 
 	private static final long serialVersionUID = 9178995861257235991L;
@@ -27,13 +31,14 @@ public class User implements UserDetails {
 		}
 	}
 
-	@GraphId
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	private String name;
 	private String password;
+	@ElementCollection
 	private List<Role> roles;
-
-	@Relationship(type = "FOLLOWED_BY", direction = Relationship.UNDIRECTED)
+	@ManyToMany
 	private Set<TvShowConfiguration> configurations;
 
 	public User() {
@@ -66,7 +71,6 @@ public class User implements UserDetails {
 
 	public void addConfiguration(TvShowConfiguration configuration) {
 		this.configurations.add(configuration);
-		configuration.getFollowers().add(this);
 	}
 
 	public String getName() {

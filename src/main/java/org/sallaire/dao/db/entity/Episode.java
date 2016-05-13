@@ -3,16 +3,17 @@ package org.sallaire.dao.db.entity;
 import java.time.LocalDate;
 import java.util.Set;
 
-import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
-@NodeEntity
+@Entity
 public class Episode {
 
-	@GraphId
+	@Id
 	private Long id;
-	private Long sourceId;
 	private String imdbId;
 	private Integer season;
 	private Integer episode;
@@ -20,21 +21,18 @@ public class Episode {
 	private LocalDate airDate;
 	private String description;
 
+	@ManyToOne
 	private TvShow tvShow;
 
-	@Relationship(type = "WITH_CONFIGURATION", direction = Relationship.UNDIRECTED)
+	@OneToMany(mappedBy = "showConfiguration", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<EpisodeStatus> status;
 
 	public Long getId() {
 		return id;
 	}
 
-	public Long getSourceId() {
-		return sourceId;
-	}
-
-	public void setSourceId(Long sourceId) {
-		this.sourceId = sourceId;
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public String getImdbId() {

@@ -126,7 +126,7 @@ public class TVDBDao implements IMetaDataDao {
 
 	@Override
 	public List<Episode> getShowEpisodes(TvShow tvShow, String lang) throws DaoException {
-		return getShowData(tvShow.getSourceId(), lang).getEpisodes().stream().map(e -> TVDBConverter.convertFromTVDB(tvShow, e)).collect(Collectors.toList());
+		return getShowData(tvShow.getId(), lang).getEpisodes().stream().map(e -> TVDBConverter.convertFromTVDB(tvShow, e)).collect(Collectors.toList());
 	}
 
 	@Override

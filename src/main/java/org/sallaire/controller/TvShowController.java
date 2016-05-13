@@ -1,30 +1,22 @@
 package org.sallaire.controller;
 
-import org.sallaire.controller.conf.CurrentUser;
-import org.sallaire.dao.db.entity.User;
-import org.sallaire.dto.api.TvShowConfigurationParam;
-import org.sallaire.service.TvShowService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class TvShowController {
 
-	@Autowired
-	private TvShowService tvShowService;
+	// @Autowired
+	// private TvShowService tvShowService;
 
 	//
 	// @Autowired
 	// private DownloadService downloadService;
 	//
 
-	@PostMapping(value = "/tvshow/config/{id}")
-	public void upsertShow(@PathVariable("id") Long id, @RequestBody TvShowConfigurationParam showConfig, @CurrentUser User currentUser) {
-		tvShowService.upsertShow(id, showConfig, currentUser);
-	}
+	// @PostMapping(value = "/tvshow/config/{id}")
+	// public void upsertShow(@PathVariable("id") Long id, @RequestBody TvShowConfigurationParam showConfig, @CurrentUser User currentUser) {
+	// tvShowService.upsertShow(id, showConfig, currentUser);
+	// }
 	//
 	// @RequestMapping(value = "/tvshow/{id}", method = RequestMethod.GET)
 	// public ResponseEntity<FullShow> getFullShow(@PathVariable("id") Long id) {
