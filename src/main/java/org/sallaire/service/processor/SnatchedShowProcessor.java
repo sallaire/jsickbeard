@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Collection;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.sallaire.dao.db.DownloadDao;
 import org.sallaire.dao.db.TvShowDao;
 import org.sallaire.dto.metadata.TvShow;
@@ -63,7 +64,12 @@ public class SnatchedShowProcessor {
 			String location = showConfig.getLocation();
 			boolean filesFound = true;
 			LOGGER.debug("Try to find file in directory [{}]", location);
-			Finder finder = new Finder(regexFilter, tvShow.getOriginalName(), episode.getEpisodeKey());
+			Finder finder = null;
+			if (CollectionUtils.isNotEmpty(showConfig.getCustomNames())) {
+				finder = new Finder(regexFilter, episode.getEpisodeKey(), showConfig.getCustomNames().toArray(new String[showConfig.getCustomNames().size()]));
+			} else {
+				finder = new Finder(regexFilter, episode.getEpisodeKey(), tvShow.getOriginalName());
+			}
 			Files.walkFileTree(Paths.get(location), finder);
 			filesFound &= finder.isFound();
 			return filesFound;
