@@ -6,12 +6,10 @@
         .controller('SearchController', Controller);
 
     /** @ngInject */
-    function Controller() {
+    function Controller(SearchService, $scope) {
         var ctrl = this;
 
-        ctrl.search = {};
-
-        ctrl.clearSearch = clearSearch;
+        ctrl.metadatas = {};
 
         ctrl.activate = function () {
         };
@@ -24,8 +22,10 @@
             };
         };
 
-        function clearSearch() {
-            ctrl.search = {};
-        }
+        $scope.$on('search', function(event, titleTvShow) {
+            SearchService.search(titleTvShow).then(function(metadatas) {
+                ctrl.metadatas = metadatas;
+            }) ;
+        });
     }
 })();

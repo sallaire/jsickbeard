@@ -26,7 +26,6 @@
             }
 
             function failure() {
-                authorization.clearCredentials(ctrl.user.username, ctrl.user.password);
                 logger.error('L\'identifiant ou le mot de passe que vous avez entré est ' +
                     'incorrect.');
             }

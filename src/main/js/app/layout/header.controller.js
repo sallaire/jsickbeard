@@ -1,23 +1,37 @@
-(function() {
-  'use strict';
+(function () {
+    'use strict';
 
-  angular
-    .module('app.layout')
-    .controller('HeaderController', Controller);
+    angular
+        .module('app.layout')
+        .controller('HeaderController', Controller);
 
-  /** @ngInject */
-  function Controller($mdSidenav) {
-    var ctrl = this;
-  
-    
-    ctrl.activate=function(){
-    	
-    };
+    /** @ngInject */
+    function Controller($rootScope, _, $state, $mdSidenav) {
+        var ctrl = this;
+        $rootScope.$state = $state;
+        ctrl.searchTvShow = '';
 
-    ctrl.activate();
-    
-    ctrl.toggleMenu = function() {
-        return $mdSidenav('left').toggle();
-    };
-  }
+        ctrl.activate = function () {
+
+        };
+
+        ctrl.activate();
+
+        ctrl.toggleMenu = function () {
+            return $mdSidenav('left').toggle();
+        };
+
+        ctrl.return = function() {
+            $state.go('home');
+        };
+
+        ctrl.emitSearch = function () {
+            if (!_.isEmpty(ctrl.searchTvShow)) {
+                $state.go('search');
+                $rootScope.$broadcast('search', ctrl.searchTvShow);
+            } else {
+                $state.go('home');
+            }
+        };
+    }
 })();

@@ -3,14 +3,13 @@
 
     angular
         .module('app.core')
-        .factory('Login', Login);
+        .factory('Login', Resource);
 
     /** @ngInject */
-    function Login($resource, constant) {
+    function Resource(Resource, constant) {
         return {
             login: function (auth) {
-                console.log(auth);
-                return $resource(constant.baseURI + '/user', {}, {
+                return Resource(constant.baseURI + '/user', {}, {
                     'login': {method: 'GET', headers: {Authorization: 'Basic ' + auth}}
                 }).login().$promise;
             }

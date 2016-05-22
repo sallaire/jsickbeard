@@ -4,7 +4,7 @@
   angular
     .module('app.core')
     .constant('constant', {
-        'baseURI': 'http://37.187.19.83:9000'
+        'baseURI': 'http://localhost:8080/api'
     });
 
 })();
