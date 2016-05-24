@@ -1,5 +1,12 @@
+.header{
+    -webkit-transition: background-color 0.2s linear;
+    -moz-transition: background-color 0.2s linear;
+    -ms-transition: background-color 0.2s linear;
+    -o-transition: background-color 0.2s linear;
+    transition: background-color 0.2s linear;
+}
+
 .header-search {
-    background-color: #71A3F7;
     padding: 0.2em 0;
     border-radius: 2px;
 }

@@ -10,6 +10,7 @@
         var ctrl = this;
         $rootScope.$state = $state;
         ctrl.searchTvShow = '';
+        ctrl.theme = 'home';
 
         ctrl.activate = function () {
 
@@ -23,14 +24,18 @@
 
         ctrl.return = function() {
             $state.go('home');
+            ctrl.theme = 'home';
+            ctrl.searchTvShow = '';
         };
 
         ctrl.emitSearch = function () {
             if (!_.isEmpty(ctrl.searchTvShow)) {
+                ctrl.theme = 'search';
                 $state.go('search');
                 $rootScope.$broadcast('search', ctrl.searchTvShow);
             } else {
                 $state.go('home');
+                ctrl.theme = 'home';
             }
         };
     }

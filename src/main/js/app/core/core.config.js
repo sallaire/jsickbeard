@@ -12,15 +12,17 @@
     $logProvider.debugEnabled(true);
     
     // Suppression du spinner lors des chargement XHR
-    cfpLoadingBarProvider.includeSpinner = true;
+    cfpLoadingBarProvider.includeSpinner = false;
   }
 
   /** @ngInject */
   function theme($mdThemingProvider) {
+    $mdThemingProvider.alwaysWatchTheme(true);
+
     $mdThemingProvider.theme('home')
         .primaryPalette('blue');
     $mdThemingProvider.theme('search')
-        .primaryPalette('red')
+        .primaryPalette('pink')
   }
 
 })();

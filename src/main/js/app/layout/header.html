@@ -1,4 +1,4 @@
-<md-toolbar md-theme="home" layout="row" class="md-whiteframe-z3" layout-align="space-between center">
+<md-toolbar md-theme="{{ctrl.theme}}" md-theme-watch layout="row" class="md-whiteframe-z3 header" layout-align="space-between center">
     <div ng-if="$state.includes('home')" flex="20" layout layout-align="start center">
         <md-button class="md-icon-button" ng-click="ctrl.toggleMenu()">
             <md-icon md-font-set="material-icons">menu</md-icon>
@@ -11,9 +11,12 @@
         </md-button>
         <div layout>Retour</div>
     </div>
-    <div flex="60" class="header-search" layout layout-align="start center">
+    <div flex="60" ng-class="{'md-bg-primary-hue-3': hover, 'md-bg-primary-hue-1': !hover}"
+         ng-mouseenter="hover = true"
+         ng-mouseleave="hover = false" class="header-search" layout layout-align="start center">
         <md-icon md-font-set="material-icons">search</md-icon>
-        <input flex="95" ng-model="ctrl.searchTvShow"
+        <input flex="95"
+               ng-model="ctrl.searchTvShow"
                ng-change="ctrl.emitSearch()"
                ng-model-options='{ debounce: 250 }'
                type="text" placeholder="Rechercher">

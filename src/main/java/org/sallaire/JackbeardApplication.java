@@ -1,10 +1,5 @@
 package org.sallaire;
 
-import java.io.IOException;
-import java.nio.file.Files;
-
-import javax.annotation.PostConstruct;
-
 import org.jsondoc.spring.boot.starter.EnableJSONDoc;
 import org.sallaire.service.processor.AddShowProcessor;
 import org.slf4j.Logger;
@@ -19,6 +14,10 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.nio.file.Files;
 
 @SpringBootApplication
 @EnableAsync
