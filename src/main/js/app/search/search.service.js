@@ -8,8 +8,8 @@
     function Service(Metadata) {
         var service = this;
 
-        service.search = function (titleTvShow) {
-            return Metadata.query({name: titleTvShow, lang: 'fr'}).$promise;
+        service.search = function (lang, titleTvShow) {
+            return Metadata.query({name: titleTvShow, lang: lang}).$promise;
         };
     }
 })();

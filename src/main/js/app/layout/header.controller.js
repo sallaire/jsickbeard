@@ -6,14 +6,13 @@
         .controller('HeaderController', Controller);
 
     /** @ngInject */
-    function Controller($rootScope, _, $state, $mdSidenav) {
+    function Controller($rootScope, _, $stateParams, $state, $mdSidenav) {
         var ctrl = this;
         $rootScope.$state = $state;
-        ctrl.searchTvShow = '';
+        ctrl.searchTvShow = $stateParams.text;
         ctrl.theme = 'home';
 
         ctrl.activate = function () {
-
         };
 
         ctrl.activate();
@@ -22,7 +21,7 @@
             return $mdSidenav('left').toggle();
         };
 
-        ctrl.return = function() {
+        ctrl.return = function () {
             $state.go('home');
             ctrl.theme = 'home';
             ctrl.searchTvShow = '';
@@ -31,8 +30,7 @@
         ctrl.emitSearch = function () {
             if (!_.isEmpty(ctrl.searchTvShow)) {
                 ctrl.theme = 'search';
-                $state.go('search');
-                $rootScope.$broadcast('search', ctrl.searchTvShow);
+                $state.go('search', {lang: 'fr', text: ctrl.searchTvShow});
             } else {
                 $state.go('home');
                 ctrl.theme = 'home';

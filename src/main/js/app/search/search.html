@@ -1,20 +1,18 @@
 <section>
     <md-content class="md-padding" layout-xs="column" layout="row" layout-wrap>
-        <md-card md-ink-ripple style="max-width: 300px;" ng-repeat="metadata in ctrl.metadatas" ng-click="isOpen = !isOpen">
-            <img ng-src="{{metadata.image}}" class="md-card-image" alt="Washed Out">
+        <md-card md-ink-ripple style="max-width: 200px;"
+                 ng-repeat="metadata in ctrl.metadatas"
+                 ng-click="isOpen = !isOpen"
+                 ng-class="{'md-whiteframe-10dp': hover}"
+                 ng-mouseenter="hover = true"
+                 ng-mouseleave="hover = false">
+            <img ng-if="metadata.image" ng-src="{{metadata.image}}" class="md-card-image">
             <md-card-title>
                 <md-card-title-text>
                     <span class="md-headline">{{metadata.name}}</span>
                 </md-card-title-text>
             </md-card-title>
-            <md-card-content ng-show="isOpen">
-                <p>{{metadata.overview}}</p>
-            </md-card-content>
-            <md-card-actions layout="row" layout-align="end center">
-                <md-button class="md-icon-button" aria-label="Favorite">
-                    <md-icon md-svg-icon="img/icons/favorite.svg"></md-icon>
-                </md-button>
-            </md-card-actions>
+
         </md-card>
     </md-content>
 </section>

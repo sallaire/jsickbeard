@@ -12,7 +12,7 @@
 
     function stateConfig() {
         return {
-            url: '/search',
+            url: '/search/:lang/:text',
             parent: 'connected',
             views: {
                 'content@': {

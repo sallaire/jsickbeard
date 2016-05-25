@@ -1,32 +1,60 @@
 <section>
-    <md-content flex>
-        <md-subheader class="inputSearch" flex class="md-primary">
-            <div layout>
-                <md-icon flex md-font-set="material-icons">search</md-icon>
-                <input flex ng-model="ctrl.search.nom" placeholder="Nom">
-                <input flex ng-model="ctrl.search.prenom" placeholder="Prenom">
-                <input flex ng-model="ctrl.search.dateNaissance" placeholder="Date de naissance">
-                <md-button class="md-icon-button" ng-click="ctrl.effacerRecherche()">
-                    <md-icon md-font-set="material-icons">close</md-icon>
-                </md-button>
-            </div>
-        </md-subheader>
-    </md-content>
+    <md-content flex layout="column" layout-padding layout-align="center center">
+        <div class="md-whiteframe-2dp" layout="column" id="content" flex style="max-width: 100%;">
+            <!-- TOOLBAR PASSIVE -->
+            <md-toolbar class="md-table-toolbar md-default"
+                        ng-hide="ctrl.downloadedTable.options.rowSelection && ctrl.downloadedTable.selected.length">
+                <div class="md-toolbar-tools">
+                    <span ng-if="ctrl.episodes.downloaded.length > 0">Téléchargé</span>
+                    <span ng-if="ctrl.episodes.downloaded.length < 1">
+                        Aucun épisode n'a été téléchargé.
+                    </span>
+                    <div flex></div>
+                </div>
+            </md-toolbar>
+            <!-- TOOLBAR ACTIVE -->
+            <md-toolbar class="md-table-toolbar alternate"
+                        ng-show="ctrl.downloadedTable.options.rowSelection && ctrl.downloadedTable.selected.length">
+                <div class="md-toolbar-tools">
+                    <span>{{ctrl.downloadedTable.selected.length}} {{ctrl.downloadedTable.selected.length > 1 ? 'Episodes sélectionnés' : 'Episode sélectionné'}}</span>
+                    <div flex></div>
+                </div>
+            </md-toolbar>
+            <!-- TABLEAU -->
+            <md-table-container ng-if="ctrl.episodes.downloaded.length > 0">
+                <table md-table md-row-select multiple ng-model="ctrl.downloadedTable.selected"
+                       md-progress="ctrl.downloadedTable.promise">
+                    <thead md-head md-order="ctrl.downloadedTable.query.sort"
+                           md-on-reorder="ctrl.downloadedTable.onReorder">
+                    <tr md-row>
+                        <th md-column md-order-by="showName"><span>Série</span></th>
+                        <th md-column md-order-by="season"><span>Saison</span></th>
+                        <th md-column md-order-by="number"><span>Numéro</span></th>
+                        <th md-column md-order-by="name"><span>Episode</span></th>
+                        <th md-column md-order-by="quality"><span>Qualité</span></th>
+                        <th md-column md-order-by="airDate"><span>Date</span></th>
+                    </tr>
+                    </thead>
+                    <tbody md-body>
+                    <tr md-row md-select="episode" md-select-id="{{episode.episodeId}}" md-auto-select
+                        ng-repeat="episode in ctrl.episodes.downloaded">
+                        <td md-cell>{{episode.showName}}</td>
+                        <td md-cell>{{episode.season}}</td>
+                        <td md-cell>{{episode.number}}</td>
+                        <td md-cell>{{episode.name}}</td>
+                        <td md-cell>{{episode.quality}}</td>
+                        <td md-cell>{{episode.airDate}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </md-table-container>
+            <md-table-pagination ng-if="ctrl.episodes.downloaded.length > 0"
+                                 md-limit="ctrl.downloadedTable.query.limit"
+                                 md-page="ctrl.downloadedTable.query.page"
+                                 md-total="{{ctrl.downloadedTable.total}}"
+                                 md-on-paginate="ctrl.downloadedTable.onPaginate"
+                                 md-page-select
+                                 md-label="{page: 'Page:', rowsPerPage: 'Episode par page', of: 'sur'}"></md-table-pagination>
+        </div>
+    </div>
 </section>
-
-<md-fab-speed-dial style="position: fixed" class="md-fab-bottom-right md-scale"
-                   md-open="ctrl.action.isOpen"
-                   ng-mouseenter="ctrl.action.isOpen=true" ng-mouseleave="ctrl.action.isOpen=false"
-                   md-direction="up">
-    <md-fab-trigger>
-        <md-button aria-label="menu" class="md-fab md-warn">
-            <md-icon md-font-set="material-icons">add</md-icon>
-        </md-button>
-    </md-fab-trigger>
-    <md-fab-actions>
-        <md-button aria-label="Demande hébergement" class="md-fab md-raised md-mini">
-            <md-icon md-font-set="material-icons">hotel</md-icon>
-            <md-tooltip md-direction="left">Demande hebergement</md-tooltip>
-        </md-button>
-    </md-fab-actions>
-</md-fab-speed-dial>
