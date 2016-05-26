@@ -5,10 +5,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.sallaire.dao.db.entity.Episode;
-import org.sallaire.dao.db.entity.EpisodeStatus;
-import org.sallaire.dao.db.entity.TvShow;
-import org.sallaire.dto.user.Quality;
 import org.sallaire.dto.user.Status;
 
 public class FullEpisode implements Serializable {
@@ -16,8 +12,6 @@ public class FullEpisode implements Serializable {
 	private static final long serialVersionUID = 7719353467335332550L;
 
 	private String showName;
-	private String poster;
-	private String banner;
 	private Long showId;
 	private Long episodeId;
 	private Integer season;
@@ -25,34 +19,13 @@ public class FullEpisode implements Serializable {
 	private String description;
 	private LocalDate airDate;
 	private String name;
-	private Quality quality;
-	private String lang;
 	private Status status;
 	private List<String> fileNames;
+	private String provider;
 
 	private LocalDateTime downloadDate;
 
 	public FullEpisode() {
-	}
-
-	public FullEpisode(TvShow show, Episode episode, EpisodeStatus episodeStatus) {
-		setBanner(show.getBanner());
-		setPoster(show.getPoster());
-		setShowId(show.getId());
-		setShowName(show.getName());
-		setEpisodeId(episode.getId());
-		setDescription(episode.getDescription());
-		setName(episode.getName());
-		setAirDate(episode.getAirDate());
-		setSeason(episode.getSeason());
-		setNumber(episode.getEpisode());
-		if (episodeStatus != null) {
-			setDownloadDate(episodeStatus.getDownloadDate());
-			setFileNames(episodeStatus.getDownloadedFiles());
-			setLang(episodeStatus.getShowConfiguration().getAudioLang());
-			setQuality(episodeStatus.getShowConfiguration().getQuality());
-			setStatus(episodeStatus.getStatus());
-		}
 	}
 
 	public String getShowName() {
@@ -61,22 +34,6 @@ public class FullEpisode implements Serializable {
 
 	public void setShowName(String showName) {
 		this.showName = showName;
-	}
-
-	public String getPoster() {
-		return poster;
-	}
-
-	public void setPoster(String poster) {
-		this.poster = poster;
-	}
-
-	public String getBanner() {
-		return banner;
-	}
-
-	public void setBanner(String banner) {
-		this.banner = banner;
 	}
 
 	public Long getShowId() {
@@ -127,22 +84,6 @@ public class FullEpisode implements Serializable {
 		this.name = name;
 	}
 
-	public Quality getQuality() {
-		return quality;
-	}
-
-	public void setQuality(Quality quality) {
-		this.quality = quality;
-	}
-
-	public String getLang() {
-		return lang;
-	}
-
-	public void setLang(String lang) {
-		this.lang = lang;
-	}
-
 	public Status getStatus() {
 		return status;
 	}
@@ -173,6 +114,14 @@ public class FullEpisode implements Serializable {
 
 	public void setEpisodeId(Long episodeId) {
 		this.episodeId = episodeId;
+	}
+
+	public String getProvider() {
+		return provider;
+	}
+
+	public void setProvider(String provider) {
+		this.provider = provider;
 	}
 
 }

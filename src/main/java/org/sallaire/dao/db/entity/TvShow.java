@@ -11,6 +11,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 
 @Entity
@@ -22,6 +23,7 @@ public class TvShow {
 	private String name;
 	private String originalName;
 	private String originalLang;
+	@Lob
 	private String description;
 	@ElementCollection
 	private List<String> network;
@@ -34,7 +36,6 @@ public class TvShow {
 	private String banner;
 	private String fanart;
 	private String poster;
-	private Long lastUpdated;
 	@ElementCollection
 	private List<String> customNames;
 
@@ -169,14 +170,6 @@ public class TvShow {
 		this.poster = poster;
 	}
 
-	public Long getLastUpdated() {
-		return lastUpdated;
-	}
-
-	public void setLastUpdated(Long lastUpdated) {
-		this.lastUpdated = lastUpdated;
-	}
-
 	public String getOriginalName() {
 		return originalName;
 	}
@@ -211,5 +204,23 @@ public class TvShow {
 
 	public void addEpisode(Episode episode) {
 		episodes.add(episode);
+	}
+
+	public void fromShow(TvShow other) {
+		this.airDay = other.airDay;
+		this.airTime = other.airTime;
+		this.banner = other.banner;
+		this.description = other.description;
+		this.fanart = other.fanart;
+		this.firstAired = other.firstAired;
+		this.genre = other.genre;
+		this.imdbId = other.imdbId;
+		this.name = other.name;
+		this.network = other.network;
+		this.originalLang = other.originalLang;
+		this.originalName = other.originalName;
+		this.poster = other.poster;
+		this.runtime = other.runtime;
+		this.status = other.status;
 	}
 }

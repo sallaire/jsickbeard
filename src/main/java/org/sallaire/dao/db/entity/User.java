@@ -1,25 +1,20 @@
 package org.sallaire.dao.db.entity;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 @Entity
-public class User implements UserDetails {
+public class User {
 
 	private static final long serialVersionUID = 9178995861257235991L;
 
@@ -36,7 +31,7 @@ public class User implements UserDetails {
 	private Long id;
 	private String name;
 	private String password;
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	private List<Role> roles;
 	@ManyToMany
 	private Set<TvShowConfiguration> configurations;
@@ -95,40 +90,6 @@ public class User implements UserDetails {
 
 	public void setRoles(List<Role> roles) {
 		this.roles = roles;
-	}
-
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		if (roles != null) {
-			return roles.stream().map(r -> new SimpleGrantedAuthority(r.getRoleName())).collect(Collectors.toList());
-		} else {
-			return null;
-		}
-	}
-
-	@Override
-	public String getUsername() {
-		return name;
-	}
-
-	@Override
-	public boolean isAccountNonExpired() {
-		return true;
-	}
-
-	@Override
-	public boolean isAccountNonLocked() {
-		return true;
-	}
-
-	@Override
-	public boolean isCredentialsNonExpired() {
-		return true;
-	}
-
-	@Override
-	public boolean isEnabled() {
-		return true;
 	}
 
 }

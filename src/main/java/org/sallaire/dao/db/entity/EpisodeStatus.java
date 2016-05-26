@@ -30,6 +30,10 @@ public class EpisodeStatus {
 	@ManyToOne
 	private TvShowConfiguration showConfiguration;
 
+	public Long getId() {
+		return id;
+	}
+
 	public LocalDateTime getDownloadDate() {
 		return downloadDate;
 	}

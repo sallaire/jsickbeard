@@ -1,11 +1,13 @@
 package org.sallaire.dao.db.entity;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -19,13 +21,18 @@ public class Episode {
 	private Integer episode;
 	private String name;
 	private LocalDate airDate;
+	@Lob
 	private String description;
 
 	@ManyToOne
 	private TvShow tvShow;
 
-	@OneToMany(mappedBy = "showConfiguration", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "episode", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<EpisodeStatus> status;
+
+	public Episode() {
+		status = new HashSet<>();
+	}
 
 	public Long getId() {
 		return id;
@@ -142,4 +149,13 @@ public class Episode {
 		return true;
 	}
 
+	public void fromEpisode(Episode other) {
+		this.airDate = other.airDate;
+		this.description = other.description;
+		this.episode = other.episode;
+		this.id = other.id;
+		this.imdbId = other.imdbId;
+		this.name = other.name;
+		this.season = other.season;
+	}
 }

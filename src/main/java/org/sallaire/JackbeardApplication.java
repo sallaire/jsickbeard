@@ -47,11 +47,4 @@ public class JackbeardApplication {
 		LOGGER.info("Show processor started");
 	}
 
-	// @Bean
-	// public DataSource dataSource() {
-	// return DataSourceBuilder.create() //
-	// .driverClassName("org.h2.Driver") //
-	// .url("jdbc:h2:file:" + JackBeardConstants.APPLICATION_DIRECTORY.resolve("jackbeard.db").toString()) //
-	// .build();
-	// }
 }

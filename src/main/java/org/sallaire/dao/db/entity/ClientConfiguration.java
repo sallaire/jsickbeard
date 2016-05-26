@@ -1,10 +1,24 @@
-package org.sallaire.dto.configuration;
+package org.sallaire.dao.db.entity;
 
-import java.io.Serializable;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
-public class ClientConfiguration implements Serializable {
+@Entity
+public class ClientConfiguration {
 
-	private static final long serialVersionUID = -3684413973050866576L;
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 	private String client;
 	private String url;

@@ -1,19 +1,32 @@
 package org.sallaire.service;
 
-import org.sallaire.dao.db.TvShowConfigurationRepository;
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.sallaire.JackBeardConstants;
+import org.sallaire.dao.DaoException;
+import org.sallaire.dao.db.EpisodeRepository;
 import org.sallaire.dao.db.TvShowRepository;
+import org.sallaire.dao.db.entity.Episode;
+import org.sallaire.dao.db.entity.EpisodeStatus;
 import org.sallaire.dao.db.entity.TvShow;
 import org.sallaire.dao.db.entity.TvShowConfiguration;
-import org.sallaire.dao.db.entity.User;
-import org.sallaire.dto.api.TvShowConfigurationParam;
-import org.sallaire.dto.user.Quality;
-import org.sallaire.service.processor.AddShowProcessor;
+import org.sallaire.dao.metadata.IMetaDataDao;
+import org.sallaire.dto.api.FullShow;
+import org.sallaire.dto.metadata.SearchResult;
+import org.sallaire.dto.user.Status;
+import org.sallaire.dto.user.UserDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class TvShowService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TvShowService.class);
@@ -22,51 +35,72 @@ public class TvShowService {
 	private TvShowRepository tvShowDao;
 
 	@Autowired
-	private TvShowConfigurationRepository tvShowConfigDao;
+	private IMetaDataDao metaDataDao;
 
 	@Autowired
-	private AddShowProcessor addShowProcessor;
+	private EpisodeRepository episodeDao;
 
-	public void upsertShow(Long showId, TvShowConfigurationParam configParam, User currentUser) {
-		LOGGER.debug("Process show configuration for show {}", showId);
-		Quality wantedQuality = configParam.getQuality();
-		if (wantedQuality == null) {
-			LOGGER.warn("No quality configured, default quality {} will be set", Quality.SD);
-			wantedQuality = Quality.SD;
+	public void addShow(Long showId, TvShowConfiguration showConfiguration) {
+		try {
+			LOGGER.info("Adding show [{}] with initial status [{}]", showId);
+			LOGGER.debug("Processing show generic data");
+			TvShow tvShow = metaDataDao.getShowInformation(showId, JackBeardConstants.LANG);
+			tvShow.setConfigurations(new HashSet<>());
+			tvShow.getConfigurations().add(showConfiguration);
+			showConfiguration.setTvShow(tvShow);
+			LOGGER.debug("Storing show generic data to db");
+			List<Episode> episodes = metaDataDao.getShowEpisodes(tvShow, "fr");
+			tvShow.setEpisodes(episodes);
+			tvShowDao.save(tvShow);
+			LOGGER.debug("Show generic data stored to db");
+
+			LOGGER.debug("Processing episodes status");
+			processEpisodesStatus(showConfiguration);
+			LOGGER.debug("Episodes status processed");
+
+			LOGGER.info("Show [{}] processed successfully", showId);
+		} catch (DaoException e) {
+			LOGGER.error("Unable to get show informations for id [{}], show will not be added in db", showConfiguration.getTvShow().getId(), e);
 		}
 
-		TvShow tvShow = tvShowDao.findOne(showId);
+	}
 
-		if (tvShow == null) {
-			LOGGER.debug("New show added to followed shows : {}", showId);
-			TvShowConfiguration showConfig = addConfiguration(tvShow, currentUser, wantedQuality, configParam.getAudio());
-			addShowProcessor.addShow(showId, showConfig, configParam.getStatus());
-		} else {
-
-			TvShowConfiguration showConfig = tvShowConfigDao.findByTvShowIdAndFollowersName(showId, currentUser.getName());
-			if (showConfig != null && showConfig.getQuality() == wantedQuality && showConfig.getAudioLang().equals(configParam.getAudio())) {
-				LOGGER.debug("No change in user configuration for show {}", showId);
+	public void processEpisodesStatus(TvShowConfiguration tvShowConfiguration) {
+		TvShow tvShow = tvShowConfiguration.getTvShow();
+		LOGGER.debug("Processing {} episodes user data", tvShow.getEpisodes().size());
+		tvShow.getEpisodes().forEach(e -> {
+			EpisodeStatus epStatus = new EpisodeStatus();
+			epStatus.setEpisode(e);
+			e.getStatus().add(epStatus);
+			epStatus.setShowConfiguration(tvShowConfiguration);
+			if (e.getAirDate().isAfter(LocalDate.now())) {
+				epStatus.setStatus(Status.UNAIRED);
 			} else {
-				TvShowConfiguration wantedConfig = tvShowConfigDao.findByTvShowIdAndQualityAndAudioLang(showId, wantedQuality, configParam.getAudio());
-				if (wantedConfig == null) {
-					LOGGER.debug("No configuration existing for show {}, quality {} and audio lang {}, creating one", showId, wantedQuality, configParam.getAudio());
-					wantedConfig = addConfiguration(tvShow, currentUser, wantedQuality, configParam.getAudio());
-					addShowProcessor.processEpisodesStatus(tvShow.getId(), wantedConfig, configParam.getStatus());
-				} else {
-					LOGGER.debug("Configuration already exists for show {}, quality {} and audio lang {}, using it", showId, wantedQuality, configParam.getAudio());
-					wantedConfig.addFollower(currentUser);
-					tvShowConfigDao.save(wantedConfig);
-				}
+				epStatus.setStatus(Status.SKIPPED);
 			}
+		});
+		episodeDao.save(tvShow.getEpisodes());
+	}
+
+	public List<SearchResult> search(String name, String lang) {
+		try {
+			return metaDataDao.searchForShows(name, lang);
+		} catch (DaoException e) {
+			LOGGER.error("Unable to find results for show {}", name, e);
+		}
+		return null;
+	}
+
+	public void updateCustomNames(Long id, List<String> customNames) {
+		TvShow tvShow = tvShowDao.findOne(id);
+		if (tvShow != null) {
+			tvShow.setCustomNames(customNames);
+			tvShowDao.save(tvShow);
 		}
 	}
 
-	private TvShowConfiguration addConfiguration(TvShow tvShow, User user, Quality quality, String audioLang) {
-		TvShowConfiguration newConfig = new TvShowConfiguration();
-		newConfig.setQuality(quality);
-		newConfig.setAudioLang(audioLang);
-		newConfig.setTvShow(tvShow);
-		newConfig.addFollower(user);
-		return tvShowConfigDao.save(newConfig);
+	public Collection<FullShow> getShowsForUser(UserDto user) {
+		Collection<TvShow> tvShows = tvShowDao.findByConfigurationsFollowersId(user.getId());
+		return tvShows.stream().map(s -> new FullShow(s, null)).collect(Collectors.toList());
 	}
 }

@@ -44,7 +44,6 @@ public class TVDBConverter {
 		tvShow.setBanner(showInfo.getBanner());
 		tvShow.setPoster(showInfo.getPoster());
 		tvShow.setFanart(showInfo.getFanart());
-		tvShow.setLastUpdated(showInfo.getLastUpdated());
 		tvShow.setStatus(showInfo.getStatus());
 		if (showInfo.getFirstAired() != null) {
 			try {

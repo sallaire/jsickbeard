@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sallaire.dao.db.UserRepository;
 import org.sallaire.dao.db.entity.User;
 import org.sallaire.dao.db.entity.User.Role;
+import org.sallaire.dto.user.UserDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class UserService implements UserDetailsService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
@@ -36,7 +39,7 @@ public class UserService implements UserDetailsService {
 		if (user == null) {
 			throw new UsernameNotFoundException(username);
 		}
-		return user;
+		return new UserDto(user, true);
 	}
 
 	public void saveUser(String userName, String password, String role) {
@@ -85,12 +88,12 @@ public class UserService implements UserDetailsService {
 		}
 	}
 
-	public User getUser(String userName) {
+	public UserDto getUser(String userName) {
 		User user = userRepository.findUserByName(userName);
 		if (user != null) {
-			user.setPassword(null);
+			return new UserDto(user);
 		}
-		return user;
+		return null;
 	}
 
 	public boolean hasUsers() {

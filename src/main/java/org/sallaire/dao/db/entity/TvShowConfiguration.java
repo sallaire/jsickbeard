@@ -23,6 +23,7 @@ public class TvShowConfiguration {
 
 	private Quality quality;
 	private String audioLang;
+	private String location;
 
 	@ManyToMany(mappedBy = "configurations", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	private Set<User> followers;
@@ -88,6 +89,14 @@ public class TvShowConfiguration {
 
 	public void setEpisodeStatus(Set<EpisodeStatus> episodeStatus) {
 		this.episodeStatus = episodeStatus;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
 	}
 
 }
