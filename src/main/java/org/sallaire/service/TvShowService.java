@@ -40,29 +40,25 @@ public class TvShowService {
 	@Autowired
 	private EpisodeRepository episodeDao;
 
-	public void addShow(Long showId, TvShowConfiguration showConfiguration) {
+	public TvShow createShow(Long showId) {
+		TvShow tvShow = null;
 		try {
 			LOGGER.info("Adding show [{}] with initial status [{}]", showId);
 			LOGGER.debug("Processing show generic data");
-			TvShow tvShow = metaDataDao.getShowInformation(showId, JackBeardConstants.LANG);
+			tvShow = metaDataDao.getShowInformation(showId, JackBeardConstants.LANG);
 			tvShow.setConfigurations(new HashSet<>());
-			tvShow.getConfigurations().add(showConfiguration);
-			showConfiguration.setTvShow(tvShow);
-			LOGGER.debug("Storing show generic data to db");
-			List<Episode> episodes = metaDataDao.getShowEpisodes(tvShow, "fr");
-			tvShow.setEpisodes(episodes);
 			tvShowDao.save(tvShow);
 			LOGGER.debug("Show generic data stored to db");
-
-			LOGGER.debug("Processing episodes status");
-			processEpisodesStatus(showConfiguration);
-			LOGGER.debug("Episodes status processed");
-
+			LOGGER.debug("Storing episodes generic data to db");
+			List<Episode> episodes = metaDataDao.getShowEpisodes(tvShow, "fr");
+			tvShow.setEpisodes(episodes);
+			LOGGER.debug("Episodes generic data stored to db");
+			tvShowDao.save(tvShow);
 			LOGGER.info("Show [{}] processed successfully", showId);
 		} catch (DaoException e) {
-			LOGGER.error("Unable to get show informations for id [{}], show will not be added in db", showConfiguration.getTvShow().getId(), e);
+			LOGGER.error("Unable to get show informations for id [{}], show will not be added in db", showId, e);
 		}
-
+		return tvShow;
 	}
 
 	public void processEpisodesStatus(TvShowConfiguration tvShowConfiguration) {

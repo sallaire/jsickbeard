@@ -3,7 +3,7 @@
 // declare modules
 angular.module('show', [])
 	.controller('tvshows', function($scope, $http) {
-		$http.get("http://37.187.19.83:9000/tvshows")
+		$http.get("http://37.187.19.83:9000/tvshow")
 			.then(function (response) {
 				$scope.myShows = response.data;
 			});
@@ -25,7 +25,7 @@ angular.module('show', [])
 				return el.episodeId;
 			});
 			
-			$http.put("http://37.187.19.83:9000/tvshow/"+$routeParams.showId+"/episodes", {
+			$http.put("http://37.187.19.83:9000/episode", {
 				status : $scope.status, ids : ids
 			});
 		};
@@ -36,17 +36,13 @@ angular.module('show', [])
 	})
 	
 	.controller('tvShowConfig', function($scope, $http, $routeParams, $location) {
-		$http.get("http://37.187.19.83:9000/metadata/tvshow/"+$routeParams.showId)
+		$http.get("http://37.187.19.83:9000/tvshow/"+$routeParams.showId+"?fields=tvshow,config")
 			.then(function (response) {
 				$scope.myShow = response.data;
 			});
-		$http.get("http://37.187.19.83:9000/tvshow/config/"+$routeParams.showId)
-			.then(function (response) {
-				$scope.myConfig = response.data;
-			});
 		$scope.add = function () {
 			$http.post("http://37.187.19.83:9000/tvshow/config/"+$routeParams.showId,
-				{ name: $scope.myShow.name, status: $scope.status, quality: $scope.myConfig.quality, audio: $scope.myConfig.audioLang }
+				{ name: $scope.myShow.name, status: $scope.status, quality: $scope.myShow.quality, audio: $scope.myShow.audioLang }
 			).then(function (response) {
 				$location.path('/tvshow/'+$routeParams.showId);
 			});
@@ -54,7 +50,7 @@ angular.module('show', [])
 	})
 	
 	.controller('snatched', function($scope, $http) {
-		$http.get("http://37.187.19.83:9000/episodes/snatched")
+		$http.get("http://37.187.19.83:9000/episode?status=SNATCHED&from=0&length=10")
 			.then(function (response) {
 				$scope.episodes = response.data;
 			});
@@ -67,21 +63,21 @@ angular.module('show', [])
 	})
 	
 	.controller('wanted', function($scope, $http) {
-		$http.get("http://37.187.19.83:9000/episodes/wanted")
+		$http.get("http://37.187.19.83:9000/episode?status=WANTED&from=0&length=10")
 			.then(function (response) {
 				$scope.episodes = response.data;
 			});
 	})
 	
 	.controller('downloaded', function($scope, $http) {
-		$http.get("http://37.187.19.83:9000/episodes/downloaded?from=0&length=10")
+		$http.get("http://37.187.19.83:9000/episode?status=DOWNLOADED&from=0&length=10")
 			.then(function (response) {
 				$scope.episodes = response.data;
 			});
 	})
 	
 	.controller('upcoming', function($scope, $http) {
-		$http.get("http://37.187.19.83:9000/episodes/upcoming?from=0&length=10")
+		$http.get("http://37.187.19.83:9000/episode?status=UNAIRED&from=0&length=10")
 			.then(function (response) {
 				$scope.episodes = response.data;
 			});

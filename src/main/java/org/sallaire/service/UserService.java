@@ -1,6 +1,5 @@
 package org.sallaire.service;
 
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -20,6 +19,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.collect.Lists;
 
 @Service
 @Transactional
@@ -49,6 +50,8 @@ public class UserService implements UserDetailsService {
 		User user = userRepository.findUserByName(userName);
 		if (user == null) {
 			user = new User(userName, passwordEncoder.encode(password));
+		} else {
+			user.setPassword(passwordEncoder.encode(password));
 		}
 		if (role == null) {
 			if (CollectionUtils.isEmpty(user.getRoles())) {
@@ -70,13 +73,14 @@ public class UserService implements UserDetailsService {
 			if (roles == null) {
 				switch (convertedRole) {
 				case USER:
-					roles = Arrays.asList(Role.USER);
+
+					roles = Lists.newArrayList(Role.USER);
 					break;
 				case ADMIN:
-					roles = Arrays.asList(Role.USER, Role.ADMIN);
+					roles = Lists.newArrayList(Role.USER, Role.ADMIN);
 					break;
 				case SYSADMIN:
-					roles = Arrays.asList(Role.USER, Role.ADMIN, Role.SYSADMIN);
+					roles = Lists.newArrayList(Role.USER, Role.ADMIN, Role.SYSADMIN);
 					break;
 				}
 				LOGGER.debug("Roles computed : {}", roles);

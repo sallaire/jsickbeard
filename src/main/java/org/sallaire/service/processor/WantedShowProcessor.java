@@ -57,9 +57,9 @@ public class WantedShowProcessor {
 
 	private synchronized void findEpisodes(Iterable<EpisodeStatus> episodes) {
 		for (EpisodeStatus episode : episodes) {
-			LOGGER.debug("Try to retrieve episode {}", episode);
+			LOGGER.debug("Try to retrieve episode {} {}-{}", episode.getEpisode().getTvShow().getName(), episode.getEpisode().getSeason(), episode.getEpisode().getEpisode());
 			if (searchAndGetEpisode(episode)) {
-				LOGGER.debug("Episode {} found", episode);
+				LOGGER.debug("Episode found");
 			}
 		}
 	}
@@ -78,7 +78,7 @@ public class WantedShowProcessor {
 				}
 				torrent = provider.findEpisode(namesToSearch, config.getAudioLang(), episode.getEpisode().getSeason(), episode.getEpisode().getEpisode(), config.getQuality(), episode.getDownloadedFiles());
 				if (torrent != null) {
-					LOGGER.info("Episode [{}] found with provider [{}]", episode, provider.getId());
+					LOGGER.info("Episode [{} {}-{}] found with provider [{}]", episode.getEpisode().getTvShow().getName(), episode.getEpisode().getSeason(), episode.getEpisode().getEpisode(), provider.getId());
 					break;
 				}
 			} catch (IOException e) {

@@ -52,8 +52,9 @@ public class TvShowConfigurationService {
 		TvShowConfiguration wantedConfig = null;
 		if (tvShow == null) {
 			LOGGER.debug("New show added to followed shows : {}", showId);
+			tvShow = tvShowService.createShow(showId);
 			wantedConfig = addConfiguration(tvShow, currentUser, wantedQuality, configParam.getAudio());
-			tvShowService.addShow(showId, wantedConfig);
+			tvShowService.processEpisodesStatus(wantedConfig);
 		} else {
 
 			TvShowConfiguration currentUserConfig = tvShowConfigDao.findByTvShowIdAndFollowersName(showId, currentUser.getName());
