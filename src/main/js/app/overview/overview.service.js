@@ -2,8 +2,8 @@
     'use strict';
 
     angular
-        .module('app.home')
-        .service('HomeService', Service);
+        .module('app.overview')
+        .service('OverviewService', Service);
 
     /** @ngInject */
     function Service($q, logger, EpisodeWanted, EpisodeSnatched, EpisodeDownloaded, EpisodeUpcoming) {
@@ -34,8 +34,12 @@
                 );
         };
 
-        service.getEpisodesDownloaded = function (from, length) {
+        service.getEpisodesDownloaded = function (query) {
             return EpisodeDownloaded.query({from: 0, length: 50})
+        };
+
+        service.getEpisodesUpcoming = function (query) {
+            return EpisodeUpcoming.query({from: 0, length: 50})
         };
     }
 })();

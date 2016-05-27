@@ -22,7 +22,7 @@
 
             function success(data) {
                 logger.success('success login', data);
-                $state.go('home');
+                $state.go('overview');
             }
 
             function failure() {

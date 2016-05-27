@@ -19,7 +19,7 @@
   function theme($mdThemingProvider) {
     $mdThemingProvider.alwaysWatchTheme(true);
 
-    $mdThemingProvider.theme('home')
+    $mdThemingProvider.theme('overview')
         .primaryPalette('blue');
     $mdThemingProvider.theme('search')
         .primaryPalette('pink')

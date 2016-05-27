@@ -7,7 +7,7 @@
         /* Feature areas */
         'app.login',
         'app.layout',
-        'app.home',
+        'app.overview',
         'app.search'
     ]);
 

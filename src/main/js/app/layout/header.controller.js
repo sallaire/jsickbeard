@@ -10,7 +10,7 @@
         var ctrl = this;
         $rootScope.$state = $state;
         ctrl.searchTvShow = $stateParams.text;
-        ctrl.theme = 'home';
+        ctrl.theme = 'overview';
 
         ctrl.activate = function () {
         };
@@ -22,8 +22,8 @@
         };
 
         ctrl.return = function () {
-            $state.go('home');
-            ctrl.theme = 'home';
+            $state.go('overview');
+            ctrl.theme = 'overview';
             ctrl.searchTvShow = '';
         };
 
@@ -32,8 +32,8 @@
                 ctrl.theme = 'search';
                 $state.go('search', {lang: 'fr', text: ctrl.searchTvShow});
             } else {
-                $state.go('home');
-                ctrl.theme = 'home';
+                $state.go('overview');
+                ctrl.theme = 'overview';
             }
         };
     }

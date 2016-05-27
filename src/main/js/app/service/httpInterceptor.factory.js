@@ -15,7 +15,7 @@
 
             var error = function (response) {
                 if (response.status === 401) {
-                    $state.go('home');
+                    $state.go('overview');
                 }
                 return $q.reject(response);
             };
