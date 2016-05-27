@@ -37,7 +37,7 @@
                 }
 
                 function error(err) {
-                    logger.error(err);
+                    logger.log(err);
                 }
             },
             onPaginate: function (page, limit) {
@@ -58,7 +58,6 @@
 
         ctrl.activate = function () {
             ctrl.downloadedTable.getEpisodes();
-            console.log("downloaded");
         };
 
         ctrl.activate();

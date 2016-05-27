@@ -37,7 +37,7 @@
                 }
 
                 function error(err) {
-                    logger.error(err);
+                    logger.log(err);
                 }
             },
             onPaginate: function (page, limit) {

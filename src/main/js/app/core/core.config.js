@@ -18,7 +18,8 @@
   /** @ngInject */
   function theme($mdThemingProvider) {
     $mdThemingProvider.alwaysWatchTheme(true);
-
+    $mdThemingProvider.theme('default')
+        .primaryPalette('blue');
     $mdThemingProvider.theme('overview')
         .primaryPalette('blue');
     $mdThemingProvider.theme('search')

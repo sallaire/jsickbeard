@@ -111,13 +111,11 @@
     </dependencies>
 
     <build>
+        <defaultGoal>spring-boot:run</defaultGoal>
         <resources>
             <resource>
-                <directory>src/main/js/</directory>
-                <filtering>false</filtering>
-                <excludes>
-                    <exclude>**/*</exclude>
-                </excludes>
+                <directory>src/main/resources/</directory>
+                <filtering>true</filtering>
             </resource>
         </resources>
         <plugins>
@@ -163,19 +161,9 @@
                         <goals>
                             <goal>npm</goal>
                         </goals>
-                        <!-- Optional configuration which provides for running any npm command -->
+                        <!--  Optional configuration which provides for running any npm command -->
                         <configuration>
                             <arguments>install</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm install bower</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <!-- Optional configuration which provides for running any npm command -->
-                        <configuration>
-                            <arguments>install bower</arguments>
                         </configuration>
                     </execution>
 
@@ -188,6 +176,14 @@
                             <arguments>install</arguments>
                         </configuration>
                     </execution>
+
+                    <!--                     <execution> -->
+                    <!--                         <id>javascript tests</id> -->
+                    <!--                         <goals> -->
+                    <!--                             <goal>karma</goal> -->
+                    <!--                         </goals> -->
+                    <!--                     </execution> -->
+
                     <execution>
                         <id>gulp build</id>
                         <goals>
@@ -198,5 +194,41 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <id>js-build</id>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <configuration>
+                            <warSourceDirectory>target/www/</warSourceDirectory>
+                            <packagingExcludes>WEB-INF/lib/tomcat-*.jar</packagingExcludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>js-dev</id>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

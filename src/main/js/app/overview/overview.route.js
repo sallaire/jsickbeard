@@ -13,17 +13,17 @@
             url: '/overview',
             parent: 'connected',
             views: {
-                'content': {
+                'content@': {
                     templateUrl: 'app/overview/overview.html',
                     controller: 'OverviewController',
                     controllerAs: 'ctrl'
                 },
-                'downloaded': {
+                'downloaded@overview': {
                     templateUrl: 'app/overview/downloaded/overview.downloaded.html',
                     controller: 'OverviewDownloadedController',
                     controllerAs: 'ctrl'
                 },
-                'upcoming': {
+                'upcoming@overview': {
                     templateUrl: 'app/overview/upcoming/overview.upcoming.html',
                     controller: 'OverviewUpcomingController',
                     controllerAs: 'ctrl'
