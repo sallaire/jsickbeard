@@ -40,26 +40,31 @@ public class TvShowService {
 	@Autowired
 	private EpisodeRepository episodeDao;
 
-	public TvShow createShow(Long showId) {
-		try {
-			LOGGER.info("Adding show [{}] with initial status [{}]", showId);
-			LOGGER.debug("Processing show generic data");
-			final TvShow tvShow = metaDataDao.getShowInformation(showId, JackBeardConstants.LANG);
-			tvShow.setConfigurations(new HashSet<>());
-			tvShowDao.save(tvShow);
-			LOGGER.debug("Show generic data stored to db");
-			LOGGER.debug("Storing episodes generic data to db");
-			List<Episode> episodes = metaDataDao.getShowEpisodes(tvShow, "fr");
-			episodes.forEach(e -> e.setTvShow(tvShow));
-			tvShow.setEpisodes(episodes);
-			LOGGER.debug("Episodes generic data stored to db");
-			tvShowDao.save(tvShow);
-			LOGGER.info("Show [{}] processed successfully", showId);
+	public TvShow createIfNotExist(Long showId) {
+		TvShow tvShow = tvShowDao.findOne(showId);
+		if (tvShow == null) {
+			try {
+				LOGGER.info("Adding show [{}] with initial status [{}]", showId);
+				LOGGER.debug("Processing show generic data");
+				TvShow newShow = metaDataDao.getShowInformation(showId, JackBeardConstants.LANG);
+				newShow.setConfigurations(new HashSet<>());
+				tvShowDao.save(newShow);
+				LOGGER.debug("Show generic data stored to db");
+				LOGGER.debug("Storing episodes generic data to db");
+				List<Episode> episodes = metaDataDao.getShowEpisodes(newShow, "fr");
+				episodes.forEach(e -> e.setTvShow(newShow));
+				newShow.setEpisodes(episodes);
+				LOGGER.debug("Episodes generic data stored to db");
+				tvShowDao.save(newShow);
+				LOGGER.info("Show [{}] processed successfully", showId);
+				return newShow;
+			} catch (DaoException e) {
+				LOGGER.error("Unable to get show informations for id [{}], show will not be added in db", showId, e);
+			}
+			return null;
+		} else {
 			return tvShow;
-		} catch (DaoException e) {
-			LOGGER.error("Unable to get show informations for id [{}], show will not be added in db", showId, e);
 		}
-		return null;
 	}
 
 	public void processEpisodesStatus(TvShowConfiguration tvShowConfiguration) {

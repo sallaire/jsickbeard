@@ -12,6 +12,7 @@ import org.sallaire.service.TvShowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,22 +29,18 @@ public class TvShowController {
 
 	@Autowired
 	private TvShowService tvShowService;
-	//
-	// @Autowired
-	// private DownloadService downloadService;
-	//
 
-	@PostMapping(value = "/tvshow/config/{id}")
+	@PostMapping("/tvshow/config/{id}")
 	public void upsertShow(@PathVariable("id") Long id, @RequestBody TvShowConfigurationParam showConfig, @CurrentUser UserDto currentUser) {
 		tvShowConfigurationService.upsertConfiguration(id, showConfig, currentUser);
 	}
 
-	@PutMapping(value = "/tvshow/{id}")
+	@PutMapping("/tvshow/{id}")
 	public void updateShowNames(@PathVariable("id") Long id, @RequestBody List<String> customNames) {
 		tvShowService.updateCustomNames(id, customNames);
 	}
 
-	@GetMapping(value = "/tvshow/{id}")
+	@GetMapping("/tvshow/{id}")
 	public ResponseEntity<FullShow> getFullShow(@PathVariable("id") Long id, @CurrentUser UserDto currentUser, @RequestParam(name = "fields", required = false) List<String> fields) {
 		FullShow result = tvShowConfigurationService.getFullShow(id, currentUser, fields);
 		if (result != null) {
@@ -53,18 +50,12 @@ public class TvShowController {
 		}
 	}
 
-	//
-	// @GetMapping(value = "/tvshow/config/{id}")
-	// public TvShowConfiguration getShowConfig(@PathVariable("id") Long id) {
-	// return tvShowConfigurationService.getTvShowConfiguration(id);
-	// }
-	//
-	// @RequestMapping(value = "/tvshow/{id}", method = RequestMethod.DELETE)
-	// public void unFollowShow(@PathVariable("id") Long id) {
-	// showService.unFollowShow(id);
-	// }
-	//
-	@GetMapping(value = "/tvshow")
+	@DeleteMapping("/tvshow/config/{id}")
+	public void unfollow(@PathVariable("id") Long id, @CurrentUser UserDto currentUser) {
+		tvShowConfigurationService.unfollow(id, currentUser);
+	}
+
+	@GetMapping("/tvshow")
 	public Collection<FullShow> getShows(@CurrentUser UserDto currentUser) {
 		return tvShowService.getShowsForUser(currentUser);
 	}
