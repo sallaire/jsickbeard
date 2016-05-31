@@ -1,9 +1,12 @@
 package org.sallaire.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.sallaire.JackBeardConstants;
@@ -57,13 +60,36 @@ public class TvShowService {
 				LOGGER.debug("Episodes generic data stored to db");
 				tvShowDao.save(newShow);
 				LOGGER.info("Show [{}] processed successfully", showId);
-				return newShow;
 			} catch (DaoException e) {
 				LOGGER.error("Unable to get show informations for id [{}], show will not be added in db", showId, e);
 			}
-			return null;
-		} else {
-			return tvShow;
+		} else if (tvShow.getConfigurations().stream().allMatch(c -> c.getFollowers().isEmpty())) {
+			updateShow(tvShow);
+		}
+		return tvShow;
+	}
+
+	public void updateShow(TvShow tvShow) {
+		try {
+
+			LOGGER.debug("Retrieve show informations");
+			TvShow updatedTvShow = metaDataDao.getShowInformation(tvShow.getId(), JackBeardConstants.LANG);
+			tvShow.fromShow(updatedTvShow);
+
+			LOGGER.debug("Retrieve show episodes");
+			List<Episode> updatedEpisodes = metaDataDao.getShowEpisodes(tvShow, JackBeardConstants.LANG);
+			LOGGER.debug("Process {} episodes for show {}", updatedEpisodes.size(), tvShow.getName());
+			Map<Long, Episode> episodeById = tvShow.getEpisodes().stream().collect(Collectors.toMap(Episode::getId, Function.identity()));
+			updatedEpisodes.stream().forEach(e -> {
+				if (episodeById.containsKey(e.getId())) {
+					LOGGER.debug("Update existing episode {}-{}", e.getSeason(), e.getEpisode());
+					episodeById.get(e.getId()).fromEpisode(e);
+				}
+			});
+			tvShowDao.save(tvShow);
+			LOGGER.debug("Show informations saved");
+		} catch (DaoException e) {
+			LOGGER.error("Unable to get show [{}] informations", tvShow.getId(), e);
 		}
 	}
 
@@ -71,17 +97,20 @@ public class TvShowService {
 		TvShow tvShow = tvShowConfiguration.getTvShow();
 		LOGGER.debug("Processing {} episodes user data", tvShow.getEpisodes().size());
 		tvShow.getEpisodes().forEach(e -> {
-			EpisodeStatus epStatus = new EpisodeStatus();
-			epStatus.setEpisode(e);
-			e.getStatus().add(epStatus);
-			epStatus.setShowConfiguration(tvShowConfiguration);
-			if (e.getAirDate().isAfter(LocalDate.now())) {
-				epStatus.setStatus(Status.UNAIRED);
-			} else {
-				epStatus.setStatus(Status.SKIPPED);
+			if (!e.getStatus().stream().anyMatch(s -> tvShowConfiguration.equals(s.getShowConfiguration()))) {
+				EpisodeStatus epStatus = new EpisodeStatus();
+				epStatus.setEpisode(e);
+				e.getStatus().add(epStatus);
+				epStatus.setShowConfiguration(tvShowConfiguration);
+				if (e.getAirDate().isAfter(LocalDate.now())) {
+					epStatus.setStatus(Status.UNAIRED);
+				} else {
+					epStatus.setStatus(Status.SKIPPED);
+				}
 			}
 		});
 		episodeDao.save(tvShow.getEpisodes());
+
 	}
 
 	public List<SearchResult> search(String name, String lang) {
@@ -104,5 +133,15 @@ public class TvShowService {
 	public Collection<FullShow> getShowsForUser(UserDto user) {
 		Collection<TvShow> tvShows = tvShowDao.findByConfigurationsFollowersId(user.getId());
 		return tvShows.stream().map(s -> new FullShow(s, null)).collect(Collectors.toList());
+	}
+
+	public Collection<TvShow> getActiveShows() {
+		List<TvShow> results = new ArrayList<>();
+		tvShowDao.findAll().forEach(s -> {
+			if (s.getConfigurations().stream().anyMatch(c -> !c.getFollowers().isEmpty())) {
+				results.add(s);
+			}
+		});
+		return results;
 	}
 }

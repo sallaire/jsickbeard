@@ -63,16 +63,15 @@ public class TvShowConfigurationService {
 			if (wantedConfig == null) {
 				LOGGER.debug("No configuration existing for show {}, quality {} and audio lang {}, creating one", showId, wantedQuality, configParam.getAudio());
 				wantedConfig = addConfiguration(tvShow, currentUser, wantedQuality, configParam.getAudio());
-				tvShowService.processEpisodesStatus(wantedConfig);
 			} else {
 				LOGGER.debug("Configuration already exists for show {}, quality {} and audio lang {}, using it", showId, wantedQuality, configParam.getAudio());
 			}
 			if (currentUserConfig != null) {
 				currentUser.getConfigurations().remove(currentUserConfig);
 			}
+			tvShowService.processEpisodesStatus(wantedConfig);
 			currentUser.addConfiguration(wantedConfig);
 			tvShowConfigDao.save(wantedConfig);
-			// userDao.save(currentUser);
 		}
 	}
 
