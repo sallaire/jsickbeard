@@ -44,7 +44,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.httpBasic() //
 				.and().authorizeRequests() //
 				.antMatchers(HttpMethod.OPTIONS, "/**").permitAll() // allow CORS option calls
-				.antMatchers("/admin/**").hasRole(Role.SYSADMIN.name()) //
+				// .antMatchers("/admin/**").hasRole(Role.SYSADMIN.name()) //
 				.antMatchers("/settings/**").hasRole(Role.ADMIN.name()) //
 				.antMatchers("/user/**").hasRole(Role.USER.name()) //
 				.antMatchers("/tvshows/**").hasRole(Role.USER.name()) //

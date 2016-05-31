@@ -41,24 +41,25 @@ public class TvShowService {
 	private EpisodeRepository episodeDao;
 
 	public TvShow createShow(Long showId) {
-		TvShow tvShow = null;
 		try {
 			LOGGER.info("Adding show [{}] with initial status [{}]", showId);
 			LOGGER.debug("Processing show generic data");
-			tvShow = metaDataDao.getShowInformation(showId, JackBeardConstants.LANG);
+			final TvShow tvShow = metaDataDao.getShowInformation(showId, JackBeardConstants.LANG);
 			tvShow.setConfigurations(new HashSet<>());
 			tvShowDao.save(tvShow);
 			LOGGER.debug("Show generic data stored to db");
 			LOGGER.debug("Storing episodes generic data to db");
 			List<Episode> episodes = metaDataDao.getShowEpisodes(tvShow, "fr");
+			episodes.forEach(e -> e.setTvShow(tvShow));
 			tvShow.setEpisodes(episodes);
 			LOGGER.debug("Episodes generic data stored to db");
 			tvShowDao.save(tvShow);
 			LOGGER.info("Show [{}] processed successfully", showId);
+			return tvShow;
 		} catch (DaoException e) {
 			LOGGER.error("Unable to get show informations for id [{}], show will not be added in db", showId, e);
 		}
-		return tvShow;
+		return null;
 	}
 
 	public void processEpisodesStatus(TvShowConfiguration tvShowConfiguration) {

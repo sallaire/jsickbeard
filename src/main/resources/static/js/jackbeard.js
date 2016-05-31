@@ -1,5 +1,5 @@
 'use strict';
- 
+
 // declare modules
 angular.module('authentication', []);
 

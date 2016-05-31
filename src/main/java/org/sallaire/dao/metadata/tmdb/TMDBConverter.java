@@ -80,7 +80,6 @@ public class TMDBConverter {
 			episode.setDescription(e.getOverview());
 			episode.setId(new Long(e.getId()));
 			episode.setName(e.getName());
-			episode.setTvShow(tvShow);
 			if (e.getExternalIds() != null) {
 				episode.setImdbId(e.getExternalIds().getImdbId());
 			}

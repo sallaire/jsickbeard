@@ -195,14 +195,14 @@ public class T411Provider implements IProvider {
 				}
 
 				// Filter not wanted files
-				results.getTorrents().stream().filter(t -> {
+				results.setTorrents(results.getTorrents().stream().filter(t -> {
 					if (excludedFiles.contains(t.getName())) {
 						LOGGER.debug("Exclude result {} because it's an unwanted one", t.getName());
-						return true;
-					} else {
 						return false;
+					} else {
+						return true;
 					}
-				});
+				}).collect(Collectors.toList()));
 
 				// Now we have to filter results according to
 				// quality/language/episode name

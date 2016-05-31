@@ -1,16 +1,16 @@
 'use strict';
- 
+
 // declare modules
 angular.module('show', [])
 	.controller('tvshows', function($scope, $http) {
-		$http.get("http://37.187.19.83:9000/tvshow")
+		$http.get("/jackbeard/tvshow")
 			.then(function (response) {
 				$scope.myShows = response.data;
 			});
 	})
 	
 	.controller('tvshow', function($scope, $http, $routeParams, $location) {
-		$http.get("http://37.187.19.83:9000/tvshow/"+$routeParams.showId)
+		$http.get("/jackbeard/tvshow/"+$routeParams.showId)
 			.then(function (response) {
 				$scope.myShow = response.data;
 			}, function (response) {
@@ -25,23 +25,23 @@ angular.module('show', [])
 				return el.episodeId;
 			});
 			
-			$http.put("http://37.187.19.83:9000/episode", {
+			$http.put("/jackbeard/episode", {
 				status : $scope.status, ids : ids
 			});
 		};
 		
 		$scope.updateShow = function() {
-			$http.post("http://37.187.19.83:9000/metadata/tvshow/"+$routeParams.showId);
+			$http.post("/jackbeard/metadata/tvshow/"+$routeParams.showId);
 		};
 	})
 	
 	.controller('tvShowConfig', function($scope, $http, $routeParams, $location) {
-		$http.get("http://37.187.19.83:9000/tvshow/"+$routeParams.showId+"?fields=tvshow,config")
+		$http.get("/jackbeard/tvshow/"+$routeParams.showId+"?fields=tvshow,config")
 			.then(function (response) {
 				$scope.myShow = response.data;
 			});
 		$scope.add = function () {
-			$http.post("http://37.187.19.83:9000/tvshow/config/"+$routeParams.showId,
+			$http.post("/jackbeard/tvshow/config/"+$routeParams.showId,
 				{ name: $scope.myShow.name, status: $scope.status, quality: $scope.myShow.quality, audio: $scope.myShow.audioLang }
 			).then(function (response) {
 				$location.path('/tvshow/'+$routeParams.showId);
@@ -50,34 +50,34 @@ angular.module('show', [])
 	})
 	
 	.controller('snatched', function($scope, $http) {
-		$http.get("http://37.187.19.83:9000/episode?status=SNATCHED&from=0&length=10")
+		$http.get("/jackbeard/episode?status=SNATCHED&from=0&length=10")
 			.then(function (response) {
 				$scope.episodes = response.data;
 			});
 		$scope.truncate = function(showId, season, number, quality, lang) {
-			$http.delete("http://37.187.19.83:9000/episode/"+showId+"/"+season+"/"+number+"/snatched?quality="+quality+"&lang="+lang);
+			$http.delete("/jackbeard/episode/"+showId+"/"+season+"/"+number+"/snatched?quality="+quality+"&lang="+lang);
 		}
 		$scope.search = function(showId, episodeId) {
-			$http.post("http://37.187.19.83:9000/tvshow/"+showId+"/episode/"+episodeId);
+			$http.post("/jackbeard/tvshow/"+showId+"/episode/"+episodeId);
 		}
 	})
 	
 	.controller('wanted', function($scope, $http) {
-		$http.get("http://37.187.19.83:9000/episode?status=WANTED&from=0&length=10")
+		$http.get("/jackbeard/episode?status=WANTED&from=0&length=10")
 			.then(function (response) {
 				$scope.episodes = response.data;
 			});
 	})
 	
 	.controller('downloaded', function($scope, $http) {
-		$http.get("http://37.187.19.83:9000/episode?status=DOWNLOADED&from=0&length=10")
+		$http.get("/jackbeard/episode?status=DOWNLOADED&from=0&length=10")
 			.then(function (response) {
 				$scope.episodes = response.data;
 			});
 	})
 	
 	.controller('upcoming', function($scope, $http) {
-		$http.get("http://37.187.19.83:9000/episode?status=UNAIRED&from=0&length=10")
+		$http.get("/jackbeard/episode?status=UNAIRED&from=0&length=10")
 			.then(function (response) {
 				$scope.episodes = response.data;
 			});
@@ -85,7 +85,7 @@ angular.module('show', [])
 	
 	.controller('search', function($scope, $http, $location) {
 		$scope.searchShow = function() {
-			$http.get("http://37.187.19.83:9000/metadata/tvshow", {
+			$http.get("/jackbeard/metadata/tvshow", {
 					params: { name: $scope.name, lang: "fr" }
 				})
 				.then(function (response) {
