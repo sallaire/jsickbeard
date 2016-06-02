@@ -84,6 +84,9 @@ public class TvShowService {
 				if (episodeById.containsKey(e.getId())) {
 					LOGGER.debug("Update existing episode {}-{}", e.getSeason(), e.getEpisode());
 					episodeById.get(e.getId()).fromEpisode(e);
+				} else {
+					LOGGER.debug("Add new episode {}-{}", e.getSeason(), e.getEpisode());
+					tvShow.addEpisode(e);
 				}
 			});
 			tvShowDao.save(tvShow);
