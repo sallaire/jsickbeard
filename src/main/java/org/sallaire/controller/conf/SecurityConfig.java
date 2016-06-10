@@ -47,8 +47,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				// .antMatchers("/admin/**").hasRole(Role.SYSADMIN.name()) //
 				.antMatchers("/settings/**").hasRole(Role.ADMIN.name()) //
 				.antMatchers("/user/**").hasRole(Role.USER.name()) //
+				.antMatchers("/episode/**").hasRole(Role.USER.name()) //
 				.antMatchers("/tvshows/**").hasRole(Role.USER.name()) //
 				.antMatchers("/tvshow/**").hasRole(Role.USER.name());
-		http.headers().frameOptions().disable();
 	}
 }

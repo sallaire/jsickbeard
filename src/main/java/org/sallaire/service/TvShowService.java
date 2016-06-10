@@ -60,6 +60,7 @@ public class TvShowService {
 				LOGGER.debug("Episodes generic data stored to db");
 				tvShowDao.save(newShow);
 				LOGGER.info("Show [{}] processed successfully", showId);
+				return newShow;
 			} catch (DaoException e) {
 				LOGGER.error("Unable to get show informations for id [{}], show will not be added in db", showId, e);
 			}
@@ -87,6 +88,7 @@ public class TvShowService {
 				} else {
 					LOGGER.debug("Add new episode {}-{}", e.getSeason(), e.getEpisode());
 					tvShow.addEpisode(e);
+					e.setTvShow(tvShow);
 				}
 			});
 			tvShowDao.save(tvShow);

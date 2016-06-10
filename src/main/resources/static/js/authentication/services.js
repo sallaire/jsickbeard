@@ -62,7 +62,7 @@ angular.module('authentication')
              /* Use this for real authentication
              ----------------------------------------------*/
 			 var headers = credentials ? {authorization : "Basic "+ btoa(credentials.username + ":" + credentials.password)} : {};
-            $http.get('http://37.187.19.83:9000/user', {headers : headers})
+            $http.get('/jackbeard/user', {headers : headers})
                 .then(function (response) {
                     sucessCallBack(response);
                 }, function (response) {

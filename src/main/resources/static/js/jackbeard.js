@@ -1,9 +1,10 @@
 'use strict';
 
 // declare modules
-angular.module('authentication', []);
+//angular.module('authentication', []);
 
-	var app = angular.module('jackbeard', ['authentication','show','ngRoute','ngCookies']);
+//var app = angular.module('jackbeard', ['authentication','show','ngRoute','ngCookies']);
+	var app = angular.module('jackbeard', ['show','ngRoute','ngCookies']);
 	
 	app.config(['$routeProvider',
 		  function($routeProvider) {
@@ -44,12 +45,12 @@ angular.module('authentication', []);
             $http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.globals.currentUser.authdata;
         }
   
-        $rootScope.$on('$locationChangeStart', function (event, next, current) {
-            // redirect to login page if not logged in
-            if ($location.path() !== '/login' && !$rootScope.globals.currentUser) {
-                $location.path('/login');
-            }
-        });
+//        $rootScope.$on('$locationChangeStart', function (event, next, current) {
+//            // redirect to login page if not logged in
+//            if ($location.path() !== '/login' && !$rootScope.globals.currentUser) {
+//                $location.path('/login');
+//            }
+//        });
     }]);
   	
 	app.filter('appdate', function($filter, client) {

@@ -2,7 +2,9 @@ package org.sallaire.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 
+import org.sallaire.dto.admin.JsonResult;
 import org.sallaire.dto.admin.JsonResults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +23,12 @@ public class AdminService {
 
 	public JsonResults getUploadStats() {
 		try {
-			return new ObjectMapper().readValue(new File(resultPath), JsonResults.class);
+			JsonResults results = new ObjectMapper().readValue(new File(resultPath), JsonResults.class);
+			Collection<String> lastKeys = results.getResults().get(results.getResults().size() - 1).getUploadedById().keySet();
+			for (JsonResult result : results.getResults()) {
+				result.getUploadedById().keySet().retainAll(lastKeys);
+			}
+			return results;
 		} catch (IOException e) {
 			LOGGER.error("Unable to load upload stats", e);
 		}

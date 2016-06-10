@@ -4,7 +4,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.sallaire.dao.db.entity.TvShow;
@@ -29,7 +28,7 @@ public class FullShow {
 	private String banner;
 	private String fanart;
 	private String poster;
-	private Collection<FullEpisode> episodes;
+	private List<FullEpisode> episodes;
 	private Quality quality;
 	private String audioLang;
 	private List<String> customNames;
@@ -62,11 +61,11 @@ public class FullShow {
 		this.episodes = new ArrayList<>(tvShow.getEpisodes().size());
 	}
 
-	public Collection<FullEpisode> getEpisodes() {
+	public List<FullEpisode> getEpisodes() {
 		return episodes;
 	}
 
-	public void setEpisodes(Collection<FullEpisode> episodes) {
+	public void setEpisodes(List<FullEpisode> episodes) {
 		this.episodes = episodes;
 	}
 

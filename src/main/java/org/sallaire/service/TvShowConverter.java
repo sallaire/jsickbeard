@@ -1,6 +1,7 @@
 package org.sallaire.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.sallaire.dao.db.entity.Episode;
@@ -41,6 +42,7 @@ public class TvShowConverter {
 			for (Episode episode : tvShowConfig.getTvShow().getEpisodes()) {
 				result.getEpisodes().add(convertEpisode(episode, tvShowConfig));
 			}
+			result.getEpisodes().sort(Comparator.comparing(FullEpisode::getSeason).thenComparing(FullEpisode::getNumber));
 		}
 
 		return result;

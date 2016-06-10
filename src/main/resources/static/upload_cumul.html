@@ -18,7 +18,7 @@
 
         // Create the data table.
         var dataTable = new google.visualization.DataTable();
-		$.getJSON("/jackbeard/admin/upload/stats", function(jsonData){
+		$.getJSON("http://37.187.19.83/jackbeard/admin/upload/stats", function(jsonData){
 
 		dataTable.addColumn('date', 'X');
 		for (key in jsonData.nameById) {
@@ -56,6 +56,7 @@
 		});
 		
        var options = {
+       explorer: {},
 	   title:'upload',
 	   'height':800,
         hAxis: {
@@ -79,5 +80,6 @@
   <body>
     <!--Div that will hold the pie chart-->
     <div id="chart_div"></div>
+    <div id="filter"></div>
   </body>
 </html>
