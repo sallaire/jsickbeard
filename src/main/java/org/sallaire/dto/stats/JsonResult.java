@@ -1,21 +1,20 @@
-package org.sallaire.dto.admin;
+package org.sallaire.dto.stats;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.TreeMap;
 
 public class JsonResult {
 	private Long time;
-	private Map<String, Long> uploadedById;
+	private TreeMap<String, Long> uploadedById;
 
 	public JsonResult() {
 		super();
-		uploadedById = new HashMap<>();
+		uploadedById = new TreeMap<>();
 	}
 
 	public JsonResult(Long time) {
 		super();
 		this.time = time;
-		uploadedById = new HashMap<>();
+		uploadedById = new TreeMap<>();
 	}
 
 	public Long getTime() {
@@ -26,11 +25,11 @@ public class JsonResult {
 		this.time = time;
 	}
 
-	public Map<String, Long> getUploadedById() {
+	public TreeMap<String, Long> getUploadedById() {
 		return uploadedById;
 	}
 
-	public void setUploadedById(Map<String, Long> uploadedById) {
+	public void setUploadedById(TreeMap<String, Long> uploadedById) {
 		this.uploadedById = uploadedById;
 	}
 

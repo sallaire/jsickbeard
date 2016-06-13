@@ -49,7 +49,7 @@ public class EpisodeController {
 
 	//
 	@GetMapping(value = "/episode")
-	public Collection<FullEpisode> getSnatchedEpisodes(@CurrentUser UserDto currentUser, @RequestParam("status") Status status, @RequestParam("from") int from, @RequestParam("length") int length) {
+	public Collection<FullEpisode> getEpisodesForStatus(@CurrentUser UserDto currentUser, @RequestParam("status") Status status, @RequestParam("from") int from, @RequestParam("length") int length) {
 		return episodeService.getEpisodesForStatus(currentUser, status, from, length);
 	}
 

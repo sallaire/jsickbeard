@@ -1,12 +1,11 @@
-package org.sallaire.dto.admin;
+package org.sallaire.dto.stats;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.TreeMap;
 
 public class JsonResults {
-	private Map<String, String> nameById;
+	private TreeMap<String, String> nameById;
 	private List<JsonResult> results;
 
 	public List<JsonResult> getResults() {
@@ -19,14 +18,14 @@ public class JsonResults {
 
 	public JsonResults() {
 		this.results = new ArrayList<>();
-		this.nameById = new HashMap<>();
+		this.nameById = new TreeMap<>();
 	}
 
-	public Map<String, String> getNameById() {
+	public TreeMap<String, String> getNameById() {
 		return nameById;
 	}
 
-	public void setNameById(Map<String, String> nameById) {
+	public void setNameById(TreeMap<String, String> nameById) {
 		this.nameById = nameById;
 	}
 

@@ -18,18 +18,18 @@ public class UserController {
 	private UserService userService;
 
 	@PutMapping(value = "/user/{id}")
-	public void saveUser(@PathVariable("id") String id, @RequestParam("password") String password, @RequestParam("role") String role) {
-		userService.saveUser(id, password, role);
+	public void saveUser(@PathVariable("id") String id, @RequestParam("password") String password, @RequestParam("role") String role, @CurrentUser UserDto currentUser) {
+		userService.saveUser(id, password, role, currentUser);
 	}
 
 	@DeleteMapping(value = "/user/{id}")
-	public void deleteUser(@PathVariable("id") String id) {
-		userService.deleteUser(id);
+	public void deleteUser(@PathVariable("id") String id, @CurrentUser UserDto currentUser) {
+		userService.deleteUser(id, currentUser);
 	}
 
 	@GetMapping(value = "/user/{id}")
-	public UserDto getUser(@PathVariable("id") String id) {
-		return userService.getUser(id);
+	public UserDto getUser(@PathVariable("id") String id, @CurrentUser UserDto currentUser) {
+		return userService.getUser(id, currentUser);
 	}
 
 	@GetMapping(value = "/user")
