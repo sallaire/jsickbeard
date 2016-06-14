@@ -1,0 +1,63 @@
+<html>
+	<head>
+		<script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+</head>
+<body style="margin: 15px;">
+		<script>
+			var socket = new WebSocket("ws://37.187.19.83:9000/logs/tail");
+				socket.onopen = function(e){
+				}
+				socket.onclose = function(e){
+					alert('a+');
+				} 
+				socket.onmessage  = function(e){
+					$("#console").append(e.data).append("<br/>");
+				} 
+				socket.error  = function(e){
+					alert('bug !');
+				} 
+		
+			function start(){
+				socket.send($('#file option:selected').val());
+			}
+			function stop(){
+				socket.send("stop");
+			}
+			function pause(){
+				socket.send("pause");
+			}
+			
+			function view(){
+				$.getJSON( "http://37.187.19.83:9000/log?file="+$('#file option:selected').val()+"&lines="+$('#lines').val(), function(data) {
+				  $.each( data, function( key, value ) {
+					$("#console").append(value).append("<br/>");
+				  });
+				});
+			}
+			
+			function clean(){
+				$("#console").empty();
+			}
+			
+			$(document).ready(function () {
+				$.getJSON( "http://37.187.19.83:9000/logs", function(data) {
+				  $.each( data, function( key, value ) {
+					$("#file").append( $('<option>').text(value).val(value));
+				  });
+				});
+			});
+		</script>
+	</div>
+	<select id="file" name="file">
+	</select>
+	<input type="text" id="lines" value="100">
+	<input type="button" id="view" value="view" onclick="view();"/>
+	<input type="button" id="clean" value="clean" onclick="clean();"/>
+	<br/>
+	<div id="console"></div>
+	<input type="button" id="start" value="start" onclick="start();"/>
+	<input type="button" id="stop" value="stop" onclick="stop();"/>
+</body>
+</html>
+
+

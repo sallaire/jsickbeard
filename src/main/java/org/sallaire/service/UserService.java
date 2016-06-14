@@ -140,7 +140,7 @@ public class UserService implements UserDetailsService {
 	}
 
 	public UserDto getUser(String userName, UserDto currentUser) {
-		if (!currentUser.getName().equals(userName) && currentUser.getRoles().contains(Role.ADMIN) || currentUser.getRoles().contains(Role.SYSADMIN)) {
+		if (!currentUser.getName().equals(userName) && (currentUser.getRoles().contains(Role.ADMIN) || currentUser.getRoles().contains(Role.SYSADMIN))) {
 			LOGGER.warn("Current user has no enough credentials to get user details");
 			return null;
 		}
