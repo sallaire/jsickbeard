@@ -1,6 +1,5 @@
 package org.sallaire;
 
-import org.jsondoc.spring.boot.starter.EnableJSONDoc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -14,7 +13,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAsync
 @EnableScheduling
 @EnableConfigurationProperties
-@EnableJSONDoc
 
 @ComponentScan(basePackages = { "org.sallaire.dao", "org.sallaire.service", "org.sallaire.controller" })
 public class JackbeardApplication {

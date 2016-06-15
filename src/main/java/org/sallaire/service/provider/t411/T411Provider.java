@@ -28,7 +28,6 @@ import org.sallaire.service.provider.t411.dto.SearchResults;
 import org.sallaire.service.util.RegexFilterConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -61,7 +60,6 @@ public class T411Provider implements IProvider {
 
 	@PostConstruct
 	public void init() {
-		MDC.put(PROVIDER, ID);
 		LOGGER.debug("Initializing T411 Provider");
 		// Initialize rest client
 		LOGGER.debug("Initializing T411 rest client");
@@ -80,12 +78,10 @@ public class T411Provider implements IProvider {
 		LOGGER.debug("T411 interceptor set");
 
 		LOGGER.debug("T411 Provider initialized");
-		MDC.remove(PROVIDER);
 	}
 
 	@Override
 	public Torrent findEpisode(Collection<String> names, String audioLang, Integer season, Integer number, Quality quality, List<String> excludedFiles) throws IOException {
-		MDC.put(PROVIDER, ID);
 		LOGGER.debug("Authenticating to T411");
 		authenticationInterceptor.setToken(login());
 
@@ -114,7 +110,6 @@ public class T411Provider implements IProvider {
 				throw new IOException(e);
 			}
 		}
-		MDC.remove(PROVIDER);
 		return null;
 
 	}
@@ -244,7 +239,6 @@ public class T411Provider implements IProvider {
 
 	@Override
 	public void configurationChanged(Map<String, String> parameters) {
-		MDC.put(PROVIDER, ID);
 		if (MapUtils.isNotEmpty(parameters)) {
 			LOGGER.debug("T411 configuration changed, update parameters : ");
 			user = parameters.get(USER);
@@ -256,7 +250,6 @@ public class T411Provider implements IProvider {
 			user = "";
 			password = "";
 		}
-		MDC.remove(PROVIDER);
 	}
 
 }

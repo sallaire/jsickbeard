@@ -14,7 +14,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties(locations = "classpath:filter.properties", ignoreUnknownFields = true, prefix = "filter")
+@ConfigurationProperties(ignoreUnknownFields = true, prefix = "filter")
 public class RegexFilterConfiguration {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RegexFilterConfiguration.class);

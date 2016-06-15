@@ -14,11 +14,11 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
 	@Override
 	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-		registry.addHandler(greetingHandler(), "/logs/tail").setAllowedOrigins("*");
+		registry.addHandler(tailLogHandler(), "/logs/tail").setAllowedOrigins("*");
 	}
 
 	@Bean
-	public WebSocketHandler greetingHandler() {
+	public WebSocketHandler tailLogHandler() {
 		return new TailLogHandler();
 	}
 }
