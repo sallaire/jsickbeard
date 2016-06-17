@@ -6,6 +6,7 @@ import org.sallaire.dto.admin.AdminConfig;
 import org.sallaire.dto.admin.AdminShow;
 import org.sallaire.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,6 +25,11 @@ public class AdminController {
 	@GetMapping(value = "/admin/tvshows/{id}/config")
 	public List<AdminConfig> getAllShowConfigs(@PathVariable("id") Long id) {
 		return adminService.getAllConfigs(id);
+	}
+
+	@DeleteMapping(value = "/admin/episode/{id}")
+	public void deleteEpisode(@PathVariable("id") Long id) {
+		adminService.deleteEpisode(id);
 	}
 
 }

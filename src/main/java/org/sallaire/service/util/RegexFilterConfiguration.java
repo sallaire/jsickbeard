@@ -117,6 +117,15 @@ public class RegexFilterConfiguration {
 		if (!matchRegexs(name, getQualityRegex(quality))) {
 			return false;
 		}
+		if (quality == Quality.SD) {
+			// In case of SD quality, we have to check if there is not 720p or 1080p keyword
+			if (matchRegexs(name, getQualityRegex(Quality.P720))) {
+				return false;
+			}
+			if (matchRegexs(name, getQualityRegex(Quality.P1080))) {
+				return false;
+			}
+		}
 		LOGGER.debug("Testing against lang [{}] regex", lang);
 		if (!matchRegexs(name, getLangRegex(lang))) {
 			return false;
@@ -125,6 +134,9 @@ public class RegexFilterConfiguration {
 	}
 
 	private static boolean matchRegexs(String name, List<Pattern> regexs) {
+		if (name == null) {
+			return false;
+		}
 		for (Pattern rx : regexs) {
 			if (rx.matcher(name).find()) {
 				LOGGER.debug("{} match given regex {}", name, rx.toString());

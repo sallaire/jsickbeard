@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.sallaire.dao.db.EpisodeRepository;
 import org.sallaire.dao.db.TvShowConfigurationRepository;
 import org.sallaire.dao.db.TvShowRepository;
 import org.sallaire.dao.db.entity.TvShow;
@@ -29,6 +30,9 @@ public class AdminService {
 	@Autowired
 	private TvShowConfigurationRepository configDao;
 
+	@Autowired
+	private EpisodeRepository episodeDao;
+
 	public List<AdminShow> getAllShows() {
 		List<AdminShow> results = new ArrayList<>();
 		for (TvShow tvShow : tvShowDao.findAll()) {
@@ -53,6 +57,10 @@ public class AdminService {
 			results.add(result);
 		}
 		return results;
+	}
+
+	public void deleteEpisode(Long id) {
+		episodeDao.delete(id);
 	}
 
 }
