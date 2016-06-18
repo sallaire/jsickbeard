@@ -1,18 +1,18 @@
 package org.sallaire.service.processor;
 
 import java.io.IOException;
-import java.time.LocalDate;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.sallaire.dao.db.DownloadDao;
-import org.sallaire.dao.db.TvShowDao;
-import org.sallaire.dto.metadata.TvShow;
-import org.sallaire.dto.user.EpisodeStatus;
+import org.sallaire.dao.db.EpisodeStatusRepository;
+import org.sallaire.dao.db.entity.EpisodeStatus;
+import org.sallaire.dao.db.entity.TvShow;
+import org.sallaire.dao.db.entity.TvShowConfiguration;
 import org.sallaire.dto.user.Status;
-import org.sallaire.dto.user.TvShowConfiguration;
 import org.sallaire.service.DownloadService;
 import org.sallaire.service.client.IClient;
 import org.sallaire.service.provider.IProvider;
@@ -23,32 +23,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Transactional
 public class WantedShowProcessor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(WantedShowProcessor.class);
 
 	@Autowired
-	private TvShowDao showDao;
-
-	@Autowired
-	private DownloadDao downloadDao;
+	private EpisodeStatusRepository episodeStatusDao;
 
 	@Autowired
 	private DownloadService downloadService;
 
 	@Scheduled(cron = "0 0 * * * *")
 	public void process() {
-		Collection<EpisodeStatus> episodes = downloadDao.getWantedEpisodes();
+		Collection<EpisodeStatus> episodes = episodeStatusDao.findByStatus(Status.WANTED);
 		LOGGER.info("Starting wanted show processor with {} wanted episodes", episodes.size());
 		findEpisodes(episodes);
 		LOGGER.info("Wanted show processor done");
 	}
 
 	@Async
-	public void process(List<EpisodeStatus> episodes) {
-		findEpisodes(episodes);
+	public void process(List<Long> episodes) {
+		findEpisodes(episodeStatusDao.findAll(episodes));
 	}
 
 	public void process(EpisodeStatus episode) {
@@ -56,33 +55,30 @@ public class WantedShowProcessor {
 		// TODO renvoyer un boolean pour savoir si l'épisode a été trouvé ?
 	}
 
-	private synchronized void findEpisodes(Collection<EpisodeStatus> episodes) {
+	private synchronized void findEpisodes(Iterable<EpisodeStatus> episodes) {
 		for (EpisodeStatus episode : episodes) {
-			LOGGER.debug("Try to retrieve episode {}", episode);
+			LOGGER.debug("Try to retrieve episode {} {}-{}", episode.getEpisode().getTvShow().getName(), episode.getEpisode().getSeason(), episode.getEpisode().getEpisode());
 			if (searchAndGetEpisode(episode)) {
-				LOGGER.debug("Episode {} found", episode);
-				downloadDao.removeWantedEpisode(episode);
-			} else {
-				downloadDao.saveWantedEpisode(episode);
+				LOGGER.debug("Episode found");
 			}
 		}
 	}
 
 	public boolean searchAndGetEpisode(EpisodeStatus episode) {
-		TvShowConfiguration config = downloadDao.getShowConfiguration(episode.getEpisodeKey().getShowId());
-		TvShow show = showDao.getShow(episode.getEpisodeKey().getShowId());
+		TvShowConfiguration config = episode.getShowConfiguration();
+		TvShow show = config.getTvShow();
 		Torrent torrent = null;
 		for (IProvider provider : downloadService.getActiveProviders()) {
 			try {
 				Collection<String> namesToSearch = null;
-				if (config.getCustomNames().isEmpty()) {
+				if (show.getCustomNames().isEmpty()) {
 					namesToSearch = Arrays.asList(show.getOriginalName());
 				} else {
-					namesToSearch = new ArrayList<>(config.getCustomNames());
+					namesToSearch = new ArrayList<>(show.getCustomNames());
 				}
-				torrent = provider.findEpisode(namesToSearch, episode.getEpisodeKey().getLang(), episode.getEpisodeKey().getSeason(), episode.getEpisodeKey().getNumber(), episode.getEpisodeKey().getQuality(), episode.getFileNames());
+				torrent = provider.findEpisode(namesToSearch, config.getAudioLang(), episode.getEpisode().getSeason(), episode.getEpisode().getEpisode(), config.getQuality(), episode.getDownloadedFiles());
 				if (torrent != null) {
-					LOGGER.info("Episode [{}] found with provider [{}]", episode, provider.getId());
+					LOGGER.info("Episode [{} {}-{}] found with provider [{}]", episode.getEpisode().getTvShow().getName(), episode.getEpisode().getSeason(), episode.getEpisode().getEpisode(), provider.getId());
 					break;
 				}
 			} catch (IOException e) {
@@ -96,14 +92,13 @@ public class WantedShowProcessor {
 				LOGGER.info("Sending torrent to client [{}]", client.getId());
 				try {
 					final Torrent torrentToDownload = torrent;
-					client.addTorrent(torrentToDownload, config, episode);
+					client.addTorrent(torrentToDownload, Paths.get(config.getLocation()), episode.getEpisode());
 
 					// Update episode status to snatched
 					episode.setStatus(Status.SNATCHED);
-					episode.addFileName(torrentToDownload.getName());
-					episode.setDownloadDate(LocalDate.now());
-					downloadDao.saveEpisodeStatus(episode);
-					downloadDao.saveSnatchedEpisode(episode);
+					episode.getDownloadedFiles().add(torrentToDownload.getName());
+					episode.setDownloadDate(LocalDateTime.now());
+					episodeStatusDao.save(episode);
 					return true;
 				} catch (IOException e) {
 					LOGGER.error("Unable to send torrent to client", e);

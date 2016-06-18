@@ -16,6 +16,13 @@ public class SearchResult {
 	private Long size;
 	private Integer timesCompleted;
 
+	public SearchResult() {
+	}
+
+	public SearchResult(Integer id) {
+		this.id = id.longValue();
+	}
+
 	public Long getId() {
 		return id;
 	}

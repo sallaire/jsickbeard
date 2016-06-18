@@ -3,15 +3,15 @@ package org.sallaire.service.processor;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 
-import org.sallaire.dao.db.DownloadDao;
-import org.sallaire.dao.db.TvShowDao;
-import org.sallaire.dto.metadata.TvShow;
-import org.sallaire.dto.user.EpisodeStatus;
+import org.apache.commons.collections4.CollectionUtils;
+import org.sallaire.dao.db.EpisodeStatusRepository;
+import org.sallaire.dao.db.entity.EpisodeStatus;
+import org.sallaire.dao.db.entity.TvShow;
+import org.sallaire.dao.db.entity.TvShowConfiguration;
 import org.sallaire.dto.user.Status;
-import org.sallaire.dto.user.TvShowConfiguration;
 import org.sallaire.service.util.FileHelper.Finder;
 import org.sallaire.service.util.RegexFilterConfiguration;
 import org.slf4j.Logger;
@@ -19,35 +19,32 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 @Component
 public class SnatchedShowProcessor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SnatchedShowProcessor.class);
 
 	@Autowired
-	private DownloadDao downloadDao;
-
-	@Autowired
-	private TvShowDao tvShowDao;
-
-	@Autowired
 	private RegexFilterConfiguration regexFilter;
+
+	@Autowired
+	private EpisodeStatusRepository episodeStatusDao;
 
 	@Scheduled(cron = "0 15 * * * *")
 	public void updateShow() {
-		Collection<EpisodeStatus> episodes = downloadDao.getSnatchedEpisodes();
+		Collection<EpisodeStatus> episodes = episodeStatusDao.findByStatus(Status.SNATCHED);
 		LOGGER.info("Starting snatched show processor with {} snatched episodes", episodes.size());
 		for (EpisodeStatus episode : episodes) {
 			LOGGER.debug("Search for snatched episode {}", episode);
 			try {
 				if (searchFile(episode)) {
 					LOGGER.debug("Episode found, remove it from list of snatched episodes", episode);
-					episode.setDownloadDate(LocalDate.now());
+					episode.setDownloadDate(LocalDateTime.now());
 					episode.setStatus(Status.DOWNLOADED);
-					downloadDao.saveEpisodeStatus(episode);
-					downloadDao.saveDownloadedEpisode(episode);
-					downloadDao.removeSnatchedEpisode(episode.getEpisodeKey());
+					episodeStatusDao.save(episode);
 				}
 			} catch (IOException e) {
 				LOGGER.error("Error while checking downloaded file for episode {}", episode);
@@ -57,13 +54,18 @@ public class SnatchedShowProcessor {
 	}
 
 	private boolean searchFile(EpisodeStatus episode) throws IOException {
-		if (episode.getFileNames() != null) {
-			TvShowConfiguration showConfig = downloadDao.getShowConfiguration(episode.getEpisodeKey().getShowId());
-			TvShow tvShow = tvShowDao.getShow(episode.getEpisodeKey().getShowId());
+		if (episode.getDownloadedFiles() != null) {
+			TvShowConfiguration showConfig = episode.getShowConfiguration();
+			TvShow tvShow = showConfig.getTvShow();
 			String location = showConfig.getLocation();
 			boolean filesFound = true;
 			LOGGER.debug("Try to find file in directory [{}]", location);
-			Finder finder = new Finder(regexFilter, tvShow.getOriginalName(), episode.getEpisodeKey());
+			Finder finder = null;
+			if (CollectionUtils.isNotEmpty(tvShow.getCustomNames())) {
+				finder = new Finder(regexFilter, episode.getEpisode().getSeason(), episode.getEpisode().getEpisode(), showConfig.getAudioLang(), showConfig.getQuality(), tvShow.getCustomNames().toArray(new String[tvShow.getCustomNames().size()]));
+			} else {
+				finder = new Finder(regexFilter, episode.getEpisode().getSeason(), episode.getEpisode().getEpisode(), showConfig.getAudioLang(), showConfig.getQuality(), tvShow.getOriginalName());
+			}
 			Files.walkFileTree(Paths.get(location), finder);
 			filesFound &= finder.isFound();
 			return filesFound;

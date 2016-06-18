@@ -1,23 +1,23 @@
 package org.sallaire.controller;
 
 import java.util.Collection;
+import java.util.List;
 
-import org.apache.commons.collections4.CollectionUtils;
+import org.sallaire.controller.conf.CurrentUser;
 import org.sallaire.dto.api.FullShow;
 import org.sallaire.dto.api.TvShowConfigurationParam;
-import org.sallaire.dto.api.UpdateEpisodeStatusParam;
-import org.sallaire.dto.metadata.TvShow;
-import org.sallaire.dto.user.EpisodeStatus;
-import org.sallaire.dto.user.TvShowConfiguration;
-import org.sallaire.service.DownloadService;
-import org.sallaire.service.ShowService;
+import org.sallaire.dto.user.UserDto;
+import org.sallaire.service.TvShowConfigurationService;
+import org.sallaire.service.TvShowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,19 +25,24 @@ import org.springframework.web.bind.annotation.RestController;
 public class TvShowController {
 
 	@Autowired
-	private ShowService showService;
+	private TvShowConfigurationService tvShowConfigurationService;
 
 	@Autowired
-	private DownloadService downloadService;
+	private TvShowService tvShowService;
 
-	@RequestMapping(value = "/tvshow/config/{id}", method = RequestMethod.POST)
-	public void upsertShow(@PathVariable("id") Long id, @RequestBody TvShowConfigurationParam showConfig) {
-		showService.upsertShow(id, showConfig);
+	@PostMapping("/tvshow/config/{id}")
+	public void upsertShow(@PathVariable("id") Long id, @RequestBody TvShowConfigurationParam showConfig, @CurrentUser UserDto currentUser) {
+		tvShowConfigurationService.upsertConfiguration(id, showConfig, currentUser);
 	}
 
-	@RequestMapping(value = "/tvshow/{id}", method = RequestMethod.GET)
-	public ResponseEntity<FullShow> getFullShow(@PathVariable("id") Long id) {
-		FullShow result = showService.getFullShow(id);
+	@PutMapping("/tvshow/{id}")
+	public void updateShowNames(@PathVariable("id") Long id, @RequestBody List<String> customNames) {
+		tvShowService.updateCustomNames(id, customNames);
+	}
+
+	@GetMapping("/tvshow/{id}")
+	public ResponseEntity<FullShow> getFullShow(@PathVariable("id") Long id, @CurrentUser UserDto currentUser, @RequestParam(name = "fields", required = false) List<String> fields) {
+		FullShow result = tvShowConfigurationService.getFullShow(id, currentUser, fields);
 		if (result != null) {
 			return ResponseEntity.ok(result);
 		} else {
@@ -45,50 +50,14 @@ public class TvShowController {
 		}
 	}
 
-	@RequestMapping(value = "/tvshow/config/{id}", method = RequestMethod.GET)
-	public TvShowConfiguration getShowConfig(@PathVariable("id") Long id) {
-		return showService.getTvShowConfiguration(id);
+	@DeleteMapping("/tvshow/config/{id}")
+	public void unfollow(@PathVariable("id") Long id, @CurrentUser UserDto currentUser) {
+		tvShowConfigurationService.unfollow(id, currentUser);
 	}
 
-	@RequestMapping(value = "/tvshow/{id}", method = RequestMethod.DELETE)
-	public void unFollowShow(@PathVariable("id") Long id) {
-		showService.unFollowShow(id);
+	@GetMapping("/tvshow")
+	public Collection<FullShow> getShows(@CurrentUser UserDto currentUser) {
+		return tvShowService.getShowsForUser(currentUser);
 	}
 
-	@RequestMapping(value = "/tvshows", method = RequestMethod.GET)
-	public Collection<TvShow> getShows() {
-		return showService.getShows();
-	}
-
-	@RequestMapping(value = "/tvshow/{id}/episodes", method = RequestMethod.PUT)
-	public ResponseEntity<String> updateEpisodesStatus(@PathVariable("id") Long id, @RequestBody UpdateEpisodeStatusParam params) {
-		if (params.getStatus() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Required String parameter 'status' is not present");
-		}
-		if (CollectionUtils.isEmpty(params.getIds())) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Required List<Long> parameter 'ids' is not present");
-		}
-		showService.updateEpisodesStatus(id, params);
-		return ResponseEntity.ok("");
-	}
-
-	@RequestMapping(value = "/tvshow/{id}/episode/{epId}", method = RequestMethod.POST)
-	public void searchEpisode(@PathVariable("id") Long id, @PathVariable("epId") Long episodeId) {
-		showService.searchEpisode(id, episodeId);
-	}
-
-	@RequestMapping(value = "/tvshow/{id}/episode/{epId}", method = RequestMethod.DELETE)
-	public void truncateDownloadedEpisode(@PathVariable("id") Long id, @PathVariable("epId") Long episodeId) {
-		showService.truncateDownloadedEpisode(id, episodeId);
-	}
-
-	@RequestMapping(value = "/tvshow/{id}/episode/{season}/{episode}/status", method = RequestMethod.GET)
-	public EpisodeStatus getEpisodeStatus(@PathVariable("id") Long id, @PathVariable("season") Integer season, @PathVariable("episode") Integer episode, @RequestParam("quality") String quality, @RequestParam("lang") String lang) {
-		return downloadService.getEpisodeStatus(id, season, episode, quality, lang);
-	}
-
-	@RequestMapping(value = "/tvshow/episodes/status", method = RequestMethod.GET)
-	public Collection<EpisodeStatus> getEpisodeStatus() {
-		return downloadService.getEpisodeStatus();
-	}
 }
