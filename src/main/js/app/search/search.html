@@ -1,18 +1,44 @@
 <section>
     <md-content class="md-padding" layout-xs="column" layout="row" layout-wrap>
+        <h1>Série suivie</h1>
         <md-card md-ink-ripple style="max-width: 200px;"
-                 ng-repeat="metadata in ctrl.metadatas"
+                 ng-repeat="metadata in ctrl.metadatas | filter: {following : true}"
                  ng-click="isOpen = !isOpen"
                  ng-class="{'md-whiteframe-10dp': hover}"
                  ng-mouseenter="hover = true"
                  ng-mouseleave="hover = false">
             <img ng-if="metadata.image" ng-src="{{metadata.image}}" class="md-card-image">
+            <md-button ng-show="hover"
+                       ng-click="ctrl.delete(metadata.id)"
+                       style="margin-top: -10%;margin-left: 75%;" class="md-fab md-mini">
+                <md-icon md-font-set="material-icons">delete</md-icon>
+            </md-button>
             <md-card-title>
                 <md-card-title-text>
                     <span class="md-headline">{{metadata.name}}</span>
                 </md-card-title-text>
             </md-card-title>
-
+        </md-card>
+    </md-content>
+    <md-content class="md-padding" layout-xs="column" layout="row" layout-wrap>
+        <h1>Série trouvée</h1>
+        <md-card md-ink-ripple style="max-width: 200px;"
+                 ng-repeat="metadata in ctrl.metadatas | filter: {following : false}"
+                 ng-click="isOpen = !isOpen"
+                 ng-class="{'md-whiteframe-10dp': hover}"
+                 ng-mouseenter="hover = true"
+                 ng-mouseleave="hover = false">
+            <img ng-if="metadata.image" ng-src="{{metadata.image}}" class="md-card-image">
+            <md-button ng-show="hover"
+                       ng-click="ctrl.add(metadata.id, 'SD', 'en')"
+                       style="margin-top: -10%;margin-left: 75%;" class="md-fab md-mini">
+                <md-icon md-font-set="material-icons">add</md-icon>
+            </md-button>
+            <md-card-title>
+                <md-card-title-text>
+                    <span class="md-headline">{{metadata.name}}</span>
+                </md-card-title-text>
+            </md-card-title>
         </md-card>
     </md-content>
 </section>

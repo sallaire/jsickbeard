@@ -3,7 +3,7 @@
     <md-toolbar class="md-table-toolbar md-default"
                 ng-hide="ctrl.table.options.rowSelection && ctrl.table.selected.length">
         <div class="md-toolbar-tools">
-            <span ng-if="ctrl.episodes.length > 0">Episode</span>
+            <span ng-if="ctrl.episodes.length > 0">Téléchargé</span>
                     <span ng-if="ctrl.episodes.length < 1">
                         Aucun épisode n'a été téléchargé.
                     </span>
@@ -30,7 +30,6 @@
                 <th md-column md-order-by="number"><span>Numéro</span></th>
                 <th md-column md-order-by="name"><span>Episode</span></th>
                 <th md-column md-order-by="quality"><span>Qualité</span></th>
-                <th md-column md-order-by="status"><span>Statut</span></th>
                 <th md-column md-order-by="airDate"><span>Date</span></th>
             </tr>
             </thead>
@@ -42,7 +41,6 @@
                 <td md-cell>{{episode.number}}</td>
                 <td md-cell>{{episode.name}}</td>
                 <td md-cell>{{episode.quality}}</td>
-                <td md-cell>{{episode.status}}</td>
                 <td md-cell>{{episode.airDate}}</td>
             </tr>
             </tbody>

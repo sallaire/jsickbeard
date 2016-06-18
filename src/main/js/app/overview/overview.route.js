@@ -23,9 +23,9 @@
                     controller: 'OverviewDownloadedController',
                     controllerAs: 'ctrl'
                 },
-                'upcoming@overview': {
-                    templateUrl: 'app/overview/upcoming/overview.upcoming.html',
-                    controller: 'OverviewUpcomingController',
+                'unaired@overview': {
+                    templateUrl: 'app/overview/unaired/overview.unaired.html',
+                    controller: 'OverviewUnairedController',
                     controllerAs: 'ctrl'
                 }
             }

@@ -19,10 +19,12 @@
 
         ctrl.activate();
 
-        ctrl.addTvShow = function () {
-            ctrl.tvshow = {
-                name: ''
-            };
+        ctrl.add = function (tvshowId, quality, lang) {
+            SearchService.add(tvshowId, quality, lang);
+        };
+
+        ctrl.delete = function (tvshowId, quality, lang) {
+            SearchService.delete(tvshowId, quality, lang);
         };
     }
 })();

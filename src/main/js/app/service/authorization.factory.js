@@ -15,12 +15,16 @@
                 authentication: btoa(username + ':' + password)
             };
 
-            $cookies.put('currentUser', currentUser);
+            $cookies.putObject('currentUser', currentUser);
             return currentUser.authentication;
         };
 
         service.clearCredentials = function () {
             $cookies.remove('currentUser');
+        };
+
+        service.getAuth = function() {
+            return $cookies.getObject('currentUser');
         };
 
         return service;

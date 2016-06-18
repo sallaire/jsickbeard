@@ -3,7 +3,7 @@
 
     angular
         .module('app.overview')
-        .controller('OverviewUpcomingController', Controller);
+        .controller('OverviewUnairedController', Controller);
 
     /** @ngInject */
     function Controller(OverviewService, logger) {
@@ -11,7 +11,7 @@
         var ctrl = this;
         
         // Table des épisodes téléchargé.
-        ctrl.upcomingTable = {
+        ctrl.table = {
             selected: [],
             query: {
                 sort: 'airDate', // default order
@@ -25,15 +25,15 @@
                 rowSelection: true
             },
             getEpisodes: function getEntities() {
-                ctrl.upcomingTable.promise = OverviewService.getEpisodesUpcoming(ctrl.upcomingTable.query).$promise;
+                ctrl.table.promise = OverviewService.getEpisodesUnaired(ctrl.table.query).$promise;
 
-                ctrl.upcomingTable.promise.then(success, error);
+                ctrl.table.promise.then(success, error);
 
                 function success(response) {
-                    //ctrl.upcomingTable.total = response.data.total;
-                    ctrl.episodes.upcoming = response;
-                    logger.log(ctrl.episodes.upcoming);
-                    ctrl.upcomingTable.selected = [];
+                    //ctrl.table.total = response.data.total;
+                    ctrl.episodes = response;
+                    logger.log(ctrl.episodes);
+                    ctrl.table.selected = [];
                 }
 
                 function error(err) {
@@ -41,24 +41,24 @@
                 }
             },
             onPaginate: function (page, limit) {
-                ctrl.upcomingTable.query.limit = limit;
-                ctrl.upcomingTable.query.page = page;
-                ctrl.upcomingTable.getEpisodes();
+                ctrl.table.query.limit = limit;
+                ctrl.table.query.page = page;
+                ctrl.table.getEpisodes();
             },
             onReorder: function (sort) {
-                ctrl.upcomingTable.query.sort = sort;
-                ctrl.upcomingTable.getEpisodes();
+                ctrl.table.query.sort = sort;
+                ctrl.table.getEpisodes();
             },
             remove: function () {
                 //OverviewService.removeEpisodeDownload(vm.entityTable.selected);
-                ctrl.upcomingTable.selected = [];
-                ctrl.upcomingTable.getEpisodes();
+                ctrl.table.selected = [];
+                ctrl.table.getEpisodes();
             }
         };
 
         ctrl.activate = function () {
-            ctrl.upcomingTable.getEpisodes();
-            console.log('upcoming');
+            ctrl.table.getEpisodes();
+            console.log('unaired');
         };
 
         ctrl.activate();

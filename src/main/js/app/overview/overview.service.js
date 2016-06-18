@@ -6,7 +6,7 @@
         .service('OverviewService', Service);
 
     /** @ngInject */
-    function Service($q, logger, EpisodeWanted, EpisodeSnatched, EpisodeDownloaded, EpisodeUpcoming) {
+    function Service($q, _, logger, EpisodeWanted, EpisodeSnatched, EpisodeDownloaded, EpisodeSkipped, EpisodeUnaired) {
         var service = this;
 
         /**
@@ -16,30 +16,25 @@
         service.getEpisodes = function () {
 
             var episodes = [
-                EpisodeWanted.query(),
-                EpisodeSnatched.query(),
-                EpisodeDownloaded.query({from: 0, length: 10}),
-                EpisodeUpcoming.query({from: 0, length: 10})
+                EpisodeWanted.getAll({from: 0, length: 10}).$promise,
+                EpisodeSnatched.getAll({from: 0, length: 10}).$promise,
+                EpisodeDownloaded.getAll({from: 0, length: 10}).$promise,
+                EpisodeSkipped.getAll({from: 0, length: 10}).$promise
             ];
 
             return $q.all(episodes)
                 .then(function (episodes) {
-                        return {
-                            wanteds: episodes[0],
-                            snatcheds: episodes[1],
-                            downloaded: episodes[2],
-                            upcomings: episodes[3]
-                        };
+                        return episodes[0].concat(episodes[1]).concat(episodes[2]).concat(episodes[3]);
                     }
                 );
         };
 
         service.getEpisodesDownloaded = function (query) {
-            return EpisodeDownloaded.query({from: 0, length: 50})
+            return EpisodeDownloaded.getAll({from: 0, length: 50})
         };
 
-        service.getEpisodesUpcoming = function (query) {
-            return EpisodeUpcoming.query({from: 0, length: 50})
+        service.getEpisodesUnaired = function (query) {
+            return EpisodeUnaired.getAll({from: 0, length: 50})
         };
     }
 })();

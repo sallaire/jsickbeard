@@ -3,10 +3,10 @@
 
     angular
         .module('app.core')
-        .factory('TvShow', Resource);
+        .factory('TvShowConfig', Resource);
 
     /** @ngInject */
     function Resource(Resource, constant) {
-        return Resource(constant.baseURI + '/tvshow/:id', {id: '@id'});
+        return Resource(constant.baseURI + '/tvshow/config/:id', {id: '@id'});
     }
 })();
