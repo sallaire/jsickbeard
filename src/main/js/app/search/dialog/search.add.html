@@ -1,0 +1,25 @@
+<md-dialog aria-label="Mango (Fruit)"  ng-cloak>
+    <form>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>{{ctrl.metadata.name}}</h2>
+                <span flex></span>
+            </div>
+        </md-toolbar>
+        <md-dialog-content layout="row" layout-margin>
+                <img flex ng-src="{{ctrl.metadata.image}}">
+                <p ng-if="ctrl.metadata.overview" flex>{{ctrl.metadata.overview}}</p>
+        </md-dialog-content>
+        <md-dialog-actions layout="row">
+            <md-switch ng-model="ctrl.quality">
+                {{ ctrl.quality ? 'HD' : 'SD' }}
+            </md-switch>
+            <md-switch ng-model="ctrl.lang">
+                {{ ctrl.lang ? 'Français' : 'Anglais' }}
+            </md-switch>
+            <md-button ng-click="ctrl.add()">
+                Ajouter
+            </md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

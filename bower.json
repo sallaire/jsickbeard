@@ -18,7 +18,8 @@
     "angular-loading-bar": "~0.9.0",
     "angular-momentjs": "~0.2.2",
     "angular-material": "^1.0.0",
-    "angular-material-data-table" : "0.10.9"
+    "angular-material-data-table" : "0.10.9",
+    "angular-toArrayFilter" : "1.0.1"
   },
   "devDependencies": {
     "angular-mocks": ""

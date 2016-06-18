@@ -31,11 +31,11 @@
         };
 
         service.add = function (tvShowId, quality, lang) {
-            return TvShowConfig.create({id: tvShowId, quality: quality, audio: lang});
+            return TvShowConfig.create({id: tvShowId, quality: quality, audio: lang}).$promise;
         };
 
         service.delete = function (tvShowId) {
-            return TvShowConfig.delete({id: tvShowId});
+            return TvShowConfig.delete({id: tvShowId}).$promise;
         };
     }
 })();

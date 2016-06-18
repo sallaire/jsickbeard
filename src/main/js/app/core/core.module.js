@@ -13,5 +13,6 @@
             'ui.router',
             'angular-loading-bar',
             'angular-momentjs',
-            'md.data.table']);
+            'md.data.table',
+            'angular-toArrayFilter']);
 })();
