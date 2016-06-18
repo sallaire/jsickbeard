@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
-import org.sallaire.dto.user.EpisodeKey;
+import org.sallaire.dto.user.Quality;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,12 +18,18 @@ public class FileHelper {
 		private static final Logger LOGGER = LoggerFactory.getLogger(FileHelper.class);
 
 		private List<String> names;
-		private EpisodeKey episodeKey;
+		private int season;
+		private int episode;
+		private String audio;
+		private Quality quality;
 		private RegexFilterConfiguration regexFilter;
 		private boolean found = false;
 
-		public Finder(RegexFilterConfiguration regexFilter, EpisodeKey episodeKey, String... names) {
-			this.episodeKey = episodeKey;
+		public Finder(RegexFilterConfiguration regexFilter, int season, int episode, String audio, Quality quality, String... names) {
+			this.season = season;
+			this.episode = episode;
+			this.audio = audio;
+			this.quality = quality;
 			this.names = Arrays.asList(names);
 			this.regexFilter = regexFilter;
 		}
@@ -33,7 +39,7 @@ public class FileHelper {
 		boolean find(Path file) {
 			for (String name : names) {
 				String fileName = FilenameUtils.removeExtension(file.getFileName().toString());
-				if (regexFilter.matchEpisode(fileName, name, episodeKey.getSeason(), episodeKey.getNumber(), episodeKey.getQuality(), episodeKey.getLang())) {
+				if (regexFilter.matchEpisode(fileName, name, season, episode, quality, audio)) {
 					return true;
 				}
 			}

@@ -1,32 +1,35 @@
 package org.sallaire.controller;
 
-import java.util.Collection;
+import java.util.List;
 
-import org.sallaire.dto.user.EpisodeStatus;
-import org.sallaire.service.DownloadService;
+import org.sallaire.dto.admin.AdminConfig;
+import org.sallaire.dto.admin.AdminShow;
+import org.sallaire.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class AdminController {
 
 	@Autowired
-	private DownloadService downloadService;
+	private AdminService adminService;
 
-	@RequestMapping(value = "/admin/snatched", method = RequestMethod.GET)
-	public Collection<EpisodeStatus> getSnatchedEpisodes() {
-		return downloadService.getSnatchedEpisodes();
+	@GetMapping(value = "/admin/tvshows")
+	public List<AdminShow> getAllShows() {
+		return adminService.getAllShows();
 	}
 
-	@RequestMapping(value = "/admin/wanted", method = RequestMethod.GET)
-	public Collection<EpisodeStatus> getWantedEpisodes() {
-		return downloadService.getWantedEpisodes();
+	@GetMapping(value = "/admin/tvshows/{id}/config")
+	public List<AdminConfig> getAllShowConfigs(@PathVariable("id") Long id) {
+		return adminService.getAllConfigs(id);
 	}
 
-	@RequestMapping(value = "/admin/snatched", method = RequestMethod.DELETE)
-	public void deleteSnatchedEpisodes() {
-		downloadService.deleteSnatchedEpisodes();
+	@DeleteMapping(value = "/admin/episode/{id}")
+	public void deleteEpisode(@PathVariable("id") Long id) {
+		adminService.deleteEpisode(id);
 	}
+
 }

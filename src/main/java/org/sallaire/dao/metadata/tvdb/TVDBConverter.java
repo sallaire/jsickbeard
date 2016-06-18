@@ -9,9 +9,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.sallaire.dto.metadata.Episode;
+import org.sallaire.dao.db.entity.Episode;
+import org.sallaire.dao.db.entity.TvShow;
 import org.sallaire.dto.metadata.SearchResult;
-import org.sallaire.dto.metadata.TvShow;
 import org.sallaire.dto.tvdb.EpisodeInfo;
 import org.sallaire.dto.tvdb.ShowInfo;
 import org.sallaire.dto.tvdb.TVDBSearchResult;
@@ -44,7 +44,6 @@ public class TVDBConverter {
 		tvShow.setBanner(showInfo.getBanner());
 		tvShow.setPoster(showInfo.getPoster());
 		tvShow.setFanart(showInfo.getFanart());
-		tvShow.setLastUpdated(showInfo.getLastUpdated());
 		tvShow.setStatus(showInfo.getStatus());
 		if (showInfo.getFirstAired() != null) {
 			try {
@@ -69,11 +68,11 @@ public class TVDBConverter {
 		return tvShow;
 	}
 
-	public static Episode convertFromTVDB(Long showId, EpisodeInfo episodeInfo) {
+	public static Episode convertFromTVDB(TvShow tvShow, EpisodeInfo episodeInfo) {
 		Episode dbEpisode = new Episode();
 		dbEpisode.setId(episodeInfo.getId());
 		dbEpisode.setImdbId(episodeInfo.getImdbId());
-		dbEpisode.setShowId(showId);
+		dbEpisode.setTvShow(tvShow);
 		dbEpisode.setName(episodeInfo.getName());
 		dbEpisode.setSeason(episodeInfo.getSeasonNumber());
 		dbEpisode.setEpisode(episodeInfo.getEpisodeNumber());
