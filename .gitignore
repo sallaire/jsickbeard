@@ -17,3 +17,4 @@ hs_err_pid*
 /src/main/js/bower_components
 /lib
 
+/node/
