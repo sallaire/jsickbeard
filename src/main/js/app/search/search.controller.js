@@ -21,37 +21,48 @@
 
         ctrl.activate();
 
-        ctrl.add = function (ev, metadata) {
-            ctrl.showAdvanced(ev, metadata);
-        };
-
         ctrl.delete = function (metadata) {
             SearchService.delete(metadata.id)
-                .then(function() {
+                .then(function () {
                     logger.info(metadata.name + ' supprimé');
                     ctrl.activate();
-            });
+                });
         };
 
-        ctrl.showAdvanced = function (ev, metadata) {
+        ctrl.add = function (ev, metadata) {
             $mdDialog.show({
-                    controller: 'AddSearchController',
+                    controller: 'SearchAddController',
                     controllerAs: 'ctrl',
                     templateUrl: 'app/search/dialog/search.add.html',
                     targetEvent: ev,
                     clickOutsideToClose: true,
-                    bindToController : true,
-                    locals : {metadata : metadata}
+                    bindToController: true,
+                    locals: {metadata: metadata}
                 })
                 .then(function (params) {
                     SearchService.add(metadata.id, params.quality ? 'P720' : 'SD', params.lang ? 'fr' : 'en')
-                        .then(function() {
+                        .then(function () {
                             logger.info(metadata.name + ' ajouté');
                             ctrl.activate();
                         });
 
-                }, function () {
-                    $scope.status = 'You cancelled the dialog.';
+                });
+
+        };
+
+        ctrl.info = function (ev, id) {
+            $mdDialog.show({
+                    controller: 'SearchInfoController',
+                    controllerAs: 'ctrl',
+                    templateUrl: 'app/search/dialog/search.info.html',
+                    targetEvent: ev,
+                    fullscreen: true,
+                    clickOutsideToClose: true,
+                    bindToController: true,
+                    locals: {tvshowId: id}
+                })
+                .then(function (params) {
+
                 });
 
         };

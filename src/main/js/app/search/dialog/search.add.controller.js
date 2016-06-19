@@ -3,7 +3,7 @@
 
     angular
         .module('app.search')
-        .controller('AddSearchController', Controller);
+        .controller('SearchAddController', Controller);
 
     function Controller($mdDialog) {
         var ctrl = this;

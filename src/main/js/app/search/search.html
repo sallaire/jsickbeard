@@ -4,7 +4,8 @@
 <section ng-hide="ctrl.loading">
     <h1 class="md-title" style="margin-left: 1em;">Série suivie</h1>
     <md-content class="md-padding" layout-xs="column" layout="row" layout-wrap>
-        <md-card md-ink-ripple style="max-width: 200px; display:block;"
+        <md-card ng-click="ctrl.info($event, metadata.id)"
+                 md-ink-ripple style="max-width: 200px; display:block;"
                  ng-repeat="metadata in ctrl.metadatas | toArray : false | filter: {following : true}"
                  ng-click="isOpen = !isOpen"
                  ng-class="{'md-whiteframe-10dp': hover}"

@@ -34,8 +34,12 @@
             return TvShowConfig.create({id: tvShowId, quality: quality, audio: lang}).$promise;
         };
 
-        service.delete = function (tvShowId) {
-            return TvShowConfig.delete({id: tvShowId}).$promise;
+        service.delete = function (tvshowId) {
+            return TvShowConfig.delete({id: tvshowId}).$promise;
+        };
+
+        service.getTvshow = function(tvshowId) {
+            return TvShow.get({id : tvshowId});
         };
     }
 })();
