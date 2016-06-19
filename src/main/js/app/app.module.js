@@ -8,7 +8,8 @@
         'app.login',
         'app.layout',
         'app.overview',
-        'app.search'
+        'app.search',
+        'app.settings'
     ]);
 
 })();

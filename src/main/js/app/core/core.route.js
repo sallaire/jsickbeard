@@ -37,7 +37,7 @@
                     controller: 'HeaderController',
                     controllerAs: 'ctrl'
                 },
-                'menu@': {
+                'nav@': {
                     templateUrl: 'app/layout/nav.html',
                     controller: 'HeaderController',
                     controllerAs: 'ctrl'
