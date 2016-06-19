@@ -2,20 +2,20 @@
     <md-progress-circular md-mode="indeterminate" class="md-accent md-hue-1" md-diameter="100"></md-progress-circular>
 </div>
 <section ng-hide="ctrl.loading">
-    <h1 style="margin-left: 1em;">Série suivie</h1>
+    <h1 class="md-title" style="margin-left: 1em;">Série suivie</h1>
     <md-content class="md-padding" layout-xs="column" layout="row" layout-wrap>
-        <md-card md-ink-ripple style="max-width: 200px;"
+        <md-card md-ink-ripple style="max-width: 200px; display:block;"
                  ng-repeat="metadata in ctrl.metadatas | toArray : false | filter: {following : true}"
                  ng-click="isOpen = !isOpen"
                  ng-class="{'md-whiteframe-10dp': hover}"
                  ng-mouseenter="hover = true"
                  ng-mouseleave="hover = false">
-            <img ng-if="metadata.image" ng-src="{{metadata.image}}" class="md-card-image">
             <md-button ng-show="hover"
                        ng-click="ctrl.delete(metadata)"
-                       style="margin-top: -10%;margin-left: 75%;" class="md-fab md-mini">
+                       style="float:right; top: 325px;margin-top: -46px;" class="md-fab md-mini">
                 <md-icon md-font-set="material-icons">delete</md-icon>
             </md-button>
+            <img ng-if="metadata.image" ng-src="{{metadata.image}}" class="md-card-image">
             <md-card-title>
                 <md-card-title-text>
                     <span class="md-headline">{{metadata.name}}</span>
@@ -23,21 +23,22 @@
             </md-card-title>
         </md-card>
     </md-content>
-    <h1 style="margin-left: 1em;">Série trouvée</h1>
+    <h1 class="md-title" style="margin-left: 1em;">Série trouvée</h1>
     <md-content class="md-padding" layout-xs="column" layout="row" layout-wrap>
         <md-card ng-if="metadata.image"
                  md-ink-ripple
-                 style="max-width: 200px;"
+                 style="max-width: 200px; display:block;"
                  ng-repeat="metadata in ctrl.metadatas | toArray : false | filter: {following : false}"
                  ng-click="isOpen = !isOpen"
                  ng-class="{'md-whiteframe-10dp': hover}"
                  ng-mouseenter="hover = true"
                  ng-mouseleave="hover = false">
-            <img ng-src="{{metadata.image}}" class="md-card-image">
-            <md-button ng-click="ctrl.add($event, metadata)"
-                       style="margin-top: -10%;margin-left: 75%;" class="md-fab md-mini">
+            <md-button ng-show="hover"
+                       ng-click="ctrl.add($event, metadata)"
+                       style="float:right; top: 325px;margin-top: -46px;" class="md-fab md-mini">
                 <md-icon md-font-set="material-icons">add</md-icon>
             </md-button>
+            <img ng-src="{{metadata.image}}" class="md-card-image">
             <md-card-title>
                 <md-card-title-text>
                     <span class="md-headline">{{metadata.name}}</span>
