@@ -23,6 +23,9 @@
                                 var matchId = _.matcher({id: metadata.id});
                                 var tvShow = _.filter(tvShows, matchId);
                                 metadata.following = tvShow.length > 0 ? true : false;
+                                if(metadata.following) {
+                                    _.extend(metadata, tvShow[0]);
+                                }
                             }
                         );
                         return metadatas;

@@ -4,26 +4,56 @@
 <section ng-hide="ctrl.loading">
     <h1 class="md-title" style="margin-left: 1em;">Série suivie</h1>
     <md-content class="md-padding" layout-xs="column" layout="row" layout-wrap>
-        <md-card ng-click="ctrl.info($event, metadata.id)"
-                 md-ink-ripple style="max-width: 200px; display:block;"
-                 ng-repeat="metadata in ctrl.metadatas | toArray : false | filter: {following : true}"
-                 ng-click="isOpen = !isOpen"
-                 ng-class="{'md-whiteframe-10dp': hover}"
-                 ng-mouseenter="hover = true"
-                 ng-mouseleave="hover = false">
-            <md-button ng-show="hover"
-                       ng-click="ctrl.delete(metadata)"
-                       style="float:right; top: 325px;margin-top: -46px;" class="md-fab md-mini">
-                <md-icon md-font-set="material-icons">delete</md-icon>
-            </md-button>
-            <img ng-if="metadata.image" ng-src="{{metadata.image}}" class="md-card-image">
-            <md-card-title>
-                <md-card-title-text>
-                    <span class="md-headline">{{metadata.name}}</span>
-                </md-card-title-text>
-            </md-card-title>
-        </md-card>
+        <div class="expand-cards" ui-view>
+            <!-- FOLLOW TVSHOW -->
+            <md-item ng-repeat="metadata in ctrl.metadatas | toArray : false | filter: {following : true}"
+                     class="item"
+                     ng-class="{ 'selected-item': ctrl.isSelect(metadata.id)}">
+                <md-item-content class="card tile md-whiteframe-1dp"
+                                 ng-class="{ 'selected md-whiteframe-3dp': ctrl.isSelect(metadata.id) }"
+                                 layout="column">
+                    <div layout="row" md-ink-ripple layout-fill
+                         ng-mouseover="hover = true "
+                         ng-mouseleave="hover = false"
+                         ng-class="{'md-whiteframe-2dp' : hover && !ctrl.isSelect(metadata.id)}"
+                         ng-click="ctrl.selectCardIndex(metadata)" class="folded">
+
+                        <div class="md-tile-content" layout="column" layout-align="center start">
+                            <h4>
+                                <md-icon class="md-light" md-font-set="material-icons">
+                                    crop_free
+                                </md-icon>
+                                {{metadata.name}}
+                            </h4>
+                        </div>
+                    </div>
+                    <md-divider layout-fill></md-divider>
+                    <div class="expanded" layout-xs="column" layout-sm="column" layout="row" layout-fill>
+                        <md-content style="height: 400px;">
+                            <section>
+                                <md-list class="md-dense" flex>
+                                    <md-subheader  class="md-primary">Saison {{metadata.lastSeason}}</md-subheader>
+                                    <md-list-item class="md-3-line md-long-text"
+                                                  ng-repeat="episode in metadata.episodes | filter: {season : 1}">
+                                        <md-icon class="md-light" md-font-set="material-icons">
+                                            crop_free
+                                        </md-icon>
+                                        <div class="md-list-item-text" layout="column">
+                                            <h3>{{ episode.name }}</h3>
+                                            <p>{{ episode.description}}</p>
+                                        </div>
+                                        <md-divider></md-divider>
+                                    </md-list-item>
+
+                                </md-list>
+                            </section>
+                        </md-content>
+                    </div>
+                </md-item-content>
+            </md-item>
+        </div>
     </md-content>
+    <!-- SEARCH TVSHOW -->
     <h1 class="md-title" style="margin-left: 1em;">Série trouvée</h1>
     <md-content class="md-padding" layout-xs="column" layout="row" layout-wrap>
         <md-card ng-if="metadata.image"

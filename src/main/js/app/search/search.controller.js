@@ -6,10 +6,30 @@
         .controller('SearchController', Controller);
 
     /** @ngInject */
-    function Controller(SearchService, $stateParams, logger, $mdDialog) {
+    function Controller(SearchService, _, $stateParams, logger, $mdDialog) {
         var ctrl = this;
         ctrl.loading = true;
         ctrl.metadatas = {};
+
+        // expandCard.
+        ctrl.selectedCardIndex = [0];
+        ctrl.selectCardIndex = function (tvshow) {
+            var index = tvshow.id;
+
+            if (_.contains(ctrl.selectedCardIndex, index)) {
+                ctrl.selectedCardIndex = _.without(ctrl.selectedCardIndex, index);
+            } else {
+                ctrl.selectedCardIndex.push(index);
+                if (tvshow.episodes && tvshow.episodes.length < 1) {
+                    ctrl.info(tvshow);
+                }
+            }
+        };
+
+        ctrl.isSelect = function (index) {
+            return _.contains(ctrl.selectedCardIndex, index);
+        };
+
 
         ctrl.activate = function () {
             ctrl.loading = true;
@@ -50,7 +70,7 @@
 
         };
 
-        ctrl.info = function (ev, id) {
+        ctrl.info2 = function (ev, id) {
             $mdDialog.show({
                     controller: 'SearchInfoController',
                     controllerAs: 'ctrl',
@@ -66,5 +86,14 @@
                 });
 
         };
+
+        ctrl.info = function (tvshow) {
+            SearchService.getTvshow(tvshow.id).$promise
+                .then(function (_tvshow) {
+                    tvshow.episodes = _tvshow.episodes;
+                    tvshow.lastSeason = _.max(_tvshow.episodes, function(episode){ return episode.season; }).season;
+                });
+        };
+
     }
 })();

@@ -1,16 +1,23 @@
-.inputSearch input {
-    border : none;
-    outline: none;
-}
-
 .expand-cards-content {
     background-color: #F2F2F2;
 }
 .expand-cards {
-    padding: 1% 1% 0 1%;
+    padding: 0 1% 0 1%;
 }
 .expand-cards .folded.md-ink-ripple {
     position: relative;
+}
+.expand-cards .item .md-tile-content h4 md-icon {
+    color: #dc1029;
+    font-size: 30px;
+    height: 30px;
+    width: 30px;
+    margin-top: -3px;
+    margin-right: 15px;
+}
+.expand-cards .item .md-tile-content h4 md-icon.zmdi {
+    margin-left: 5px;
+    margin-right: 11px;
 }
 .selected-item ~ .expand-cards .item .user,
 .expand-cards .item:first-child .user {
@@ -37,8 +44,9 @@
 .expand-cards .item .card h4 {
     margin: 0.8em 1.5em;
     font-weight: lighter;
+    color: #303030;
 }
-.expand-cards .item .card s h4,
+.expand-cards .item .card h4,
 .expand-cards .item .card p {
     transition: all 200ms;
 }
@@ -56,11 +64,10 @@
 }
 .expand-cards .item .card.selected .expanded {
     visibility: visible;
-    padding: 1%;
 }
 .expand-cards .item .card.selected .expanded,
 .expand-cards .item .card.selected .expanded > * {
-    max-height: 700px;
+    max-height: 3000px;
     opacity: 1;
 }
 .expand-cards .item .card.selected .expanded .md-label {
