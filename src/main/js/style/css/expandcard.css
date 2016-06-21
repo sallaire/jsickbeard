@@ -3,6 +3,7 @@
 }
 .expand-cards {
     padding: 0 1% 0 1%;
+    width :100%;
 }
 .expand-cards .folded.md-ink-ripple {
     position: relative;

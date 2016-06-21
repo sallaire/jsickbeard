@@ -90,10 +90,12 @@
         ctrl.info = function (tvshow) {
             SearchService.getTvshow(tvshow.id).$promise
                 .then(function (_tvshow) {
+
                     tvshow.episodes = _tvshow.episodes;
-                    tvshow.lastSeason = _.max(_tvshow.episodes, function(episode){ return episode.season; }).season;
+                    tvshow.seasons = new Array(_.max(_tvshow.episodes, function (episode) {
+                        return episode.season;
+                    }).season);
                 });
         };
-
     }
 })();
