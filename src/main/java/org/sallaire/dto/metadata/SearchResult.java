@@ -9,6 +9,7 @@ public class SearchResult {
 	private String image;
 	private String firstAired;
 	private List<String> countries;
+	private boolean isFollowed;
 
 	public Long getId() {
 		return id;
@@ -56,6 +57,14 @@ public class SearchResult {
 
 	public void setImage(String image) {
 		this.image = image;
+	}
+
+	public boolean isFollowed() {
+		return isFollowed;
+	}
+
+	public void setFollowed(boolean isFollowed) {
+		this.isFollowed = isFollowed;
 	}
 
 }

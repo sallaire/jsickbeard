@@ -18,7 +18,7 @@ import org.sallaire.dao.db.entity.EpisodeStatus;
 import org.sallaire.dao.db.entity.TvShow;
 import org.sallaire.dao.db.entity.TvShowConfiguration;
 import org.sallaire.dao.metadata.IMetaDataDao;
-import org.sallaire.dto.api.FullShow;
+import org.sallaire.dto.api.ShowDto;
 import org.sallaire.dto.metadata.SearchResult;
 import org.sallaire.dto.user.Status;
 import org.sallaire.dto.user.UserDto;
@@ -118,9 +118,20 @@ public class TvShowService {
 
 	}
 
-	public List<SearchResult> search(String name, String lang) {
+	public List<SearchResult> search(UserDto user, String name, String lang) {
 		try {
 			return metaDataDao.searchForShows(name, lang);
+		} catch (DaoException e) {
+			LOGGER.error("Unable to find results for show {}", name, e);
+		}
+		return null;
+	}
+
+	public List<ShowDto> find(UserDto user, String name, String lang) {
+		try {
+			List<SearchResult> results = metaDataDao.searchForShows(name, lang);
+			Collection<String> userShows = tvShowDao.findByConfigurationsFollowersId(user.getId()).stream().map(TvShow::getName).collect(Collectors.toList());
+			return results.stream().map(sr -> new ShowDto(sr, userShows.contains(sr.getName()))).collect(Collectors.toList());
 		} catch (DaoException e) {
 			LOGGER.error("Unable to find results for show {}", name, e);
 		}
@@ -135,9 +146,9 @@ public class TvShowService {
 		}
 	}
 
-	public Collection<FullShow> getShowsForUser(UserDto user) {
+	public Collection<ShowDto> getShowsForUser(UserDto user) {
 		Collection<TvShow> tvShows = tvShowDao.findByConfigurationsFollowersId(user.getId());
-		return tvShows.stream().map(s -> new FullShow(s, null)).collect(Collectors.toList());
+		return tvShows.stream().map(s -> new ShowDto(s, null)).collect(Collectors.toList());
 	}
 
 	public Collection<TvShow> getActiveShows() {

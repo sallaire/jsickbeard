@@ -1,10 +1,12 @@
 package org.sallaire.controller;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import org.sallaire.controller.conf.CurrentUser;
-import org.sallaire.dto.api.FullShow;
+import org.sallaire.dto.api.EpisodeDto;
+import org.sallaire.dto.api.ShowDto;
 import org.sallaire.dto.api.TvShowConfigurationParam;
 import org.sallaire.dto.user.UserDto;
 import org.sallaire.service.TvShowConfigurationService;
@@ -41,8 +43,8 @@ public class TvShowController {
 	}
 
 	@GetMapping("/tvshow/{id}")
-	public ResponseEntity<FullShow> getFullShow(@PathVariable("id") Long id, @CurrentUser UserDto currentUser, @RequestParam(name = "fields", required = false) List<String> fields) {
-		FullShow result = tvShowConfigurationService.getFullShow(id, currentUser, fields);
+	public ResponseEntity<ShowDto> getFullShow(@PathVariable("id") Long id, @CurrentUser UserDto currentUser, @RequestParam(name = "fields", required = false) List<String> fields) {
+		ShowDto result = tvShowConfigurationService.getShow(id, currentUser, fields);
 		if (result != null) {
 			return ResponseEntity.ok(result);
 		} else {
@@ -56,8 +58,32 @@ public class TvShowController {
 	}
 
 	@GetMapping("/tvshow")
-	public Collection<FullShow> getShows(@CurrentUser UserDto currentUser) {
+	public Collection<ShowDto> getShows(@CurrentUser UserDto currentUser) {
 		return tvShowService.getShowsForUser(currentUser);
 	}
 
+	@GetMapping("/tvshows")
+	public Collection<ShowDto> findShows(@CurrentUser UserDto currentUser, @RequestParam("name") String name, @RequestParam("lang") String lang) {
+		return tvShowService.find(currentUser, name, lang);
+	}
+
+	@GetMapping("/tvshows/{id}")
+	public ResponseEntity<ShowDto> getShow(@CurrentUser UserDto currentUser, @PathVariable("id") Long id) {
+		ShowDto result = tvShowConfigurationService.getShow(id, currentUser, Arrays.asList("tvshow", "config"));
+		if (result != null) {
+			return ResponseEntity.ok(result);
+		} else {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+		}
+	}
+
+	@GetMapping("/tvshows/{id}/season/{season}")
+	public List<EpisodeDto> getSeason(@CurrentUser UserDto currentUser, @PathVariable("id") Long id, @PathVariable("season") Integer season) {
+		return tvShowConfigurationService.getSeason(currentUser, id, season);
+	}
+
+	@GetMapping("/tvshows/{id}/season/{season}/episode/{episode}")
+	public EpisodeDto getEpisode(@CurrentUser UserDto currentUser, @PathVariable("id") Long id, @PathVariable("season") Integer season, @PathVariable("episode") Integer episode) {
+		return tvShowConfigurationService.getEpisode(currentUser, id, season, episode);
+	}
 }

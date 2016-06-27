@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.sallaire.dao.db.EpisodeStatusRepository;
 import org.sallaire.dao.db.entity.EpisodeStatus;
-import org.sallaire.dto.api.FullEpisode;
+import org.sallaire.dto.api.EpisodeDto;
 import org.sallaire.dto.api.UpdateEpisodeStatusParam;
 import org.sallaire.dto.user.Status;
 import org.sallaire.dto.user.UserDto;
@@ -52,7 +52,7 @@ public class EpisodeService {
 		}
 	}
 
-	public Collection<FullEpisode> getEpisodesForStatus(UserDto user, Status status, int from, int length) {
+	public Collection<EpisodeDto> getEpisodesForStatus(UserDto user, Status status, int from, int length) {
 		Collection<EpisodeStatus> episodes = episodeStatusDao.findByStatusAndShowConfigurationFollowersId(status, user.getId());
 		if (CollectionUtils.isNotEmpty(episodes)) {
 			Comparator<EpisodeStatus> comparator = null;

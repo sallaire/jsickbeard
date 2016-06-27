@@ -27,6 +27,8 @@ public class TvShow {
 	private String description;
 	@ElementCollection
 	private List<String> network;
+	@ElementCollection
+	private List<String> countries;
 	private String genre;
 	private Integer runtime;
 	private DayOfWeek airDay;
@@ -38,6 +40,8 @@ public class TvShow {
 	private String poster;
 	@ElementCollection
 	private List<String> customNames;
+	private Integer nbSeasons;
+	private Integer nbEpisodes;
 
 	@OneToMany(mappedBy = "tvShow", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<TvShowConfiguration> configurations;
@@ -206,6 +210,14 @@ public class TvShow {
 		episodes.add(episode);
 	}
 
+	public List<String> getCountries() {
+		return countries;
+	}
+
+	public void setCountries(List<String> countries) {
+		this.countries = countries;
+	}
+
 	public void fromShow(TvShow other) {
 		this.airDay = other.airDay;
 		this.airTime = other.airTime;
@@ -222,5 +234,24 @@ public class TvShow {
 		this.poster = other.poster;
 		this.runtime = other.runtime;
 		this.status = other.status;
+		this.countries = other.countries;
+		this.nbSeasons = other.nbSeasons;
+		this.nbEpisodes = other.nbEpisodes;
+	}
+
+	public Integer getNbSeasons() {
+		return nbSeasons;
+	}
+
+	public void setNbSeasons(Integer nbSeasons) {
+		this.nbSeasons = nbSeasons;
+	}
+
+	public Integer getNbEpisodes() {
+		return nbEpisodes;
+	}
+
+	public void setNbEpisodes(Integer nbEpisodes) {
+		this.nbEpisodes = nbEpisodes;
 	}
 }

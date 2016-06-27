@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.sallaire.controller.conf.CurrentUser;
-import org.sallaire.dto.api.FullEpisode;
+import org.sallaire.dto.api.EpisodeDto;
 import org.sallaire.dto.api.UpdateEpisodeStatusParam;
 import org.sallaire.dto.user.Status;
 import org.sallaire.dto.user.UserDto;
@@ -49,7 +49,7 @@ public class EpisodeController {
 
 	//
 	@GetMapping(value = "/episode")
-	public Collection<FullEpisode> getEpisodesForStatus(@CurrentUser UserDto currentUser, @RequestParam("status") Status status, @RequestParam("from") int from, @RequestParam("length") int length) {
+	public Collection<EpisodeDto> getEpisodesForStatus(@CurrentUser UserDto currentUser, @RequestParam("status") Status status, @RequestParam("from") int from, @RequestParam("length") int length) {
 		return episodeService.getEpisodesForStatus(currentUser, status, from, length);
 	}
 
