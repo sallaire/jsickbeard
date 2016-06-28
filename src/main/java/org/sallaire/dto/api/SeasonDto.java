@@ -10,7 +10,7 @@ import org.sallaire.dao.db.entity.TvShow;
 import org.sallaire.dao.db.entity.TvShowConfiguration;
 import org.sallaire.dto.user.Quality;
 
-public class FullShow {
+public class SeasonDto {
 
 	private Long id;
 	private String imdbId;
@@ -28,16 +28,16 @@ public class FullShow {
 	private String banner;
 	private String fanart;
 	private String poster;
-	private List<FullEpisode> episodes;
+	private List<EpisodeDto> episodes;
 	private Quality quality;
 	private String audioLang;
 	private List<String> customNames;
 
-	public FullShow() {
+	public SeasonDto() {
 
 	}
 
-	public FullShow(TvShow tvShow, TvShowConfiguration tvShowConfig) {
+	public SeasonDto(TvShow tvShow, TvShowConfiguration tvShowConfig) {
 		if (tvShowConfig != null) {
 			this.quality = tvShowConfig.getQuality();
 			this.audioLang = tvShowConfig.getAudioLang();
@@ -61,11 +61,11 @@ public class FullShow {
 		this.episodes = new ArrayList<>(tvShow.getEpisodes().size());
 	}
 
-	public List<FullEpisode> getEpisodes() {
+	public List<EpisodeDto> getEpisodes() {
 		return episodes;
 	}
 
-	public void setEpisodes(List<FullEpisode> episodes) {
+	public void setEpisodes(List<EpisodeDto> episodes) {
 		this.episodes = episodes;
 	}
 

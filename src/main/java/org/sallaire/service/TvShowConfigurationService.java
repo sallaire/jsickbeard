@@ -2,15 +2,19 @@ package org.sallaire.service;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sallaire.JackBeardConstants;
+import org.sallaire.dao.db.EpisodeRepository;
 import org.sallaire.dao.db.TvShowConfigurationRepository;
 import org.sallaire.dao.db.UserRepository;
+import org.sallaire.dao.db.entity.Episode;
 import org.sallaire.dao.db.entity.TvShow;
 import org.sallaire.dao.db.entity.TvShowConfiguration;
 import org.sallaire.dao.db.entity.User;
-import org.sallaire.dto.api.FullShow;
+import org.sallaire.dto.api.EpisodeDto;
+import org.sallaire.dto.api.ShowDto;
 import org.sallaire.dto.api.TvShowConfigurationParam;
 import org.sallaire.dto.user.Quality;
 import org.sallaire.dto.user.UserDto;
@@ -28,6 +32,9 @@ public class TvShowConfigurationService {
 
 	@Autowired
 	private TvShowConfigurationRepository tvShowConfigDao;
+
+	@Autowired
+	private EpisodeRepository episodeDao;
 
 	@Autowired
 	private UserRepository userDao;
@@ -86,12 +93,31 @@ public class TvShowConfigurationService {
 		return tvShowConfigDao.save(newConfig);
 	}
 
-	public FullShow getFullShow(Long showId, UserDto user, List<String> fields) {
+	public ShowDto getShow(Long showId, UserDto user, List<String> fields) {
 		TvShowConfiguration tvShowConfig = tvShowConfigDao.findByTvShowIdAndFollowersName(showId, user.getName());
 		if (tvShowConfig == null) {
 			return null;
 		} else {
 			return TvShowConverter.convertFromShowConfiguration(tvShowConfig, fields);
+		}
+	}
+
+	public List<EpisodeDto> getSeason(UserDto user, Long showId, Integer season) {
+		TvShowConfiguration tvShowConfig = tvShowConfigDao.findByTvShowIdAndFollowersName(showId, user.getName());
+		if (tvShowConfig == null) {
+			return null;
+		} else {
+			List<Episode> seasonEpisode = episodeDao.findByTvShowIdAndSeasonOrderByEpisode(showId, season);
+			return seasonEpisode.stream().map(e -> TvShowConverter.convertEpisode(e, tvShowConfig)).collect(Collectors.toList());
+		}
+	}
+
+	public EpisodeDto getEpisode(UserDto user, Long showId, Integer season, Integer episode) {
+		TvShowConfiguration tvShowConfig = tvShowConfigDao.findByTvShowIdAndFollowersName(showId, user.getName());
+		if (tvShowConfig == null) {
+			return null;
+		} else {
+			return TvShowConverter.convertEpisode(episodeDao.findByTvShowIdAndSeasonAndEpisode(showId, season, episode), tvShowConfig);
 		}
 	}
 

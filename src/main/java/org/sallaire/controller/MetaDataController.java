@@ -2,7 +2,9 @@ package org.sallaire.controller;
 
 import java.util.Collection;
 
+import org.sallaire.controller.conf.CurrentUser;
 import org.sallaire.dto.metadata.SearchResult;
+import org.sallaire.dto.user.UserDto;
 import org.sallaire.service.TvShowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,8 +23,8 @@ public class MetaDataController {
 	// }
 	//
 	@GetMapping(value = "/metadata/tvshow")
-	public Collection<SearchResult> searchShow(@RequestParam("name") String name, @RequestParam("lang") String lang) {
-		return showService.search(name, lang);
+	public Collection<SearchResult> searchShow(@CurrentUser UserDto currentUser, @RequestParam("name") String name, @RequestParam("lang") String lang) {
+		return showService.search(currentUser, name, lang);
 	}
 	//
 	// @RequestMapping(value = "/metadata/tvshow/{id}", method = RequestMethod.GET)

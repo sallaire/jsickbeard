@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.sallaire.dto.user.Status;
 
-public class FullEpisode implements Serializable {
+public class EpisodeDto implements Serializable {
 
 	private static final long serialVersionUID = 7719353467335332550L;
 
@@ -25,7 +25,7 @@ public class FullEpisode implements Serializable {
 
 	private LocalDateTime downloadDate;
 
-	public FullEpisode() {
+	public EpisodeDto() {
 	}
 
 	public String getShowName() {

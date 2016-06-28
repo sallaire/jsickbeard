@@ -39,6 +39,8 @@ public class TMDBConverter {
 		TvShow result = new TvShow();
 		result.setId(new Long(tvSeries.getId()));
 		result.setDescription(tvSeries.getOverview());
+		result.setNbSeasons(tvSeries.getNumberOfSeasons());
+		result.setNbEpisodes(tvSeries.getNumberOfEpisodes());
 		result.setImdbId(tvSeries.getExternalIds().getImdbId());
 		if (tvSeries.getFirstAirDate() != null) {
 			try {
@@ -55,6 +57,7 @@ public class TMDBConverter {
 		result.setNetwork(tvSeries.getNetworks().stream().map(n -> n.getName()).collect(Collectors.toList()));
 		result.setRuntime(tvSeries.getEpisodeRuntime().stream().findFirst().orElse(null));
 		// TODO genre
+		result.setCountries(tvSeries.getOriginCountry());
 		result.setPoster(tvSeries.getPosterPath());
 		result.setBanner(tvSeries.getBackdropPath());
 		result.setStatus(tvSeries.getStatus());

@@ -37,6 +37,9 @@ public class WantedShowProcessor {
 	@Autowired
 	private DownloadService downloadService;
 
+	@Autowired
+	private SnatchedShowProcessor snatchedShowProcessor;
+
 	@Scheduled(cron = "0 0 * * * *")
 	public void process() {
 		Collection<EpisodeStatus> episodes = episodeStatusDao.findByStatus(Status.WANTED);
@@ -64,7 +67,7 @@ public class WantedShowProcessor {
 		}
 	}
 
-	public boolean searchAndGetEpisode(EpisodeStatus episode) {
+	private boolean searchAndGetEpisode(EpisodeStatus episode) {
 		TvShowConfiguration config = episode.getShowConfiguration();
 		TvShow show = config.getTvShow();
 		Torrent torrent = null;
@@ -99,6 +102,7 @@ public class WantedShowProcessor {
 					episode.getDownloadedFiles().add(torrentToDownload.getName());
 					episode.setDownloadDate(LocalDateTime.now());
 					episodeStatusDao.save(episode);
+					snatchedShowProcessor.episodeSnatched(episode);
 					return true;
 				} catch (IOException e) {
 					LOGGER.error("Unable to send torrent to client", e);

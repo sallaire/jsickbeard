@@ -7,13 +7,13 @@ import java.util.List;
 import org.sallaire.dao.db.entity.Episode;
 import org.sallaire.dao.db.entity.EpisodeStatus;
 import org.sallaire.dao.db.entity.TvShowConfiguration;
-import org.sallaire.dto.api.FullEpisode;
-import org.sallaire.dto.api.FullShow;
+import org.sallaire.dto.api.EpisodeDto;
+import org.sallaire.dto.api.ShowDto;
 
 public class TvShowConverter {
 
-	public static FullShow convertFromShowConfiguration(TvShowConfiguration tvShowConfig, List<String> fields) {
-		FullShow result = new FullShow();
+	public static ShowDto convertFromShowConfiguration(TvShowConfiguration tvShowConfig, List<String> fields) {
+		ShowDto result = new ShowDto();
 		if (fields == null || fields.contains("config")) {
 			result.setQuality(tvShowConfig.getQuality());
 			result.setAudioLang(tvShowConfig.getAudioLang());
@@ -36,20 +36,28 @@ public class TvShowConverter {
 			result.setFanart(tvShowConfig.getTvShow().getFanart());
 			result.setPoster(tvShowConfig.getTvShow().getPoster());
 			result.setCustomNames(tvShowConfig.getTvShow().getCustomNames());
+			result.setNbSeasons(tvShowConfig.getTvShow().getNbSeasons());
+			result.setNbEpisodes(tvShowConfig.getTvShow().getNbEpisodes());
 		}
 		if (fields == null || fields.contains("episodes")) {
-			result.setEpisodes(new ArrayList<>(tvShowConfig.getTvShow().getEpisodes().size()));
+
 			for (Episode episode : tvShowConfig.getTvShow().getEpisodes()) {
-				result.getEpisodes().add(convertEpisode(episode, tvShowConfig));
+				if (result.getEpisodes().get(episode.getSeason()) == null) {
+					result.getEpisodes().put(episode.getSeason(), new ArrayList<>());
+				}
+				result.getEpisodes().get(episode.getSeason()).add(convertEpisode(episode, tvShowConfig));
 			}
-			result.getEpisodes().sort(Comparator.comparing(FullEpisode::getSeason).thenComparing(FullEpisode::getNumber));
+
+			for (List<EpisodeDto> episodes : result.getEpisodes().values()) {
+				episodes.sort(Comparator.comparing(EpisodeDto::getNumber));
+			}
 		}
 
 		return result;
 	}
 
-	public static FullEpisode convertEpisode(EpisodeStatus episodeStatus) {
-		FullEpisode result = new FullEpisode();
+	public static EpisodeDto convertEpisode(EpisodeStatus episodeStatus) {
+		EpisodeDto result = new EpisodeDto();
 		Episode episode = episodeStatus.getEpisode();
 		result.setAirDate(episode.getAirDate());
 		result.setDescription(episode.getDescription());
@@ -68,7 +76,7 @@ public class TvShowConverter {
 		return result;
 	}
 
-	public static FullEpisode convertEpisode(Episode episode, TvShowConfiguration tvShowConfig) {
+	public static EpisodeDto convertEpisode(Episode episode, TvShowConfiguration tvShowConfig) {
 		EpisodeStatus episodeStatus = episode.getStatus().stream().filter(s -> s.getShowConfiguration().getId().equals(tvShowConfig.getId())).findFirst().get();
 		return convertEpisode(episodeStatus);
 	}
