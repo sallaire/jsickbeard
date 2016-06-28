@@ -97,5 +97,67 @@
                     }).season);
                 });
         };
+
+        ctrl.isCheckedSeason = function (metadataId, seasonNumber) {
+            var isChecked = false;
+            _.each(ctrl.metadatas, function (metadata) {
+                if (metadata.id === metadataId) {
+                    if (_.isUndefined(metadata.seasons)) {
+                        metadata.seasons = [];
+                        isChecked = false;
+                    } else {
+                        isChecked = _.isUndefined(metadata.seasons[seasonNumber].isChecked) ? false : episode.isChecked;
+                    }
+                }
+            });
+
+            return isChecked;
+        };
+
+        ctrl.isIndeterminateSeason = function (metadataId, seasonNumber) {
+
+        };
+
+        ctrl.toggleSeason = function (metadataId, seasonNumber) {
+            var isChecked = false;
+            _.each(ctrl.metadatas, function (metadata) {
+                if (metadata.id === metadataId) {
+                    _.each(metadata.episodes, function (episode) {
+                        if (episode.season === seasonNumber) {
+                            isChecked = episode.isChecked = _.isUndefined(episode.isChecked) ? true : !episode.isChecked;
+                        }
+                    });
+                }
+            });
+            return isChecked;
+        };
+
+        ctrl.isCheckedEpisode = function (metadataId, seasonNumber, episodeNumber) {
+            var isChecked = false;
+            _.each(ctrl.metadatas, function (metadata) {
+                if (metadata.id === metadataId) {
+                    _.each(metadata.episodes, function (episode) {
+                        if (episode.number === episodeNumber && episode.season === seasonNumber) {
+                            isChecked = _.isUndefined(episode.isChecked) ? false : episode.isChecked;
+                        }
+                    });
+                }
+            });
+            return isChecked;
+        };
+
+        ctrl.toggleEpisode = function (metadataId, seasonNumber, episodeNumber) {
+            var isChecked = false;
+            _.each(ctrl.metadatas, function (metadata) {
+                if (metadata.id === metadataId) {
+                    _.each(metadata.episodes, function (episode) {
+                        if (episode.number === episodeNumber && episode.season === seasonNumber) {
+                            isChecked = episode.isChecked = _.isUndefined(episode.isChecked) ? true : !episode.isChecked;
+                        }
+                    });
+                }
+            });
+            return isChecked;
+        };
     }
 })();
