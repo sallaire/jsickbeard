@@ -35,7 +35,7 @@ function browserSyncInit(baseDir, browser, proxyServer) {
    * For more details and option, https://github.com/chimurai/http-proxy-middleware/blob/v0.9.0/README.md
    */
    server.middleware = [];
-   server.middleware.push(proxyMiddleware('/api', {target: proxyServer ? proxyServer : 'http://localhost:3010', changeOrigin: true}));
+   server.middleware.push(proxyMiddleware('/api', {target: proxyServer ? proxyServer : 'http://localhost:8080/', changeOrigin: true}));
    
 
   browserSync.instance = browserSync.init({
