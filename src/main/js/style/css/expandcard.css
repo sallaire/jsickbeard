@@ -36,6 +36,7 @@
 .expand-cards .item .tile .folded {
     cursor: pointer;
     outline: 0;
+    background-color: white;
 }
 .expand-cards .item .card {
     background-color: white;

@@ -9,7 +9,7 @@
     function Controller($rootScope, _, $stateParams, $state, $mdSidenav) {
         var ctrl = this;
         $rootScope.$state = $state;
-        ctrl.searchTvShow = $stateParams.text;
+        ctrl.searchTvshow = $stateParams.text;
         ctrl.theme = 'overview';
 
         ctrl.activate = function () {
@@ -24,13 +24,13 @@
         ctrl.return = function () {
             $state.go('overview');
             ctrl.theme = 'overview';
-            ctrl.searchTvShow = '';
+            ctrl.searchTvshow = '';
         };
 
         ctrl.emitSearch = function () {
-            if (!_.isEmpty(ctrl.searchTvShow)) {
+            if (!_.isEmpty(ctrl.searchTvshow)) {
                 ctrl.theme = 'search';
-                $state.go('search', {lang: 'fr', text: ctrl.searchTvShow});
+                $state.go('search', {lang: 'fr', text: ctrl.searchTvshow});
             } else {
                 $state.go('overview');
                 ctrl.theme = 'overview';

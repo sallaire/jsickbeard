@@ -9,6 +9,7 @@
         'app.layout',
         'app.overview',
         'app.search',
+        'app.tvshow',
         'app.settings'
     ]);
 

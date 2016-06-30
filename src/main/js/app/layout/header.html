@@ -21,12 +21,19 @@
         <div layout>Retour</div>
     </div>
 
+    <div flex="20" ng-if="$state.includes('tvshow')" layout layout-align="start center">
+        <md-button class="md-icon-button" ng-click="ctrl.return()">
+            <md-icon md-font-set="material-icons">arrow_back</md-icon>
+        </md-button>
+        <div layout>Retour</div>
+    </div>
+
     <div flex="60" ng-class="{'md-bg-primary-hue-3': hover, 'md-bg-primary-hue-1': !hover}"
          ng-mouseenter="hover = true"
          ng-mouseleave="hover = false" class="header-search" layout layout-align="start center">
         <md-icon md-font-set="material-icons">search</md-icon>
         <input flex="95"
-               ng-model="ctrl.searchTvShow"
+               ng-model="ctrl.searchTvshow"
                ng-change="ctrl.emitSearch()"
                ng-model-options='{ debounce: 250 }'
                type="text" placeholder="Rechercher">

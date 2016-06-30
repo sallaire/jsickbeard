@@ -5,26 +5,26 @@
         .service('SearchService', Service);
 
     /** @ngInject */
-    function Service($q, _, Metadata, TvShow, TvShowConfig) {
+    function Service($q, _, Metadata, Tvshow, TvshowConfig) {
         var service = this;
 
-        service.search = function (lang, titleTvShow) {
+        service.search = function (lang, titleTvshow) {
 
             var episodes = [
-                Metadata.getAll({name: titleTvShow, lang: lang}).$promise,
-                TvShow.getAll().$promise
+                Metadata.getAll({name: titleTvshow, lang: lang}).$promise,
+                Tvshow.getAll().$promise
             ];
 
             return $q.all(episodes)
                 .then(function (episodes) {
                         var metadatas = episodes[0];
-                        var tvShows = episodes[1];
+                        var tvshows = episodes[1];
                         _.each(metadatas, function (metadata) {
                                 var matchId = _.matcher({id: metadata.id});
-                                var tvShow = _.filter(tvShows, matchId);
-                                metadata.following = tvShow.length > 0 ? true : false;
+                                var tvshow = _.filter(tvshows, matchId);
+                                metadata.following = tvshow.length > 0 ? true : false;
                                 if(metadata.following) {
-                                    _.extend(metadata, tvShow[0]);
+                                    _.extend(metadata, tvshow[0]);
                                 }
                             }
                         );
@@ -33,16 +33,16 @@
                 );
         };
 
-        service.add = function (tvShowId, quality, lang) {
-            return TvShowConfig.create({id: tvShowId, quality: quality, audio: lang}).$promise;
+        service.add = function (tvshowId, quality, lang) {
+            return TvshowConfig.create({id: tvshowId, quality: quality, audio: lang}).$promise;
         };
 
         service.delete = function (tvshowId) {
-            return TvShowConfig.delete({id: tvshowId}).$promise;
+            return TvshowConfig.delete({id: tvshowId}).$promise;
         };
 
         service.getTvshow = function(tvshowId) {
-            return TvShow.get({id : tvshowId});
+            return Tvshow.get({id : tvshowId});
         };
     }
 })();

@@ -3,7 +3,7 @@
 
     angular
         .module('app.core')
-        .factory('TvShowConfig', Resource);
+        .factory('TvshowConfig', Resource);
 
     /** @ngInject */
     function Resource(Resource, constant) {

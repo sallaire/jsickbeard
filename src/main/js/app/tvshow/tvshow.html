@@ -1,0 +1,45 @@
+<div style="margin-top:25%;" ng-show="ctrl.loading" layout="row" layout-sm="column" layout-align="space-around">
+    <md-progress-circular md-mode="indeterminate" class="md-accent md-hue-1" md-diameter="100"></md-progress-circular>
+</div>
+<section ng-hide="ctrl.loading">
+    <md-content class="md-padding" layout-xs="column" layout="row" layout-wrap layout-fill>
+        <img src="http://image.tmdb.org/t/p/w342{{ctrl.tvshow.banner}}"
+             style="position: fixed; top:0; right:0; width : 100%; height:auto;">
+        <div class="expand-cards" style="padding-top: 20%">
+            <!-- Season of tvshow -->
+            <md-item ng-repeat="episodes in ctrl.tvshow.episodes"
+                     class="item"
+                     ng-class="{ 'selected-item': ctrl.isSelect($index+1)}">
+                <md-item-content class="card tile md-whiteframe-1dp"
+                                 ng-class="{ 'selected md-whiteframe-3dp': ctrl.isSelect($index +1) }"
+                                 layout="column">
+                    <div layout="row" md-ink-ripple layout-fill
+                         ng-mouseover="hover = true "
+                         ng-mouseleave="hover = false"
+                         ng-class="{'md-whiteframe-2dp' : hover && !ctrl.isSelect($index+1)}"
+                         ng-click="ctrl.selectCardIndex($index+1)" class="folded">
+
+                        <div class="md-tile-content" layout="column" layout-align="center start">
+                            <h4>Saison {{$index+1}}</h4>
+                        </div>
+                    </div>
+                    <md-divider layout-fill></md-divider>
+                    <div class="expanded" layout-xs="column" layout-sm="column" layout="row" layout-fill>
+                        <md-content>
+                            <md-list flex>
+                                <md-list-item class="md-3-line md-long-text"
+                                              ng-repeat="episode in episodes">
+                                    <div class="md-list-item-text" layout="column">
+                                        <h3>{{ episode.name }}</h3>
+                                        <p>{{ episode.description }}</p>
+                                    </div>
+                                    <md-divider ng-if="!$last"></md-divider>
+                                </md-list-item>
+                            </md-list>
+                        </md-content>
+                    </div>
+                </md-item-content>
+            </md-item>
+        </div>
+    </md-content>
+</section>
