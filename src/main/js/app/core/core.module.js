@@ -14,5 +14,6 @@
             'angular-loading-bar',
             'angular-momentjs',
             'md.data.table',
-            'angular-toArrayFilter']);
+            'angular-toArrayFilter',
+            'ngParallax']);
 })();
