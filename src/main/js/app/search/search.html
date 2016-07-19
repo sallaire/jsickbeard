@@ -1,50 +1,53 @@
 <div style="margin-top:25%;" ng-show="ctrl.loading" layout="row" layout-sm="column" layout-align="space-around">
-    <md-progress-circular md-mode="indeterminate" class="md-accent md-hue-1" md-diameter="100"></md-progress-circular>
+  <md-progress-circular md-mode="indeterminate" class="md-accent md-hue-1" md-diameter="100"></md-progress-circular>
 </div>
 <section ng-hide="ctrl.loading">
-    <h1 class="md-title" style="margin-left: 1em;">Série suivie</h1>
-    <md-content class="md-padding" layout-xs="column" layout="row" layout-wrap>
-        <md-card ui-sref="tvshow({ id: metadata.id })"
-                 md-ink-ripple style="max-width: 200px; display:block;"
-                 ng-repeat="metadata in ctrl.metadatas | toArray : false | filter: {following : true}"
-                 ng-click="isOpen = !isOpen"
-                 ng-class="{'md-whiteframe-10dp': hover}"
-                 ng-mouseenter="hover = true"
-                 ng-mouseleave="hover = false">
-            <md-button ng-show="hover"
-                       ng-click="ctrl.delete(metadata)"
-                       style="float:right; top: 325px;margin-top: -46px;" class="md-fab md-mini">
-                <md-icon md-font-set="material-icons">delete</md-icon>
-            </md-button>
-            <img ng-if="metadata.image" ng-src="{{metadata.image}}" class="md-card-image">
-            <md-card-title>
-                <md-card-title-text>
-                    <span class="md-headline">{{metadata.name}}</span>
-                </md-card-title-text>
-            </md-card-title>
-        </md-card>
-    </md-content>
-    <h1 class="md-title" style="margin-left: 1em;">Série trouvée</h1>
-    <md-content class="md-padding" layout-xs="column" layout="row" layout-wrap>
-        <md-card ng-if="metadata.image"
-                 md-ink-ripple
-                 style="max-width: 200px; display:block;"
-                 ng-repeat="metadata in ctrl.metadatas | toArray : false | filter: {following : false}"
-                 ng-click="isOpen = !isOpen"
-                 ng-class="{'md-whiteframe-10dp': hover}"
-                 ng-mouseenter="hover = true"
-                 ng-mouseleave="hover = false">
-            <md-button ng-show="hover"
-                       ng-click="ctrl.add($event, metadata)"
-                       style="float:right; top: 325px;margin-top: -46px;" class="md-fab md-mini">
-                <md-icon md-font-set="material-icons">add</md-icon>
-            </md-button>
-            <img ng-src="{{metadata.image}}" class="md-card-image">
-            <md-card-title>
-                <md-card-title-text>
-                    <span class="md-headline">{{metadata.name}}</span>
-                </md-card-title-text>
-            </md-card-title>
-        </md-card>
-    </md-content>
+  <md-content class="md-padding" layout-xs="column" layout="row" layout-wrap>
+    <md-card ng-if="metadata.following && metadata.image "
+             md-ink-ripple style="max-width: 200px; height:auto; display:block;"
+             ng-repeat="metadata in ctrl.metadatas | toArray : false | orderBy: '-following'"
+             ng-click="isOpen = !isOpen"
+             ng-class="{'md-whiteframe-10dp': hover}"
+             ng-mouseenter="hover = true"
+             ng-mouseleave="hover = false">
+      <md-button
+          ng-if="metadata.following"
+          ng-show="hover"
+          ng-click="ctrl.delete(metadata)"
+          style="float:right; top: 105px;margin-top: -46px;" class="md-fab md-mini">
+        <md-icon md-font-set="material-icons">delete</md-icon>
+      </md-button>
+      <md-card-header>
+        <md-card-header-text>
+          <span class="md-title">{{metadata.name}}</span>
+          <span class="md-subhead">Material</span>
+        </md-card-header-text>
+      </md-card-header>
+      <img ng-if="metadata.image" ui-sref="tvshow({ id: metadata.id })" ng-src="{{metadata.image}}" class="md-card-image">
+      <md-progress-linear md-mode="determinate" value="30"></md-progress-linear>
+    </md-card>
+    <md-card ng-if="!metadata.following && metadata.image"
+             md-ink-ripple style="max-width: 200px; display:block;"
+             ng-repeat="metadata in ctrl.metadatas | toArray : false | orderBy: '-following'"
+             ng-click="isOpen = !isOpen"
+             ng-class="{'md-whiteframe-10dp': hover}"
+             ng-mouseenter="hover = true"
+             ng-mouseleave="hover = false">
+      <md-button
+          ng-if="!metadata.following"
+          ng-show="hover"
+          ng-click="ctrl.add($event, metadata)"
+          style="float:right; top: 105px;margin-top: -46px;" class="md-fab md-mini">
+        <md-icon md-font-set="material-icons">add</md-icon>
+      </md-button>
+      <md-card-header>
+        <md-card-header-text>
+          <span class="md-title">{{metadata.name}}</span>
+          <span class="md-subhead">Material</span>
+        </md-card-header-text>
+      </md-card-header>
+      <img ng-if="metadata.image" ng-src="{{metadata.image}}" class="md-card-image">
+      <md-progress-linear class="md-warn" md-mode="determinate" value="0"></md-progress-linear>
+    </md-card>
+  </md-content>
 </section>

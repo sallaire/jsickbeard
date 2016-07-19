@@ -17,6 +17,7 @@
   * index.html : Fichier d'entrée
 
 ## Configuration du proxy pour accèder à l'API (et autre)
+-Dhttp.useProxy=true -Dhttp.proxyHost=HOST_NAME -Dhttp.proxyPort=PORT_NUMBER -Dhttps.proxyHost=HOST_NAME -Dhttps.proxyPort=PORT_NUMBER
 
 Pour regler les proxies d'accès à l'API (ou autre) : `gulp/conf.js`
 

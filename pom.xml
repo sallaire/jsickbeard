@@ -231,13 +231,6 @@
                                 </configuration>
                             </execution>
 
-                            <!--                     <execution> -->
-                            <!--                         <id>javascript tests</id> -->
-                            <!--                         <goals> -->
-                            <!--                             <goal>karma</goal> -->
-                            <!--                         </goals> -->
-                            <!--                     </execution> -->
-
                             <execution>
                                 <id>gulp build</id>
                                 <goals>
