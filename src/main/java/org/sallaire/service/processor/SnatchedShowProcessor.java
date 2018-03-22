@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,7 +46,7 @@ public class SnatchedShowProcessor {
 	@Autowired
 	private EpisodeStatusRepository episodeStatusDao;
 
-	@Scheduled(cron = "0 15 * * * *")
+//	@Scheduled(cron = "0 15 * * * *")
 	public void updateShow() {
 		Collection<EpisodeStatus> episodes = episodeStatusDao.findByStatus(Status.SNATCHED);
 		LOGGER.info("Starting snatched show processor with {} snatched episodes", episodes.size());

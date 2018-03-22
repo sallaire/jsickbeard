@@ -1,5 +1,6 @@
 package org.sallaire.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -32,6 +33,28 @@ public class EpisodeService {
 	@Autowired
 	private WantedShowProcessor downloadProcessor;
 
+	public boolean updateEpisodeStatus(Long id, Status status, UserDto user) {
+		EpisodeStatus episode = episodeStatusDao.findByEpisodeIdAndShowConfigurationFollowersId(id, user.getId());
+		if (episode == null) {
+			LOGGER.warn("Unable to find a followed episode for id {} and user {}", id, user.getName());
+			return false;
+		} else {
+			episode.setStatus(status);
+			if (status == Status.DOWNLOADED) {
+				episode.setDownloadDate(LocalDateTime.now());
+				episode.setDownloadedFiles(new ArrayList<>());
+			}
+			LOGGER.debug("Save episode {}", id);
+			episodeStatusDao.save(episode);
+			if (status == Status.WANTED) {
+				LOGGER.info("Episodes status set to {}, process search", Status.WANTED);
+				return downloadProcessor.process(episode);
+			} else {
+				return true;
+			}
+		}
+	}
+	
 	public void updateEpisodesStatus(UpdateEpisodeStatusParam params, UserDto user) {
 		List<EpisodeStatus> toUpdateEpisodes = new ArrayList<>();
 		for (Long episodeId : params.getIds()) {

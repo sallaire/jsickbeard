@@ -53,24 +53,28 @@ public class WantedShowProcessor {
 		findEpisodes(episodeStatusDao.findAll(episodes));
 	}
 
-	public void process(EpisodeStatus episode) {
-		findEpisodes(Arrays.asList(episode));
-		// TODO renvoyer un boolean pour savoir si l'épisode a été trouvé ?
+	public boolean process(EpisodeStatus episode) {
+		return findEpisodes(Arrays.asList(episode)).get(0);
 	}
 
-	private synchronized void findEpisodes(Iterable<EpisodeStatus> episodes) {
+	private synchronized List<Boolean> findEpisodes(Iterable<EpisodeStatus> episodes) {
+		List<Boolean> results = new ArrayList<>();
 		for (EpisodeStatus episode : episodes) {
 			LOGGER.debug("Try to retrieve episode {} {}-{}", episode.getEpisode().getTvShow().getName(), episode.getEpisode().getSeason(), episode.getEpisode().getEpisode());
-			if (searchAndGetEpisode(episode)) {
+			boolean found = searchAndGetEpisode(episode);
+			if (found) {
 				LOGGER.debug("Episode found");
 			}
+			results.add(found);
 		}
+		return results;
 	}
 
 	private boolean searchAndGetEpisode(EpisodeStatus episode) {
 		TvShowConfiguration config = episode.getShowConfiguration();
 		TvShow show = config.getTvShow();
 		Torrent torrent = null;
+		String providerUsed = null;
 		for (IProvider provider : downloadService.getActiveProviders()) {
 			try {
 				Collection<String> namesToSearch = null;
@@ -82,6 +86,7 @@ public class WantedShowProcessor {
 				torrent = provider.findEpisode(namesToSearch, config.getAudioLang(), episode.getEpisode().getSeason(), episode.getEpisode().getEpisode(), config.getQuality(), episode.getDownloadedFiles());
 				if (torrent != null) {
 					LOGGER.info("Episode [{} {}-{}] found with provider [{}]", episode.getEpisode().getTvShow().getName(), episode.getEpisode().getSeason(), episode.getEpisode().getEpisode(), provider.getId());
+					providerUsed = provider.getId();
 					break;
 				}
 			} catch (IOException e) {
@@ -101,6 +106,7 @@ public class WantedShowProcessor {
 					episode.setStatus(Status.SNATCHED);
 					episode.getDownloadedFiles().add(torrentToDownload.getName());
 					episode.setDownloadDate(LocalDateTime.now());
+					episode.setProvider(providerUsed);
 					episodeStatusDao.save(episode);
 					snatchedShowProcessor.episodeSnatched(episode);
 					return true;

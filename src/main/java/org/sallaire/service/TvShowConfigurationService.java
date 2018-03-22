@@ -1,6 +1,8 @@
 package org.sallaire.service;
 
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -121,4 +123,9 @@ public class TvShowConfigurationService {
 		}
 	}
 
+
+	public Collection<ShowDto> getShowsForUser(UserDto user) {
+		List<TvShowConfiguration> configs = tvShowConfigDao.findByFollowersName(user.getName());
+		return configs.stream().map(s -> TvShowConverter.convertFromShowConfiguration(s, Arrays.asList("config", "tvshow"))).sorted((s1,s2) -> s1.getName().compareTo(s2.getName())).collect(Collectors.toList());
+	}
 }

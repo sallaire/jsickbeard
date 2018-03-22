@@ -69,6 +69,16 @@ public class TvShowService {
 		}
 		return tvShow;
 	}
+	
+	public void updateShow(long tvShowId) {
+		TvShow tvShow = tvShowDao.findOne(tvShowId);
+		if (tvShow != null) {
+			updateShow(tvShow);
+			for (TvShowConfiguration tvShowConfiguration : tvShow.getConfigurations()) {
+				processEpisodesStatus(tvShowConfiguration);
+			}
+		}
+	}
 
 	public void updateShow(TvShow tvShow) {
 		try {
@@ -146,11 +156,6 @@ public class TvShowService {
 		}
 	}
 
-	public Collection<ShowDto> getShowsForUser(UserDto user) {
-		Collection<TvShow> tvShows = tvShowDao.findByConfigurationsFollowersId(user.getId());
-		return tvShows.stream().map(s -> new ShowDto(s, null)).collect(Collectors.toList());
-	}
-
 	public Collection<TvShow> getActiveShows() {
 		List<TvShow> results = new ArrayList<>();
 		tvShowDao.findAll().forEach(s -> {
@@ -160,4 +165,5 @@ public class TvShowService {
 		});
 		return results;
 	}
+
 }

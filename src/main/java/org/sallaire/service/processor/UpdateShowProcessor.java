@@ -65,8 +65,13 @@ public class UpdateShowProcessor {
 			episodes.stream().filter(e -> e.getAirDate().isBefore(now)).forEach(e -> {
 				e.getStatus().forEach(s -> {
 					if (s.getStatus() == Status.UNAIRED) {
-						LOGGER.debug("Epsiode S{}E{} has been aired ({}) and is set to wanted", e.getSeason(), e.getEpisode(), e.getAirDate());
-						s.setStatus(Status.WANTED);
+						if (s.getShowConfiguration().getFollowers().isEmpty()) {
+							LOGGER.debug("Epsiode S{}E{} has been aired ({}) and is not followed set to skipped", e.getSeason(), e.getEpisode(), e.getAirDate());
+							s.setStatus(Status.SKIPPED);
+						} else {
+							LOGGER.debug("Epsiode S{}E{} has been aired ({}) and is set to wanted", e.getSeason(), e.getEpisode(), e.getAirDate());
+							s.setStatus(Status.WANTED);
+						}
 						statusDao.save(s);
 					}
 				});

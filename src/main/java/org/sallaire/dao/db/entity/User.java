@@ -1,10 +1,12 @@
 package org.sallaire.dao.db.entity;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -15,8 +17,6 @@ import javax.persistence.ManyToMany;
 
 @Entity
 public class User {
-
-	private static final long serialVersionUID = 9178995861257235991L;
 
 	public static enum Role {
 		SYSADMIN, ADMIN, USER;
@@ -29,12 +29,14 @@ public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
+	@Column(unique = true)
 	private String name;
 	private String password;
 	@ElementCollection(fetch = FetchType.EAGER)
 	private List<Role> roles;
 	@ManyToMany
 	private Set<TvShowConfiguration> configurations;
+	private LocalDate inscriptionDate;
 
 	public User() {
 		super();
@@ -90,6 +92,14 @@ public class User {
 
 	public void setRoles(List<Role> roles) {
 		this.roles = roles;
+	}
+
+	public LocalDate getInscriptionDate() {
+		return inscriptionDate;
+	}
+
+	public void setInscriptionDate(LocalDate inscriptionDate) {
+		this.inscriptionDate = inscriptionDate;
 	}
 
 }

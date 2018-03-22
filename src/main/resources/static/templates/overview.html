@@ -1,51 +1,135 @@
-	<div ng-controller="snatched"> 
-		<h1>Snatched episodes</h1>
-		<table>
-			<tr ng-repeat="e in episodes">
-				<td>{{e.showName}}</td>
-				<td>{{e.season}}</td>
-				<td>{{e.number}}</td>
-				<td>{{e.name}}</td>
-				<td>{{e.downloadDate}}</td>
-				<td><span ng-repeat="f in e.fileNames">{{f}} </span></td>
-				<td><input type="button" value="Truncate" ng-click="truncate(e.showId, e.season, e.number, e.quality, e.lang)"/></td>
-			</tr>
-		</table>
-	</div>
-	<div ng-controller="wanted"> 
-		<h1>Wanted episodes</h1>
-		<table>
-			<tr ng-repeat="e in episodes">
-				<td>{{e.showName}}</td>
-				<td>{{e.season}}</td>
-				<td>{{e.name}}</td>
-				<td>{{e.number}}</td>
-				<td><input type="button" value="Search" ng-click="search(e.showId, e.episodeId)"/></td>
-			</tr>
-		</table>
-	</div>	
-	<div ng-controller="downloaded"> 
-		<h1>Downloaded episodes</h1>
-		<table>
-			<tr ng-repeat="e in episodes">
-				<td>{{e.showName}}</td>
-				<td>{{e.season}}</td>
-				<td>{{e.number}}</td>
-				<td>{{e.name}}</td>
-				<td>{{e.downloadDate}}</td>
-				<td><span ng-repeat="f in e.fileNames">{{f}} </span></td>
-			</tr>
-		</table>
-	</div>
-	<div ng-controller="upcoming"> 
-		<h1>Upcoming episodes</h1>
-		<table>
-			<tr ng-repeat="e in episodes">
-				<td>{{e.showName}}</td>
-				<td>{{e.season}}</td>
-				<td>{{e.number}}</td>
-				<td>{{e.name}}</td>
-				<td>{{e.airDate}}</td>
-			</tr>
-		</table>
-	</div>
+<div id="overview-container">
+	<section id="overview">
+		<div ng-controller="wanted"> 
+			<h1>A t&eacute;l&eacute;charger</h1>
+			<ul class="posters-list list-unstyled list-inline">
+				<li ng-repeat="e in episodes">
+					<div class="poster-actions action" ng-class="{'loading': e.loading}">
+						<a ng-href="" title="Chercher" ng-click="updateEpisode(e, 'WANTED')">
+							<i class="search-icon fa fa-download" aria-hidden="true"></i>
+							<i class="load-icon fa fa-circle-o-notch fa-spin"></i>
+						</a>
+						<a ng-href="" title="Marquer comme téléchargé" ng-click="updateEpisode(e, 'DOWNLOADED')">
+							<i class="downloaded-icon fa fa-check-circle" aria-hidden="true"></i>
+						</a>
+						<a ng-href="" title="Marquer comme à ne pas télécharger" ng-click="updateEpisode(e, 'SKIPPED')">
+							<i class="skipped-icon fa fa-times-circle" aria-hidden="true"></i>
+						</a>
+					</div>
+					<div class="image-crop">
+						<a ng-href="#!tvshow/{{e.showId}}">
+							<img ng-src="{{e.showPoster?e.showPoster:'assets/img/no-image.png'}}" alt="{{e.name}}">
+							<div class="poster-wrapper">
+								<div class="footer">
+									S{{("0"+e.season).slice(-2)}}E{{("0"+e.number).slice(-2)}}
+								</div>
+							</div>
+						</a>
+					</div>
+					<div class="poster-details show-details">
+						<h2>
+							{{e.name}}
+						</h2>
+						<h3>
+							<a ng-href="#!tvshow/{{e.showId}}">{{e.showName}}</a>
+						</h3>
+					</div>
+				</li>
+			</ul>
+		</div>
+		<div ng-controller="snatched" ng-show="episodes.length"> 
+			<h1>En cours de t&eacute;l&eacute;chargement</h1>
+			<ul class="posters-list list-unstyled list-inline">
+				<li ng-repeat="e in episodes">
+					<div class="poster-actions action" ng-class="{'loading': e.loading}">
+						<a ng-href="" title="Marquer comme téléchargé" ng-click="updateEpisode(e, 'DOWNLOADED')">
+							<i class="downloaded-icon fa fa-check-circle" aria-hidden="true"></i>
+						</a>
+						<a ng-href="" title="Marquer comme à re-télécharger" ng-click="updateEpisode(e, 'WANTED')">
+							<i class="skipped-icon fa fa-times-circle" aria-hidden="true"></i>
+							<i class="load-icon fa fa-circle-o-notch fa-spin"></i>
+						</a>
+					</div>
+					<div class="image-crop" ng-mouseenter="details=true" ng-mouseleave="details=false">
+						<a ng-href="#!tvshow/{{e.showId}}">
+							<img ng-src="{{e.showPoster?e.showPoster:'assets/img/no-image.png'}}" alt="{{e.name}}">
+							<div class="poster-wrapper">
+								<div class="footer">
+									<span ng-show="!details">
+										S{{("0"+e.season).slice(-2)}}E{{("0"+e.number).slice(-2)}}
+									</span>
+									<span ng-show="details">
+										{{ e.provider }} - {{ e.downloadDate | date:'dd/MM HH:mm' }}
+									</span>
+								</div>
+							</div>
+						</a>
+					</div>
+					<div class="poster-details show-details">
+						<h2>
+							{{e.name}}
+						</h2>
+						<h3>
+							<a ng-href="#!tvshow/{{e.showId}}">{{e.showName}}</a>
+						</h3>
+					</div>
+				</li>
+			</ul>
+		</div>
+		<div ng-controller="downloaded"> 
+			<h1>Derniers &eacute;pisodes t&eacute;l&eacute;charg&eacute;s</h1>
+			<ul class="posters-list list-unstyled list-inline">
+				<li ng-repeat="e in episodes">
+					<div class="image-crop" ng-mouseenter="details=true" ng-mouseleave="details=false">
+						<a ng-href="#!tvshow/{{e.showId}}">
+							<img ng-src="{{e.showPoster?e.showPoster:'assets/img/no-image.png'}}" alt="{{e.name}}">
+							<div class="poster-wrapper">
+								<div class="footer">
+									<span ng-show="!details">
+										S{{("0"+e.season).slice(-2)}}E{{("0"+e.number).slice(-2)}}
+									</span>
+									<span ng-show="details">
+										{{ e.provider }} - {{ e.downloadDate | date:'dd/MM HH:mm' }}
+									</span>
+								</div>
+							</div>
+						</a>
+					</div>
+					<div class="poster-details show-details">
+						<h2>
+							{{e.name}}
+						</h2>
+						<h3>
+							<a ng-href="#!tvshow/{{e.showId}}">{{e.showName}}</a>
+						</h3>
+					</div>
+				</li>
+			</ul>
+		</div>
+		<div ng-controller="upcoming"> 
+			<h1>A venir</h1>
+			<ul class="posters-list list-unstyled list-inline">
+				<li ng-repeat="e in episodes">
+					<div class="image-crop">
+						<a ng-href="#!tvshow/{{e.showId}}">
+							<img ng-src="{{e.showPoster?e.showPoster:'assets/img/no-image.png'}}" alt="{{e.name}}">
+							<div class="poster-wrapper">
+								<div class="footer">
+									S{{("0"+e.season).slice(-2)}}E{{("0"+e.number).slice(-2)}} - {{ e.airDate | date:'dd/MM' }}
+								</div>
+							</div>
+						</a>
+					</div>
+					<div class="poster-details show-details">
+						<h2>
+							{{e.name}}
+						</h2>
+						<h3>
+							<a ng-href="#!tvshow/{{e.showId}}">{{e.showName}}</a>
+						</h3>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</section>
+</div>

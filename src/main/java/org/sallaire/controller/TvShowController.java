@@ -32,7 +32,7 @@ public class TvShowController {
 	@Autowired
 	private TvShowService tvShowService;
 
-	@PostMapping("/tvshow/config/{id}")
+	@PostMapping("/tvshow/{id}/config")
 	public void upsertShow(@PathVariable("id") Long id, @RequestBody TvShowConfigurationParam showConfig, @CurrentUser UserDto currentUser) {
 		tvShowConfigurationService.upsertConfiguration(id, showConfig, currentUser);
 	}
@@ -51,15 +51,20 @@ public class TvShowController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 		}
 	}
+	
+	@PostMapping("/tvshow/{id}")
+	public void updateShow(@PathVariable("id") Long id) {
+		tvShowService.updateShow(id);
+	}
 
-	@DeleteMapping("/tvshow/config/{id}")
+	@DeleteMapping("/tvshow/{id}/config")
 	public void unfollow(@PathVariable("id") Long id, @CurrentUser UserDto currentUser) {
 		tvShowConfigurationService.unfollow(id, currentUser);
 	}
 
 	@GetMapping("/tvshow")
 	public Collection<ShowDto> getShows(@CurrentUser UserDto currentUser) {
-		return tvShowService.getShowsForUser(currentUser);
+		return tvShowConfigurationService.getShowsForUser(currentUser);
 	}
 
 	@GetMapping("/tvshows")
@@ -86,4 +91,5 @@ public class TvShowController {
 	public EpisodeDto getEpisode(@CurrentUser UserDto currentUser, @PathVariable("id") Long id, @PathVariable("season") Integer season, @PathVariable("episode") Integer episode) {
 		return tvShowConfigurationService.getEpisode(currentUser, id, season, episode);
 	}
+
 }

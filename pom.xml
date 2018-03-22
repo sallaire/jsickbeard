@@ -20,22 +20,7 @@
 			<name>bintray</name>
 			<url>http://dl.bintray.com/movito/movito-utils</url>
 		</repository>
-		<repository>
-			<id>neo4j</id>
-			<name>Neo4j</name>
-			<url>http://m2.neo4j.org/</url>
-		</repository>
 	</repositories>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>spring-milestones</id>
-			<name>Spring Milestones</name>
-			<url>https://repo.spring.io/libs-milestone</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
 
 	<groupId>org.sallaire</groupId>
 	<artifactId>jackbeard</artifactId>
@@ -48,7 +33,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.4.0.M3</version>
+		<version>1.4.1.RELEASE</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 

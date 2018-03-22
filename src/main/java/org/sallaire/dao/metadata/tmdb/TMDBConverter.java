@@ -3,6 +3,7 @@ package org.sallaire.dao.metadata.tmdb;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -56,7 +57,7 @@ public class TMDBConverter {
 		result.setOriginalLang(tvSeries.getOriginalLanguage());
 		result.setNetwork(tvSeries.getNetworks().stream().map(n -> n.getName()).collect(Collectors.toList()));
 		result.setRuntime(tvSeries.getEpisodeRuntime().stream().findFirst().orElse(null));
-		// TODO genre
+		result.setGenres(tvSeries.getGenres().stream().map(g -> g.getName()).collect(Collectors.toList()));
 		result.setCountries(tvSeries.getOriginCountry());
 		result.setPoster(tvSeries.getPosterPath());
 		result.setBanner(tvSeries.getBackdropPath());
@@ -72,27 +73,31 @@ public class TMDBConverter {
 
 	public static List<Episode> convertFromTvSeason(TvShow tvShow, TvSeason tvSeason, TvSeason defaultLang) {
 		return tvSeason.getEpisodes().stream().map(e -> {
-			TvEpisode defaultLangEpisode = null;
-			if (defaultLang != null) {
-				defaultLangEpisode = defaultLang.getEpisodes().stream().filter(d -> e.getId() == d.getId()).findFirst().get();
+			if (e.getAirDate() != null) {
+				TvEpisode defaultLangEpisode = null;
+				if (defaultLang != null) {
+					defaultLangEpisode = defaultLang.getEpisodes().stream().filter(d -> e.getId() == d.getId()).findFirst().get();
+				}
+				Episode episode = new Episode();
+				episode.setAirDate(LocalDate.parse(e.getAirDate()));
+				episode.setSeason(tvSeason.getSeasonNumber());
+				episode.setEpisode(e.getEpisodeNumber());
+				episode.setDescription(e.getOverview());
+				episode.setId(new Long(e.getId()));
+				episode.setName(e.getName());
+				if (e.getExternalIds() != null) {
+					episode.setImdbId(e.getExternalIds().getImdbId());
+				}
+				if (StringUtils.isEmpty(episode.getName()) && defaultLangEpisode != null) {
+					episode.setName(defaultLangEpisode.getName());
+				}
+				if (StringUtils.isEmpty(episode.getDescription()) && defaultLangEpisode != null) {
+					episode.setDescription(defaultLangEpisode.getOverview());
+				}
+				return episode;
+			} else {
+				return null;
 			}
-			Episode episode = new Episode();
-			episode.setAirDate(LocalDate.parse(e.getAirDate()));
-			episode.setSeason(tvSeason.getSeasonNumber());
-			episode.setEpisode(e.getEpisodeNumber());
-			episode.setDescription(e.getOverview());
-			episode.setId(new Long(e.getId()));
-			episode.setName(e.getName());
-			if (e.getExternalIds() != null) {
-				episode.setImdbId(e.getExternalIds().getImdbId());
-			}
-			if (StringUtils.isEmpty(episode.getName()) && defaultLangEpisode != null) {
-				episode.setName(defaultLangEpisode.getName());
-			}
-			if (StringUtils.isEmpty(episode.getDescription()) && defaultLangEpisode != null) {
-				episode.setDescription(defaultLangEpisode.getOverview());
-			}
-			return episode;
-		}).collect(Collectors.toList());
+		}).filter(Objects::nonNull).collect(Collectors.toList());
 	}
 }

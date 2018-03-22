@@ -29,7 +29,8 @@ public class TvShow {
 	private List<String> network;
 	@ElementCollection
 	private List<String> countries;
-	private String genre;
+	@ElementCollection
+	private List<String> genres;
 	private Integer runtime;
 	private DayOfWeek airDay;
 	private LocalTime airTime;
@@ -102,12 +103,12 @@ public class TvShow {
 		this.network = network;
 	}
 
-	public String getGenre() {
-		return genre;
+	public List<String> getGenres() {
+		return genres;
 	}
 
-	public void setGenre(String genre) {
-		this.genre = genre;
+	public void setGenres(List<String> genres) {
+		this.genres = genres;
 	}
 
 	public Integer getRuntime() {
@@ -225,10 +226,10 @@ public class TvShow {
 		this.description = other.description;
 		this.fanart = other.fanart;
 		this.firstAired = other.firstAired;
-		this.genre = other.genre;
+		this.genres = new ArrayList<>(other.genres);
 		this.imdbId = other.imdbId;
 		this.name = other.name;
-		this.network = other.network;
+		this.network = new ArrayList<>(other.network);
 		this.originalLang = other.originalLang;
 		this.originalName = other.originalName;
 		this.poster = other.poster;

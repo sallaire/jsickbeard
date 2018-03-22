@@ -44,11 +44,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.httpBasic() //
 				.and().authorizeRequests() //
 				.antMatchers(HttpMethod.OPTIONS, "/**").permitAll() // allow CORS option calls
+				.antMatchers("/login/**").permitAll() //
+				.antMatchers("/").permitAll() //
+				.antMatchers("/assets/**").permitAll() //
+				.antMatchers("/templates/**").permitAll() //
 				.antMatchers("/admin/**").hasRole(Role.SYSADMIN.name()) //
+				.antMatchers("/log/**").hasRole(Role.SYSADMIN.name()) //
 				.antMatchers("/settings/**").hasRole(Role.ADMIN.name()) //
 				.antMatchers("/user/**").hasRole(Role.USER.name()) //
 				.antMatchers("/episode/**").hasRole(Role.USER.name()) //
 				.antMatchers("/tvshows/**").hasRole(Role.USER.name()) //
-				.antMatchers("/tvshow/**").hasRole(Role.USER.name());
+				.antMatchers("/tvshow/**").hasRole(Role.USER.name()) //
+				.anyRequest().authenticated();
 	}
 }

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,6 +35,15 @@ public class EpisodeController {
 		}
 		episodeService.updateEpisodesStatus(params, currentUser);
 		return ResponseEntity.ok("");
+	}
+	
+	@PutMapping(value = "/episode/{id}")
+	public ResponseEntity<Void> updateEpisodeStatus(@PathVariable("id") Long id, @RequestParam("status") Status status, @CurrentUser UserDto currentUser) {
+		if (episodeService.updateEpisodeStatus(id, status, currentUser)) {
+			return ResponseEntity.ok().build();
+		} else {
+			return ResponseEntity.notFound().build();
+		}
 	}
 
 	//

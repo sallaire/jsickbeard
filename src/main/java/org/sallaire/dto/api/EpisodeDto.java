@@ -12,6 +12,7 @@ public class EpisodeDto implements Serializable {
 	private static final long serialVersionUID = 7719353467335332550L;
 
 	private String showName;
+	private String showPoster;
 	private Long showId;
 	private Long episodeId;
 	private Integer season;
@@ -26,6 +27,14 @@ public class EpisodeDto implements Serializable {
 	private LocalDateTime downloadDate;
 
 	public EpisodeDto() {
+	}
+	
+	public String getShowPoster() {
+		return showPoster;
+	}
+
+	public void setShowPoster(String showPoster) {
+		this.showPoster = showPoster;
 	}
 
 	public String getShowName() {

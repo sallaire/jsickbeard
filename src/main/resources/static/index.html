@@ -1,31 +1,55 @@
-<html>
+<!DOCTYPE HTML>
+<html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <title>Jackbeard - Home</title>
+<meta charset="UTF-8">
+
+
+<meta name="viewport" content="width=1040">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="MobileOptimized" content="1040">
+<meta http-equiv="content-language" content="fr">
+<meta name="title" content="Jackbeard">
+
+<title>Jackbeard</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat|Lato:700">
+<link rel="stylesheet" type="text/css" media="screen" href="assets/css/jackbeard.css">
 </head>
+
 <body ng-app="jackbeard">
+	<!-- Header -->
+	<div ng-include id="menu" src="'templates/menu.html'" ng-if="authenticated"></div>
 
-  <div ng-view></div>
+	<!-- Main -->
+	<section id="overview" class="two">
+		<div class="container">
+		</div>
+	</section>
 
-<!--   <script type="text/ng-template" id="tvshows.html">
- 
-        <h2> Add Order </h2>
-        {{message}}
- 
-    </script>
- 
-    <script type="text/ng-template" id="tvshow.html">
- 
-        <h2> Show Orders </h2>
-        {{message}}
- 
-    </script>-->
-  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>
-  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-route.min.js"></script>
-  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-cookies.js"></script>
-  <script src="js/authentication/services.js"></script>
-  <script src="js/authentication/controllers.js"></script>
-  <script src="js/show/controllers.js"></script>
-  <script src="js/jackbeard.js"></script>
+	<div class="page-center page-column ">
+		<div class="page-center-inner">
+			<div class="alt-block" ng-view id="main"></div>
+		</div>
+	</div>
+
+	<!-- Scripts -->
+	<script
+		src="http://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+	<script
+		src="http://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-route.min.js"></script>
+	<script
+		src="http://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-cookies.min.js"></script>
+	<script
+		src="http://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-messages.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-chart.js/1.1.1/angular-chart.min.js"></script>
+	<script src="assets/js/jackbeard.js"></script>
+	<script src="assets/js/authentication/services.js"></script>
+	<script src="assets/js/authentication/controllers.js"></script>
+	<script src="assets/js/show/controllers.js"></script>
+	<script src="assets/js/log/controllers.js"></script>
+	<script src="assets/js/user/controllers.js"></script>
 </body>
 </html>

@@ -134,4 +134,10 @@ public class TVDBDao implements IMetaDataDao {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	@Override
+	public String getImageUrl(String imageName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

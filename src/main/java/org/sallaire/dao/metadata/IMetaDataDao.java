@@ -8,6 +8,8 @@ import org.sallaire.dao.db.entity.TvShow;
 import org.sallaire.dto.metadata.SearchResult;
 
 public interface IMetaDataDao {
+	String getImageUrl(String imageName); 
+	
 	List<SearchResult> searchForShows(String name, String lang) throws DaoException;
 
 	List<Long> getShowsToUpdate(Long fromTime) throws DaoException;

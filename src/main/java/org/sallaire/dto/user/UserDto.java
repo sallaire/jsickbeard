@@ -19,6 +19,7 @@ public class UserDto implements UserDetails {
 	private String name;
 	private String password;
 	private List<Role> roles;
+	private Role role;
 
 	public UserDto() {
 
@@ -34,7 +35,18 @@ public class UserDto implements UserDetails {
 		if (setPassword) {
 			this.password = user.getPassword();
 		}
+		this.role = getHighestRole(user.getRoles());
 		this.roles = new ArrayList<>(user.getRoles());
+	}
+	
+	private Role getHighestRole(List<Role> roles) {
+		if (roles.contains(Role.SYSADMIN)) {
+			return Role.SYSADMIN;
+		} else if (roles.contains(Role.ADMIN)) {
+			return Role.ADMIN;
+		} else {
+			return Role.USER;
+		}
 	}
 
 	public Long getId() {
@@ -61,12 +73,12 @@ public class UserDto implements UserDetails {
 		this.password = password;
 	}
 
-	public List<Role> getRoles() {
-		return roles;
+	public Role getRole() {
+		return role;
 	}
 
-	public void setRoles(List<Role> roles) {
-		this.roles = roles;
+	public void setRole(Role role) {
+		this.role = role;
 	}
 
 	@Override

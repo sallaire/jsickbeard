@@ -1,10 +1,11 @@
 package org.sallaire.dto.api;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.TreeMap;
 
 import org.apache.commons.lang3.StringUtils;
@@ -23,9 +24,9 @@ public class ShowDto {
 	private String description;
 	private List<String> network;
 	private List<String> countries;
-	private String genre;
+	private List<String> genres;
 	private Integer runtime;
-	private DayOfWeek airDay;
+	private String airDay;
 	private LocalTime airTime;
 	private String status;
 	private LocalDate firstAired;
@@ -36,7 +37,7 @@ public class ShowDto {
 	private Quality quality;
 	private String audioLang;
 	private List<String> customNames;
-	private boolean isFollowed;
+	private boolean followed;
 	private Integer nbSeasons;
 	private Integer nbEpisodes;
 
@@ -51,7 +52,7 @@ public class ShowDto {
 		this.countries = searchResult.getCountries();
 		this.name = searchResult.getName();
 		this.poster = searchResult.getImage();
-		this.isFollowed = isFollowed;
+		this.followed = isFollowed;
 	}
 
 	public ShowDto(TvShow tvShow, TvShowConfiguration tvShowConfig) {
@@ -59,7 +60,7 @@ public class ShowDto {
 			this.quality = tvShowConfig.getQuality();
 			this.audioLang = tvShowConfig.getAudioLang();
 		}
-		this.isFollowed = true;
+		this.followed = true;
 		this.id = tvShow.getId();
 		this.imdbId = tvShow.getImdbId();
 		this.name = tvShow.getName();
@@ -68,9 +69,9 @@ public class ShowDto {
 		this.description = tvShow.getDescription();
 		this.network = new ArrayList<>(tvShow.getNetwork());
 		this.countries = new ArrayList<>(tvShow.getCountries());
-		this.genre = tvShow.getGenre();
+		this.genres = tvShow.getGenres();
 		this.runtime = tvShow.getRuntime();
-		this.airDay = tvShow.getAirDay();
+		this.airDay = tvShow.getAirDay().getDisplayName(TextStyle.FULL, Locale.FRENCH);
 		this.airTime = tvShow.getAirTime();
 		this.status = tvShow.getStatus();
 		this.firstAired = tvShow.getFirstAired();
@@ -145,12 +146,12 @@ public class ShowDto {
 		this.network = network;
 	}
 
-	public String getGenre() {
-		return genre;
+	public List<String> getGenres() {
+		return genres;
 	}
 
-	public void setGenre(String genre) {
-		this.genre = genre;
+	public void setGenres(List<String> genres) {
+		this.genres = genres;
 	}
 
 	public Integer getRuntime() {
@@ -161,11 +162,11 @@ public class ShowDto {
 		this.runtime = runtime;
 	}
 
-	public DayOfWeek getAirDay() {
+	public String getAirDay() {
 		return airDay;
 	}
 
-	public void setAirDay(DayOfWeek airDay) {
+	public void setAirDay(String airDay) {
 		this.airDay = airDay;
 	}
 
@@ -250,11 +251,11 @@ public class ShowDto {
 	}
 
 	public boolean isFollowed() {
-		return isFollowed;
+		return followed;
 	}
 
 	public void setFollowed(boolean isFollowed) {
-		this.isFollowed = isFollowed;
+		this.followed = isFollowed;
 	}
 
 	public Integer getNbSeasons() {

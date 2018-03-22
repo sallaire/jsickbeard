@@ -1,14 +1,24 @@
 package org.sallaire.service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.sallaire.dao.db.TvShowRepository;
 import org.sallaire.dao.db.UserRepository;
+import org.sallaire.dao.db.entity.TvShow;
 import org.sallaire.dao.db.entity.User;
 import org.sallaire.dao.db.entity.User.Role;
+import org.sallaire.dao.metadata.IMetaDataDao;
+import org.sallaire.dto.api.AccountDto;
+import org.sallaire.dto.exception.UnauthorizedException;
+import org.sallaire.dto.user.ModifiedUserDto;
 import org.sallaire.dto.user.UserDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +42,12 @@ public class UserService implements UserDetailsService {
 	private UserRepository userRepository;
 
 	@Autowired
+	private IMetaDataDao metaDataDao;
+	
+	@Autowired
+	private TvShowRepository tvShowRepository;
+
+	@Autowired
 	private PasswordEncoder passwordEncoder;
 
 	@Override
@@ -43,108 +59,126 @@ public class UserService implements UserDetailsService {
 		return new UserDto(user, true);
 	}
 
-	public void saveUser(String userName, String password, String role, UserDto currentUser) {
-		if (!currentUser.getRoles().contains(Role.ADMIN) && !currentUser.getRoles().contains(Role.SYSADMIN) && !currentUser.getName().equals(userName)) {
+	public void saveUser(ModifiedUserDto modifiedUser, UserDto currentUser) {
+		//		if (StringUtils.isNotBlank(modifiedUser.getUsername())) {
+		//			if (userRepository.findUserByName(modifiedUser.getUsername()) != null) {
+		//				LOGGER.warn("User name already exists");
+		//				return;
+		//			}
+		//		}
+		if (passwordEncoder.matches(modifiedUser.getCurrentPassword(), currentUser.getPassword())) {
+			saveUser(currentUser.getId(), null, modifiedUser.getNewPassword());
+		} else {
+			throw new UnauthorizedException();
+		}
+	}
+
+	public void saveUser(long userId, UserDto newUser, UserDto currentUser) {
+		User userToUpdate = userRepository.findOne(userId);
+		if (userToUpdate == null) {
+			LOGGER.warn("Unable to find user with id {} in database", userId);
+			return;
+		}
+
+		if (currentUser.getRole() != Role.ADMIN && currentUser.getRole() != Role.SYSADMIN) {
 			LOGGER.warn("Current user has not enough credentials to modify users");
 			return;
 		}
-		List<Role> roles = null;
-		Role convertedRole = null;
-		User user = userRepository.findUserByName(userName);
-		if (!(currentUser.getRoles().contains(Role.ADMIN) || currentUser.getRoles().contains(Role.SYSADMIN))) {
-			if (user == null) {
-				LOGGER.warn("Current user has no enough credentials to create users role");
-				return;
-			} else if (!user.getName().equals(currentUser.getName())) {
-				LOGGER.warn("Current user has no enough credentials to create users role");
-				return;
-			}
+		if ((userToUpdate.getRoles().contains(Role.ADMIN) || userToUpdate.getRoles().contains(Role.SYSADMIN)) && currentUser.getRole() != Role.SYSADMIN) {
+			LOGGER.warn("Current user must be {} to modify user", Role.SYSADMIN);
+			return;
 		}
-		if (role != null) {
-			try {
-				convertedRole = Role.valueOf(role);
-				convertedRole = checkRole(convertedRole, currentUser.getRoles());
-			} catch (IllegalArgumentException e) {
-				LOGGER.warn("Input role {} is not a valide one, should be one of {}", role, Role.values());
-			}
 
-		}
-		if (convertedRole == null) {
-			if (user == null || CollectionUtils.isEmpty(user.getRoles())) {
-				LOGGER.info("No role specified for user {}, it will be set to {} by default", userName, Role.USER);
-				convertedRole = Role.USER;
-			} else {
-				roles = user.getRoles();
-				LOGGER.debug("User already exists in db, conserve its roles : {}", roles);
-			}
-		}
-		if (roles == null) {
-			switch (convertedRole) {
-			case USER:
-				roles = Lists.newArrayList(Role.USER);
-				break;
-			case ADMIN:
-				if (currentUser.getRoles().contains(Role.ADMIN) || currentUser.getRoles().contains(Role.SYSADMIN)) {
-					roles = Lists.newArrayList(Role.USER, Role.ADMIN);
-				} else {
-					LOGGER.warn("Current user has no enough credentials to modify users role");
-					roles = Lists.newArrayList(Role.USER);
-				}
-				break;
-			case SYSADMIN:
-				roles = Lists.newArrayList(Role.USER, Role.ADMIN, Role.SYSADMIN);
-				break;
-			}
-		}
-		saveUser(userName, password, roles);
-	}
 
-	private Role checkRole(Role wantedRole, List<Role> currentRoles) {
-		Role computedRole = null;
-		switch (wantedRole) {
+		switch (newUser.getRole()) {
 		case USER:
-			computedRole = Role.USER;
+			userToUpdate.setRoles(Lists.newArrayList(Role.USER));
 			break;
 		case ADMIN:
-			if (currentRoles.contains(Role.ADMIN) || currentRoles.contains(Role.SYSADMIN)) {
-				computedRole = Role.ADMIN;
+			if (currentUser.getRole() == Role.ADMIN || currentUser.getRole() == Role.SYSADMIN) {
+				userToUpdate.setRoles(Lists.newArrayList(Role.USER, Role.ADMIN));
 			} else {
-				LOGGER.warn("Current user has no enough credentials to modify user role to {}", Role.ADMIN);
-				computedRole = null;
+				LOGGER.warn("Current user has no enough credentials to modify users role");
 			}
 			break;
 		case SYSADMIN:
-			if (currentRoles.contains(Role.SYSADMIN)) {
-				computedRole = Role.SYSADMIN;
+			if (currentUser.getRole() == Role.SYSADMIN) {
+				userToUpdate.setRoles(Lists.newArrayList(Role.USER, Role.ADMIN, Role.SYSADMIN));
 			} else {
-				LOGGER.warn("Current user has no enough credentials to modify user role to {}", Role.SYSADMIN);
-				computedRole = null;
+				LOGGER.warn("Current user has no enough credentials to modify users role");
 			}
 			break;
 		}
-		return computedRole;
+		if (StringUtils.isNotBlank(newUser.getPassword())) {
+			userToUpdate.setPassword(passwordEncoder.encode(newUser.getPassword()));
+		}
+		if (StringUtils.isNotBlank(newUser.getName())) {
+			userToUpdate.setName(newUser.getName());
+		}
+		userRepository.save(userToUpdate);
 	}
 
-	private void saveUser(String userName, String password, List<Role> roles) {
-		LOGGER.info("Saving user {} with password {} and role {}", userName, StringUtils.repeat("X", password.length()), roles);
 
-		User user = userRepository.findUserByName(userName);
-		if (user == null) {
-			user = new User(userName, passwordEncoder.encode(password));
-		} else if (password != null) {
+	private void saveUser(Long userId, String userName, String password) {
+		LOGGER.info("Saving user {} with password {}", userName, StringUtils.repeat("X", password.length()));
+
+		User user = userRepository.findOne(userId);
+		if (StringUtils.isNotBlank(password)) {
 			user.setPassword(passwordEncoder.encode(password));
 		}
+		if (StringUtils.isNotBlank(userName)) {
+			user.setName(userName);
+		}
+		userRepository.save(user);
+		LOGGER.info("User saved");
+	}
+
+	public void addUser(UserDto newUser, UserDto currentUser) {
+		if (currentUser.getRole() == Role.USER) {
+			LOGGER.warn("Current user has no enough credentials to create user");
+			return;
+		}
+
+		List<Role> roles = null;
+		switch (newUser.getRole()) {
+		case USER:
+			roles = Lists.newArrayList(Role.USER);
+			break;
+		case ADMIN:
+			roles = Lists.newArrayList(Role.USER, Role.ADMIN);
+			break;
+		case SYSADMIN:
+			if (currentUser.getRole() == Role.SYSADMIN) {
+				roles = Lists.newArrayList(Role.USER, Role.ADMIN, Role.SYSADMIN);
+			} else {
+				LOGGER.warn("Current user has no enough credentials to modify users role");
+			}
+			break;
+		}
+
+		if (roles != null) {
+			addUser(newUser.getUsername(), newUser.getPassword(), roles);
+		}
+
+	}
+
+	private void addUser(String userName, String password, List<Role> roles) {
+		LOGGER.info("Saving user {} with password {} and role {}", userName, StringUtils.repeat("X", password.length()), roles);
+
+		User user = new User();
+		user.setName(userName);
+		user.setPassword(passwordEncoder.encode(password));
 		user.setRoles(roles);
 		userRepository.save(user);
 		LOGGER.info("User saved");
 	}
 
-	public UserDto getUser(String userName, UserDto currentUser) {
-		if (!currentUser.getName().equals(userName) && (currentUser.getRoles().contains(Role.ADMIN) || currentUser.getRoles().contains(Role.SYSADMIN))) {
+	public UserDto getUser(Long userId, UserDto currentUser) {
+		if (!currentUser.getId().equals(userId) && (currentUser.getRole() == Role.ADMIN || currentUser.getRole() == Role.SYSADMIN)) {
 			LOGGER.warn("Current user has no enough credentials to get user details");
 			return null;
 		}
-		User user = userRepository.findUserByName(userName);
+		User user = userRepository.findOne(userId);
 		if (user != null) {
 			return new UserDto(user);
 		}
@@ -155,24 +189,24 @@ public class UserService implements UserDetailsService {
 		return userRepository.count() > 0;
 	}
 
-	public void deleteUser(String name, UserDto currentUser) {
-		if (!currentUser.getName().equals(name) && currentUser.getRoles().contains(Role.ADMIN) || currentUser.getRoles().contains(Role.SYSADMIN)) {
+	public void deleteUser(Long userId, UserDto currentUser) {
+		if (!currentUser.getId().equals(userId) && (currentUser.getRole() == Role.ADMIN || currentUser.getRole() == Role.SYSADMIN)) {
 			LOGGER.warn("Current user has no enough credentials to delete user");
 			return;
 		}
-		User user = userRepository.findUserByName(name);
+		User user = userRepository.findOne(userId);
 		if (user != null) {
 			userRepository.delete(user);
-			LOGGER.debug("User {} has been deleted", name);
+			LOGGER.debug("User {} has been deleted", user.getName());
 		} else {
-			LOGGER.warn("Unable to delete user {}, it doesn't exist in database", name);
+			LOGGER.warn("Unable to delete user {}, it doesn't exist in database", userId);
 		}
 	}
 
 	public boolean authenticateAccount(String userName, String password) {
 		User user = userRepository.findUserByName(userName);
 		if (user != null) {
-			return user.getPassword().equals(passwordEncoder.encode(password));
+			return passwordEncoder.matches(password, user.getPassword());
 		} else {
 			return false;
 		}
@@ -183,8 +217,33 @@ public class UserService implements UserDetailsService {
 		LOGGER.info("Check existing user");
 		if (!hasUsers()) {
 			LOGGER.info("No user in db, creating default one");
-			saveUser("admin", "admin", Lists.newArrayList(Role.USER, Role.ADMIN, Role.SYSADMIN));
+			addUser("admin", "admin", Lists.newArrayList(Role.USER, Role.ADMIN, Role.SYSADMIN));
 		}
+	}
+
+	public AccountDto getAccount(UserDto currentUser) {
+		AccountDto account = new AccountDto();
+		User user = userRepository.findOne(currentUser.getId());
+		account.setUsername(currentUser.getName());
+		account.setInscriptionDate(user.getInscriptionDate() != null ? user.getInscriptionDate() : LocalDate.now());
+
+		List<TvShow> shows = new ArrayList<TvShow>(tvShowRepository.findByConfigurationsFollowersId(user.getId()));
+		account.setNbShows(shows.size());
+		account.setShowsByGenre(shows.stream()
+				.map(TvShow::getGenres)
+				.flatMap(Collection::stream)
+				.collect(
+						Collectors.groupingBy(Function.identity(), Collectors.counting())
+						));
+
+		account.setShowsByNetwork(shows.stream()
+				.map(TvShow::getNetwork)
+				.flatMap(Collection::stream)
+				.collect(
+						Collectors.groupingBy(Function.identity(), Collectors.counting())
+						));
+		account.setBannerUrl(metaDataDao.getImageUrl(shows.get((int) (Math.random() * shows.size())).getBanner()));
+		return account;
 	}
 
 }

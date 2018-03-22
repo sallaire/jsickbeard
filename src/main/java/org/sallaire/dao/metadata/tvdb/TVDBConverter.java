@@ -32,7 +32,7 @@ public class TVDBConverter {
 		tvShow.setName(showInfo.getName());
 		tvShow.setDescription(showInfo.getDescription());
 		tvShow.setNetwork(Arrays.asList(showInfo.getNetwork()));
-		tvShow.setGenre(showInfo.getGenre());
+		tvShow.setGenres(Arrays.asList(showInfo.getGenre()));
 		if (showInfo.getAirDay() != null) {
 			try {
 				tvShow.setAirDay(DayOfWeek.valueOf(showInfo.getAirDay().toUpperCase()));

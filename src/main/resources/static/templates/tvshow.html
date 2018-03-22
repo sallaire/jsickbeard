@@ -1,51 +1,84 @@
-
-	<div>
-		<h1>{{ myShow.name }}</h1>
-		
-		<a ng-href="#tvshow/config/{{myShow.show.id}}">Editer</a>
-		<input type="button" value="Forcer MAJ" ng-click="updateShow()"/>
-		
-		<p>{{ myShow.description }}</p>
-				
-		<dl>
-			<dt>Dur&eacute;e</dt>
-			<dd>{{ myShow.runtime }}</dd>
-
-			<dt>Jour de diffusion</dt>
-			<dd>{{ myShow.airDay }}</dd>
-
-			<dt>Statut</dt>
-			<dd>{{ myShow.status }}</dd>
-			
-			<dt>Emplacement</dt>
-			<dd>{{ myShow.location }}</dd>
-			
-			<dt>Qualit&eacute;</dt>
-			<dd>{{ myShow.quality }}</dd>
-			
-			<dt>Langue</dt>
-			<dd>{{ myShow.audioLang }}</dd>
-		</dl>
-		<form ng-submit="updateStatus()">
-			<select name="status" ng-model="status">
-				<option value="SKIPPED">Skipped</option>
-				<option value="SNATCHED">Snatched</option>
-				<option value="WANTED">Wanted</option>
-				<option value="DOWNLOADED">Downloaded</option>
-			</select>
-			<button type="submit" class="pure-button pure-button-primary">Mettre à jour</button>
-			<br/>
-			<table>
-				<tr ng-repeat="e in myShow.episodes.slice().reverse()">
-					<td><input type="checkbox" ng-model="e.selected"/></td>
-					<td>{{ e.season }}</td>
-					<td>{{ e.number }}</td>
-					<td>{{ e.name }}</td>
-					<td>{{ e.description }}</td>
-					<td>{{ e.airDate }}</td>
-					<td>{{ e.status }}</td>
-					<td>{{ e.fileNames }}</td>
-				</tr>
-			</table>
-		</form>
+<div id="tvshow-container">
+	<div class="banner">
+		<img id="tvshow-banner" ng-src="{{show.banner}}"/>
+		<div class="overlay"></div>
+		<div class="banner-wrapper">
+			<h1>{{show.name}}</h1>
+			<div class="tvshow-config">
+				<span class="current-config" ng-hide="editing || loading">
+					<img class="lang" ng-src="assets/img/flag/{{show.audioLang | lowercase}}.png"/> - {{ show.quality }}
+				</span>
+				<span class="modified-config" ng-show="editing && !loading">
+					<select name="lang" ng-model="audioLang">
+						<option value="fr">FR</option>
+						<option value="en">EN</option>
+					</select>
+					<select name="quality" ng-model="quality">
+						<option value="SD">SD</option>
+						<option value="P720">720p</option>
+						<option value="P1080">1080p</option>
+					</select>
+				</span>
+				<span ng-hide="editing || loading" class="button">
+					<a  class="btn-config button" ng-click="edit()"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+					<a class="btn-config button" ng-click="unfollow()"><i class="fa fa-trash" aria-hidden="true"></i></a>
+					<a type="button" class="btn-config button" ng-click="refresh()"><i class="fa fa-repeat" aria-hidden="true"></i></a>
+				</span>
+				<span ng-show="editing && !loading" class="button">
+					<a class="btn-config button" ng-click="save()"><i class="fa fa-check" aria-hidden="true"></i></a>
+					<a class="btn-config button" ng-click="cancel()"><i class="fa fa-times" aria-hidden="true"></i></a>
+				</span>
+				<span ng-show="loading" class="button">
+					<a class="btn-config button" ng-click="save()"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i></a>
+				</span>
+			</div>
+			<div id="tags">
+				<span ng-repeat="t in show.customNames" class="tag">{{ t }}<a ng-click="removeTag(t)"><i class="fa fa-times" aria-hidden="true"></i></a></span>
+				<span class="tag" ng-show="newTag"><input type="text" ng-model="tag" ng-keypress="($event.which === 13)?saveTag():0"/><a ng-click="cancelTag()"><i class="fa fa-times" aria-hidden="true"></i></a></span>
+				<span class="button" ng-hide="newTag"><a class="btn-tag" ng-click="addTag()"><i class="fa fa-plus" aria-hidden="true"></i></a></span>
+			</div>
+		</div>
 	</div>
+	<div class="tvshow-info">
+		<div class="tvshow-info-header">
+			{{show.firstAired | date: 'yyyy'}} | {{ show.network.join(' - ') }} | {{ show.status }} <span ng-show="show.status == 'En cours'"> ({{ show.airDay }}) </span> | 
+		    {{ show.runtime }} minutes | {{ show.nbSeasons }} saisons | {{ show.nbEpisodes }} épisodes
+		</div>
+		<div class="tvshow-description">
+			{{ show.description }}
+		</div>
+	</div>
+	<div id="episodes">
+	    <select name="season" id="season" ng-model="selectedSeason" ng-change="showSeason()" class="form-control">
+      		<option ng-repeat="s in seasons" value="{{s}}" ng-selected="{{show.nbSeasons == s}}">Saison {{s}}</option>
+    	</select>
+    	
+    	<table class="table table-striped">
+    		
+    		<tr ng-repeat="e in episodes track by e.episodeId" ng-class="{'unaired': e.status=='UNAIRED'}">
+    			<td>{{ e.number }}</td>
+    			<td><span class="with-tooltip"><span class="tooltiptext  tooltiptext-description" ng-show="e.description">{{ e.description }}</span>{{ e.name }}</span></td>
+    			<td>{{ e.airDate | date: 'dd/MM/yyyy' }}</td>
+    			<td ng-switch on="e.status">
+    				<span class="with-tooltip"><span class="tooltiptext">{{ e.fileNames.join(',') }}</span><i ng-switch-when="DOWNLOADED" class="fa fa-file-video-o" aria-hidden="true"></i></span>
+    				<i ng-switch-when="SNATCHED" class="fa fa-tasks" aria-hidden="true"></i>
+    				<i ng-switch-when="WANTED" class="fa fa-refresh" aria-hidden="true"></i>
+    			</td>
+    			<td>
+    				<span ng-hide="e.status=='UNAIRED'" class="episode-actions action" ng-class="{'loading': e.loading}" >
+	    				<a ng-href="" title="Chercher" ng-click="updateEpisode(e, 'WANTED')">
+							<i class="search-icon fa fa-download" aria-hidden="true"></i>
+							<i class="load-icon fa fa-circle-o-notch fa-spin"></i>
+						</a>
+						<a ng-href="" title="Marquer comme téléchargé" ng-click="updateEpisode(e, 'DOWNLOADED')">
+							<i class="downloaded-icon fa fa-check-circle" aria-hidden="true"></i>
+						</a>
+						<a ng-href="" title="Marquer comme à ne pas télécharger" ng-click="updateEpisode(e, 'SKIPPED')">
+							<i class="skipped-icon fa fa-times-circle" aria-hidden="true"></i>
+						</a>
+					</span>
+    			</td>
+    		</tr>
+    	</table>
+	</div>
+</div>

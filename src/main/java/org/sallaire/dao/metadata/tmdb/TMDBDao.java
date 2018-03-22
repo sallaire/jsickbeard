@@ -31,9 +31,14 @@ public class TMDBDao implements IMetaDataDao {
 
 	private String getImagesUrl() {
 		if (imagesUrl == null) {
-			imagesUrl = new TmdbApi(API_KEY).getConfiguration().getBaseUrl() + "w342";
+			imagesUrl = new TmdbApi(API_KEY).getConfiguration().getBaseUrl() + "w1280";
 		}
 		return imagesUrl;
+	}
+
+	@Override
+	public String getImageUrl(String imageName) {
+		return getImagesUrl() + "/" + imageName;
 	}
 
 	public List<SearchResult> searchForShows(String name, String lang) {

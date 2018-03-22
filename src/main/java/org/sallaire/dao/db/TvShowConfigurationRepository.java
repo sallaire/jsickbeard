@@ -9,6 +9,8 @@ import org.springframework.data.repository.CrudRepository;
 public interface TvShowConfigurationRepository extends CrudRepository<TvShowConfiguration, Long> {
 
 	List<TvShowConfiguration> findByTvShowId(Long showId);
+	
+	List<TvShowConfiguration> findByFollowersName(String userName);
 
 	TvShowConfiguration findByTvShowIdAndFollowersName(Long showId, String userName);
 

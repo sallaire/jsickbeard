@@ -27,6 +27,8 @@ import org.sallaire.service.provider.Torrent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -47,6 +49,8 @@ public class DelugeClient implements IClient {
 	private ClientConfiguration userConfiguration;
 
 	private RestTemplate restTemplate;
+
+	private HttpHeaders headers = new HttpHeaders();
 
 	@PostConstruct
 	private void init() {
@@ -74,6 +78,10 @@ public class DelugeClient implements IClient {
 		factory.setHttpClient(client);
 		restTemplate = new RestTemplate(factory);
 		restTemplate.setMessageConverters(converters);
+
+		// Deluge accept only content-type "application/json" with no charset
+		// Charset is by default added by spring, we have to override manually content-type in each request
+		headers.setContentType(MediaType.APPLICATION_JSON);
 		LOGGER.debug("Deluge rest client initialized");
 		LOGGER.debug("Deluge client initialized");
 	}
@@ -88,7 +96,8 @@ public class DelugeClient implements IClient {
 		authBody.setMethod(configuration.getAuthMethod());
 		authBody.getParams().add(userConfiguration.getPassword());
 		LOGGER.info("Requesting deluge with [{}] and method [{}]", authBody.getMethod());
-		DelugeResponseBody response = restTemplate.postForObject(delugeUrl, authBody, DelugeResponseBody.class);
+
+		DelugeResponseBody response = restTemplate.postForObject(delugeUrl, new HttpEntity<DelugeRequestBody<String>>(authBody, headers), DelugeResponseBody.class);
 		checkReponse(response);
 		LOGGER.debug("Authenticating to deluge done with success");
 
@@ -105,7 +114,7 @@ public class DelugeClient implements IClient {
 		addTorrentParams.getParams().add(getParameters(location, episode));
 		addTorrentParams.setMethod(configuration.getAddTorrentMethod());
 		LOGGER.info("Requesting deluge with [{}] and method [{}]", authBody.getMethod());
-		response = restTemplate.postForObject(delugeUrl, addTorrentParams, DelugeResponseBody.class);
+		response = restTemplate.postForObject(delugeUrl, new HttpEntity<DelugeRequestBody<Object>>(addTorrentParams, headers), DelugeResponseBody.class);
 		checkReponse(response);
 		LOGGER.debug("Torrent sent to deluge with success");
 	}
