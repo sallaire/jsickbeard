@@ -1,0 +1,70 @@
+		<div class="page-left page-sidebar page-column" ng-controller="menu">
+
+			<div class="scrollable scrolling-element">
+				<div class="wrapper">
+					<a id="home-link" ng-href="#overview">
+					 
+					<img
+						class="logo" src="./assets/img/jackbeard.png" alt="JackBeard">
+						<span id="home-text">JackBeard</span>
+					</a>
+					<form id="global-search" class="navbar-form form-search">
+						<i class="icon-tvst-search popover-link"></i> 
+						<input style="display: none" type="text" name="search"> 
+						<input type="text" id="search-show" name="search" class="search-show" placeholder="Rechercher" data-ng-model="searchShow" ng-model-options="{debounce: 500}"> 
+							<a ng-click="clear()" class="cancel-search" style="display: inline;">×</a>
+					</form>
+					<div class="all-left-navs">
+
+						<section id="menu">
+							<ul class="menu list-unstyled">
+								<li class="overview" ng-class="{active: isActive('/overview')}">
+									<a ng-href="#overview" title="Vue d'ensemble">
+										<i class="fa fa-eye"></i> <span>Vue d'ensemble</span>
+									</a>
+								</li>
+								<li class="shows" ng-class="{active: isActive('/tvshows')}">
+									<a ng-href="#tvshows" title="Toutes les séries">
+										<i class="fa fa-list"></i> <span>Toutes les s&eacute;ries</span>
+									</a>
+								</li>
+								<li class="profile" ng-class="{active: isActive('/account')}">
+									<a	ng-href="#account" title="Profil">
+										<i class="fa fa-user"></i> <span>Profil</span>
+									</a>
+								</li>
+							</ul>
+						</section>
+						<section id="user-nav">
+							<h1>sallaire</h1>
+							<ul class="menu list-unstyled">
+								<li class="account "><a
+									ng-href="#account"
+									title="Paramètres"> <i class="fa fa-gear"></i> <span>Paramètres</span>
+								</a></li>
+								<li class="help"><a id="help-btn"
+									ng-href="#parameters"
+									class="help-btn" title="Aide"
+									data-vivaldi-spatnav-clickable="1"> <i
+										class="fa fa-question-circle"></i> <span>Aide</span>
+								</a></li>
+							</ul>
+							<a ng-href="#signout" class="signout-link"
+								title="Se déconnecter"> <i class="fa fa-sign-out"></i><span>Se
+									déconnecter</span>
+							</a>
+						</section>
+					</div>
+					<footer class="footer">
+						<section class="credits">
+							<p>
+								<a href="mailto:sallaire@jackbeard.com" target="_blank">Contact</a>
+								- <a href="https://github.com/sallaire/jsickbeard">À propos</a>
+							</p>
+							<p class="copyright">Copyright ©Sallaire. All rights
+								reserved.</p>
+						</section>
+					</footer>
+				</div>
+			</div>
+		</div>

@@ -1,0 +1,63 @@
+<div id="tvshows-container">
+	<section id="tvshows">
+		<div ng-controller="wanted"> 
+			<h1>Toutes mes séries</h1>
+			<ul class="posters-list list-unstyled list-inline">
+				<li ng-repeat="r in results">
+					<div class="poster-actions action">
+						<a ng-href="" title="Editer" ng-click="r.editShow=true">
+							<i class="fa fa-pencil" aria-hidden="true"></i>
+						</a>
+						<a ng-href="" title="Ne plus suivre" ng-click="delete(r.id)">
+							<i class="fa fa-trash" aria-hidden="true"></i>
+						</a>
+					</div>
+					<div class="image-crop">
+						<a ng-href="#!tvshow/{{r.id}}">
+							<img ng-src="{{r.poster?r.poster:'assets/img/no-image.png'}}" alt="{{r.name}}">
+							<div class="poster-wrapper">
+								<div class="footer">
+									{{r.quality}} - <img class="lang" ng-src="./assets/img/flag/{{r.audioLang}}.png"/>
+								</div>
+							</div>
+						</a>
+						
+						<div class="poster-content" ng-show="r.editShow">
+							<div class="heading">
+								Paramètres
+								<div class="close">
+									<a href="" ng-click="r.editShow=false">
+										×
+									</a>
+							</div>
+							</div>
+							<div class="poster-content-wrapper">
+								<label>
+									<select id="quality" ng-model="r.quality" ng-options="quality.key as quality.value for quality in qualities" class="select-area">
+										<option value="" selected hidden />
+		    						</select>
+								</label>
+								<label>
+									<select id="audioLang" ng-model="r.audioLang" ng-options="audio.key as audio.value for audio in audios" class="select-area">
+		    						</select>
+								</label>
+								<span class="button">
+									<a class="footer add-btn" ng-class="{'error': r.error, 'loading': r.loading, 'disabled': !r.quality || !r.audioLang}" ng-click="modify(r)">
+										<span class="add-icon">Modifier</span>
+										<span class="load-icon"><i class="fa fa-circle-o-notch fa-spin"></i></span>
+										<span class="error-icon"><i class="fa fa-times" aria-hidden="true"></i></span>
+									</a>
+								</span>
+							</div>
+						</div>
+					</div>
+					<div class="poster-details show-details">
+						<h2>
+							<a ng-href="#!tvshow/{{r.id}}">{{r.name}}</a>
+						</h2>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</section>
+</div>

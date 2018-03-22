@@ -1,0 +1,60 @@
+<div id="account-container">
+		<div class="banner">
+			<img id="tvshow-banner" ng-src="{{account.bannerUrl}}"/>
+			<div class="overlay"></div>
+			<div class="banner-wrapper">
+				<h1>
+					{{account.username}}
+					<span class="button">
+						<a  class="btn-config button" ng-click="edit()"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+						<a class="btn-config button" ng-click="delete()"><i class="fa fa-trash" aria-hidden="true"></i></a>
+					</span>
+				</h1>
+
+				<div class="tvshow-config">
+					<span class="since">
+						{{ account.inscriptionDate | date: 'dd/MM/yyyy' }} - {{ account.nbShows }} séries suivies
+					</span>
+				</div>
+			</div>
+		</div>
+		<div id="account-stat">
+			<div class="pie-chart">
+				<canvas id="byGenre" width="400" height="400" class="chart chart-doughnut" chart-data="genre.data" chart-labels="genre.labels" chart-options="options"></canvas>
+			</div>
+			<div class="pie-chart">
+				<canvas id="byNetwork" width="400" height="400" class="chart chart-doughnut" chart-data="network.data" chart-labels="network.labels" chart-options="options"></canvas>
+			</div>
+			<!-- <form name="form" ng-submit="changePassword()">
+				<div>
+					<label for="username">Utilisateur</label> 
+					<input type="text" name="username" ng-model="user.name" disabled="disabled">
+				</div>
+				<div>
+					<label for="password">Mot de passe actuel</label>
+					<input type="password" name="password" ng-model="password" required>
+					<div ng-messages="form.password.$dirty && form.password.$error" class="error">
+              			<div ng-message="required">Le mot de passe est obligatoire</div>
+            		</div>
+				</div>
+				<div>
+					<label for="password">Nouveau mot de passe</label>
+					<input type="password" name="newPassword" ng-model="newPassword" required>
+					<div ng-messages="form.newPassword.$dirty && form.newPassword.$error" class="error">
+              			<div ng-message="required">Le mot de passe est obligatoire</div>
+            		</div>
+				</div>
+				<div>
+					<label for="password">Confirmer le mot de passe</label>
+					<input type="password" name="confirmPassword" ng-model="confirmPassword" required password-match="form.newPassword.$viewValue" >
+					<div ng-messages="form.confirmPassword.$dirty && form.confirmPassword.$error" class="error">
+						<div ng-message="required">Le mot de passe est obligatoire</div>
+              			<div ng-message="passwordMatch">Les mots de passe ne sont pas identiques</div>
+            		</div>
+				</div>
+				<div class="button button-password">
+					<input type="submit" class="change-password" value="Modifier">
+				</div>
+  			</form>-->
+		</div>
+</div>

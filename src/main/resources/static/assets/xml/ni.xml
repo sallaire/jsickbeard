@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<r type=".">
+	<l type="V">2.0</l>
+	<RTA type="B">T</RTA>
+	<RTAAUTSAS type=".">
+		<l type="V">2.0</l>
+		<PRM type=".">
+			<PLG type=".">
+				<GUIINF type="S">0000000000</GUIINF>
+				<GUISUP type="S">1003733399</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">1003733401</GUIINF>
+				<GUISUP type="S">1005719000</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">1005719002</GUIINF>
+				<GUISUP type="S">1009618078</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">1009618080</GUIINF>
+				<GUISUP type="S">1009618090</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">1009618092</GUIINF>
+				<GUISUP type="S">1009618413</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">1009618415</GUIINF>
+				<GUISUP type="S">1027800189</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">1027800191</GUIINF>
+				<GUISUP type="S">1027800587</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">1027800589</GUIINF>
+				<GUISUP type="S">1027800596</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">1027800598</GUIINF>
+				<GUISUP type="S">1027800857</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">1027800859</GUIINF>
+				<GUISUP type="S">1189900149</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">1189900151</GUIINF>
+				<GUISUP type="S">1469038840</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">1469038842</GUIINF>
+				<GUISUP type="S">1486084032</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">1486084097</GUIINF>
+				<GUISUP type="S">1494038833</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">1494038835</GUIINF>
+				<GUISUP type="S">1607334418</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">1607334420</GUIINF>
+				<GUISUP type="S">1607334463</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">1607334465</GUIINF>
+				<GUISUP type="S">1654800341</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">1654800344</GUIINF>
+				<GUISUP type="S">1751038830</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">1751038832</GUIINF>
+				<GUISUP type="S">3004714027</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">3004714029</GUIINF>
+				<GUISUP type="S">3006610003</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">3006610005</GUIINF>
+				<GUISUP type="S">3006610151</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">3006610160</GUIINF>
+				<GUISUP type="S">3006610211</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">3006610220</GUIINF>
+				<GUISUP type="S">3006610661</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">3006610663</GUIINF>
+				<GUISUP type="S">3006610665</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">3006610670</GUIINF>
+				<GUISUP type="S">3006610830</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">3006610842</GUIINF>
+				<GUISUP type="S">3006610930</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">3006610932</GUIINF>
+				<GUISUP type="S">3008733899</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">3008733901</GUIINF>
+				<GUISUP type="S">3056819904</GUISUP>
+			</PLG>
+			<PLG type=".">
+				<GUIINF type="S">3056819906</GUIINF>
+				<GUISUP type="S">9999999999</GUISUP>
+			</PLG>
+		</PRM>
+		<RESS type=".">
+			<PCO2P01V type=".">
+				<AUTORISE type="S">O</AUTORISE>
+			</PCO2P01V>
+			<PCO2G01A type=".">
+				<AUTORISE type="S">O</AUTORISE>
+			</PCO2G01A>
+			<PCO2G01V type=".">
+				<AUTORISE type="S">N</AUTORISE>
+			</PCO2G01V>
+			<PCO2G02V type=".">
+				<AUTORISE type="S">N</AUTORISE>
+			</PCO2G02V>
+			<PCO2G03V type=".">
+				<AUTORISE type="S">N</AUTORISE>
+			</PCO2G03V>
+			<PCO2G04V type=".">
+				<AUTORISE type="S">N</AUTORISE>
+			</PCO2G04V>
+			<PCO2G05V type=".">
+				<AUTORISE type="S">N</AUTORISE>
+			</PCO2G05V>
+			<PCO2G06V type=".">
+				<AUTORISE type="S">N</AUTORISE>
+			</PCO2G06V>
+		</RESS>
+	</RTAAUTSAS>
+</r>

@@ -1,0 +1,63 @@
+
+<div id="search-results-container">
+	<section id="shows-results">
+		<h1>Séries TV correspondant à  "{{name}}"</h1>
+		<ul
+			class="search-results-list shows-results-list posters-list list-unstyled list-inline">
+
+			<li ng-repeat="r in results">
+				<div class="poster-actions action">
+					<a ng-href="" class="follow-btn"
+						ng-class="{followed: r.followed}" title="Ajouter à mes séries" ng-click="r.addShow=true">
+						<span class="follow-icon"><i class="fa fa-plus-circle" aria-hidden="true"></i></span>
+						<span class="followed-icon"><i class="fa fa-check-circle" aria-hidden="true"></i></span>
+					</a>
+				</div>
+				<div class="image-crop" ng-mouseenter="details=true" ng-mouseleave="details=false">
+					<a ng-href="#!tvshow/{{r.id}}" ng-show="!r.addShow" ng-class="{'inactive': !r.followed}">
+						<img ng-src="{{r.poster?r.poster:'assets/img/no-image.png'}}" alt="{{r.name}}">
+						<div class="poster-wrapper" ng-show="details">
+							<div class="footer">
+								<span class="year">{{r.firstAired | date: 'yyyy'}}</span><span class="countries" ng-repeat="country in r.countries"><img class="lang" ng-src="assets/img/flag/{{country | lowercase}}.png"/></span>
+							</div>
+						</div>
+					</a>
+					
+					<div class="poster-content" ng-show="r.addShow">
+						<div class="heading">
+							Paramètres
+							<div class="close">
+								<a href="" ng-click="r.addShow=false">
+									×
+								</a>
+							</div>
+						</div>
+						<div class="poster-content-wrapper">
+							<label>
+								<select id="quality" ng-model="r.quality" ng-options="quality.key as quality.value for quality in qualities" class="select-area">
+									<option value="" selected hidden />
+	    						</select>
+							</label>
+							<label>
+								<select id="audioLang" ng-model="r.audioLang" ng-options="audio.key as audio.value for audio in audios" class="select-area">
+	    						</select>
+							</label>
+							<span class="button">
+								<a class="footer add-btn" ng-class="{'error': r.error, 'loading': r.loading, 'disabled': !r.quality || !r.audioLang}" ng-click="add(r)">
+									<span class="add-icon">Ajouter</span>
+									<span class="load-icon"><i class="fa fa-circle-o-notch fa-spin"></i></span>
+									<span class="error-icon"><i class="fa fa-times" aria-hidden="true"></i></span>
+								</a>
+							</span>
+						</div>
+					</div>
+				</div>
+				<div class="poster-details show-details">
+					<h2>
+						<a ng-href="#!tvshow/{{r.id}}" ng-class="{'inactive': !r.followed}">{{r.name}}</a>
+					</h2>
+				</div>
+			</li>
+		</ul>
+	</section>
+</div>

@@ -13,7 +13,5 @@ hs_err_pid*
 /target/
 /node_modules
 /.idea
-/src/main/resources/static/*
-/src/main/js/bower_components
 /lib
 
